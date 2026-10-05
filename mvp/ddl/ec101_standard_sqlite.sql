@@ -75,8 +75,8 @@ CREATE TABLE activity (
   activity_id INTEGER PRIMARY KEY AUTOINCREMENT,
   import_batch_id INTEGER NOT NULL REFERENCES import_batch(import_batch_id),
   activity_no TEXT NOT NULL, activity_name TEXT NOT NULL, activity_type TEXT NOT NULL,
-  promo_method TEXT, start_time TEXT NOT NULL, end_time TEXT NOT NULL,
-  allow_activity_stack TEXT, allow_coupon_stack TEXT, activity_status TEXT NOT NULL,
+  promo_method TEXT, start_time TEXT, end_time TEXT,
+  allow_activity_stack TEXT, allow_coupon_stack TEXT, activity_status TEXT,
   UNIQUE(import_batch_id, activity_no)
 );
 CREATE TABLE activity_rule (
@@ -152,9 +152,15 @@ CREATE TABLE coupon_redemption (
 CREATE TABLE calculation_run (
   calculation_run_id INTEGER PRIMARY KEY AUTOINCREMENT,
   import_batch_id INTEGER NOT NULL REFERENCES import_batch(import_batch_id),
+  calc_date TEXT NOT NULL,
+  release_cutoff TEXT NOT NULL,
   activity_benefit NUMERIC NOT NULL DEFAULT 0,
   coupon_benefit NUMERIC NOT NULL DEFAULT 0,
   total_benefit NUMERIC NOT NULL DEFAULT 0,
+  released_activity_benefit NUMERIC NOT NULL DEFAULT 0,
+  released_coupon_benefit NUMERIC NOT NULL DEFAULT 0,
+  participating_orders INTEGER NOT NULL DEFAULT 0,
+  released_orders INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL
 );
 CREATE TABLE entitlement_check (
@@ -166,13 +172,17 @@ CREATE TABLE entitlement_check (
 CREATE TABLE release_candidate (
   release_candidate_id INTEGER PRIMARY KEY AUTOINCREMENT,
   calculation_run_id INTEGER NOT NULL REFERENCES calculation_run(calculation_run_id),
-  order_id INTEGER NOT NULL REFERENCES order_header(order_id), is_candidate INTEGER NOT NULL, reason TEXT
+  order_id INTEGER NOT NULL REFERENCES order_header(order_id), is_candidate INTEGER NOT NULL, reason TEXT,
+  activity_benefit NUMERIC NOT NULL DEFAULT 0, coupon_benefit NUMERIC NOT NULL DEFAULT 0,
+  UNIQUE(calculation_run_id, order_id)
 );
 CREATE TABLE activity_fee_summary (
   activity_fee_summary_id INTEGER PRIMARY KEY AUTOINCREMENT,
   calculation_run_id INTEGER NOT NULL REFERENCES calculation_run(calculation_run_id),
   activity_id INTEGER NOT NULL REFERENCES activity(activity_id), actual_discount_total NUMERIC NOT NULL DEFAULT 0,
-  gift_cost_total NUMERIC NOT NULL DEFAULT 0
+  gift_cost_total NUMERIC NOT NULL DEFAULT 0,
+  participating_orders INTEGER NOT NULL DEFAULT 0, released_orders INTEGER NOT NULL DEFAULT 0,
+  released_amount NUMERIC NOT NULL DEFAULT 0, pending_orders INTEGER NOT NULL DEFAULT 0, pending_amount NUMERIC NOT NULL DEFAULT 0
 );
 CREATE TABLE calculation_quality_issue (
   calculation_quality_issue_id INTEGER PRIMARY KEY AUTOINCREMENT,

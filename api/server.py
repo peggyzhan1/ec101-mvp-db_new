@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, unquote, urlparse
 
-from mvp.import_service import ArchiveMetadata, ImportValidationError, create_database, import_snapshot
+from mvp.import_service import ArchiveMetadata, ImportValidationError, create_database, import_snapshot, run_calculation
 from mvp.standard_workbook import read_standard_workbook
 
 
@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = ROOT / "mvp" / "ec101_standard.db"
 
 
-def import_uploaded_files(db_path: Path, workbook_bytes: bytes, source_bytes: bytes | None = None, source_name: str = "sources.zip") -> dict[str, Any]:
+def import_uploaded_files(db_path: Path, workbook_bytes: bytes, source_bytes: bytes | None = None, source_name: str = "sources.zip", calc_date: str | None = None) -> dict[str, Any]:
     """Import one uploaded standard workbook and archive metadata without storing raw rows."""
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="ec101-import-") as directory:
@@ -40,8 +40,9 @@ def import_uploaded_files(db_path: Path, workbook_bytes: bytes, source_bytes: by
         archive_path.write_bytes(source_bytes or b"")
         archive = ArchiveMetadata(str(archive_path), source_hash, len(source_bytes or b""))
         with sqlite3.connect(db_path) as connection:
-            result = import_snapshot(connection, workbook, archive)
-        return {"import_batch_id": result.import_batch_id, "calculation_run_id": result.calculation_run_id, "status": result.status}
+            result = import_snapshot(connection, workbook, archive, calc_date or None)
+            calculation = run_calculation(connection, result.import_batch_id)
+        return {"import_batch_id": result.import_batch_id, "calculation_run_id": result.calculation_run_id, "status": result.status, "calculation": calculation}
 
 
 def _has_table(db_path: Path, table_name: str) -> bool:
@@ -65,6 +66,7 @@ def get_import(db_path: Path, import_batch_id: int) -> dict[str, Any] | None:
         payload = dict(row)
         payload["files"] = [dict(item) for item in connection.execute("SELECT * FROM import_file WHERE import_batch_id=?", (import_batch_id,)).fetchall()]
         payload["calculation"] = next((dict(item) for item in connection.execute("SELECT * FROM calculation_run WHERE import_batch_id=? ORDER BY calculation_run_id DESC LIMIT 1", (import_batch_id,)).fetchall()), None)
+        payload["activities"] = _activity_summaries(connection, payload["calculation"]["calculation_run_id"]) if payload["calculation"] else []
         return payload
 
 
@@ -72,6 +74,63 @@ def get_import_issues(db_path: Path, import_batch_id: int) -> list[dict[str, Any
     with sqlite3.connect(db_path) as connection:
         connection.row_factory = sqlite3.Row
         return [dict(row) for row in connection.execute("SELECT * FROM import_validation_issue WHERE import_batch_id=? ORDER BY issue_id", (import_batch_id,)).fetchall()]
+
+
+def _latest_run_id(connection: sqlite3.Connection, import_batch_id: int) -> int | None:
+    row = connection.execute("SELECT calculation_run_id FROM calculation_run WHERE import_batch_id=? ORDER BY calculation_run_id DESC LIMIT 1", (import_batch_id,)).fetchone()
+    return row[0] if row else None
+
+
+def _activity_summaries(connection: sqlite3.Connection, calculation_run_id: int) -> list[dict[str, Any]]:
+    return [dict(row) for row in connection.execute(
+        """
+        SELECT a.activity_id, a.activity_no, a.activity_name, a.activity_type,
+               s.actual_discount_total, s.participating_orders, s.released_orders, s.released_amount, s.pending_orders, s.pending_amount
+        FROM activity_fee_summary s JOIN activity a ON a.activity_id=s.activity_id
+        WHERE s.calculation_run_id=? ORDER BY a.activity_id
+        """,
+        (calculation_run_id,),
+    ).fetchall()]
+
+
+def get_import_release(db_path: Path, import_batch_id: int, params: dict[str, Any]) -> dict[str, Any] | None:
+    """Per-order release list for one import batch: 哪些参与单可释放、哪些不可释放及原因。"""
+    try:
+        limit = min(max(int(params.get("limit", 200)), 1), 2000)
+        offset = max(int(params.get("offset", 0)), 0)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("limit and offset must be integers") from exc
+    candidate = str(params.get("candidate", "")).strip()
+    search = str(params.get("q", "")).strip()
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        run_id = _latest_run_id(connection, import_batch_id)
+        if run_id is None:
+            return None
+        clauses, values = ["rc.calculation_run_id=?"], [run_id]
+        if candidate in ("0", "1"):
+            clauses.append("rc.is_candidate=?"); values.append(int(candidate))
+        if search:
+            clauses.append("(oh.order_no LIKE ? OR oh.customer_name LIKE ? OR oh.customer_no LIKE ?)"); values.extend([f"%{search}%"] * 3)
+        where = " WHERE " + " AND ".join(clauses)
+        base = """
+            FROM release_candidate rc
+            JOIN order_header oh ON oh.order_id=rc.order_id
+        """
+        total = connection.execute(f"SELECT COUNT(*) {base}{where}", values).fetchone()[0]
+        rows = [dict(row) for row in connection.execute(
+            f"""
+            SELECT rc.order_id, oh.order_no, oh.order_time, oh.order_status, oh.customer_no, oh.customer_name, oh.salesperson,
+                   rc.is_candidate, rc.reason, rc.activity_benefit, rc.coupon_benefit,
+                   (SELECT GROUP_CONCAT(a.activity_name, ';') FROM activity_execution ae JOIN activity a ON a.activity_id=ae.activity_id WHERE ae.order_id=rc.order_id) AS activities,
+                   (SELECT GROUP_CONCAT(cr.coupon_no, ';') FROM coupon_redemption cr WHERE cr.order_id=rc.order_id) AS coupons
+            {base}{where}
+            ORDER BY rc.is_candidate DESC, oh.order_time, oh.order_no LIMIT ? OFFSET ?
+            """,
+            [*values, limit, offset],
+        ).fetchall()]
+        calculation = dict(connection.execute("SELECT * FROM calculation_run WHERE calculation_run_id=?", (run_id,)).fetchone())
+    return {"import_batch_id": import_batch_id, "calculation": calculation, "rows": rows, "total": total, "limit": limit, "offset": offset}
 
 
 class NotFoundError(KeyError):
@@ -365,7 +424,8 @@ def make_handler(db_path: Path):
                 source_field = form["sources"] if "sources" in form else None
                 source_bytes = source_field.file.read() if source_field is not None and getattr(source_field, "file", None) else None
                 source_name = getattr(source_field, "filename", None) or "sources.zip"
-                payload = import_uploaded_files(db_path, workbook_field.file.read(), source_bytes, source_name)
+                calc_date = form.getfirst("calc_date", "") if "calc_date" in form else ""
+                payload = import_uploaded_files(db_path, workbook_field.file.read(), source_bytes, source_name, str(calc_date or "").strip() or None)
                 _json(self, 201, payload)
             except ImportValidationError as exc:
                 _json(self, 422, {"error": "validation_failed", "issues": [issue.__dict__ for issue in exc.issues]})
@@ -394,6 +454,11 @@ def make_handler(db_path: Path):
                         _json(self, 404, {"error": "not_found"})
                     else:
                         _json(self, 200, {"rows": get_import_issues(db_path, import_batch_id)})
+                    return
+                if len(parts) in (3, 4) and ((len(parts) == 4 and parts[:2] == ["api", "imports"]) or (len(parts) == 3 and parts[0] == "imports")) and parts[-1] == "release":
+                    query = {key: values[-1] for key, values in parse_qs(parsed.query).items()}
+                    release = get_import_release(db_path, int(parts[-2]), query)
+                    _json(self, 200, release) if release is not None else _json(self, 404, {"error": "not_found"})
                     return
                 if len(parts) >= 3 and parts[:2] == ["api", "business-data"]:
                     object_name = parts[2]

@@ -3,10 +3,18 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from api.server import get_import, get_import_release
 from converters.common import ConversionRequest
 from converters.kuaima import convert_kuaima
-from mvp.import_service import ArchiveMetadata, create_database, import_snapshot
+from desktop_converter.app import build_conversion_request, run_conversion
+from mvp.import_service import ArchiveMetadata, create_database, import_snapshot, run_calculation
 from mvp.standard_workbook import read_standard_workbook
+
+
+ROOT = Path(__file__).resolve().parents[2]
+PILOT = ROOT / "快马-兴路强-试点"
+# 旧 MVP 库（mvp/ec101_mvp.db，核算日 2026-09-22）已对账的兴路强数字，是标准链路的验收基线。
+BASELINE_CALC_DATE = "2026-09-22"
 
 
 class StandardPipelineTests(unittest.TestCase):
@@ -28,6 +36,58 @@ class StandardPipelineTests(unittest.TestCase):
                 imported = import_snapshot(connection, workbook, ArchiveMetadata(str(result.sources_zip_path), "hash", result.sources_zip_path.stat().st_size))
                 self.assertEqual(imported.status, "calculated")
                 self.assertEqual(connection.execute("SELECT COUNT(*) FROM order_header").fetchone()[0], 1)
+
+
+class KuaimaBaselineRegressionTests(unittest.TestCase):
+    """Desktop-tool style requests on the real pilot files must reproduce the audited MVP numbers."""
+
+    def _import(self, root: Path, files: dict[str, list[Path]]):
+        request = build_conversion_request("快马", "深圳市兴路强商贸有限公司", files, root / "out")
+        result = run_conversion(request)
+        workbook = read_standard_workbook(result.workbook_path)
+        db_path = root / "ec101.db"
+        create_database(db_path)
+        with sqlite3.connect(db_path) as connection:
+            imported = import_snapshot(connection, workbook, ArchiveMetadata(str(result.sources_zip_path), "hash", 1), calc_date=BASELINE_CALC_DATE)
+            calculation = run_calculation(connection, imported.import_batch_id)
+        return db_path, imported.import_batch_id, calculation
+
+    def test_manjian_matches_audited_baseline(self):
+        with tempfile.TemporaryDirectory() as directory:
+            db_path, batch_id, calculation = self._import(Path(directory), {
+                "客户": [PILOT / "User-202609221722.xlsx"],
+                "商品": [PILOT / "Product-202609141043.xlsx"],
+                "订单": [PILOT / "满减/快马-兴路强-满减-订单明细-20260831-20260917.xls"],
+                "活动": [PILOT / "满减/快马-兴路强-满减-活动明细-20260831-20260917.xls"],
+                "优惠券": [PILOT / "优惠券/快马-兴路强-优惠券-test1优惠券-活动明细-20260909-20260912.xls"],
+            })
+            detail = get_import(db_path, batch_id)
+            pending = get_import_release(db_path, batch_id, {"candidate": "0"})
+        self.assertEqual(calculation["release_cutoff"], "2026-09-20 00:00:00")
+        self.assertEqual(calculation["activity_benefit"], 2040)
+        self.assertEqual(calculation["coupon_benefit"], 200)
+        self.assertEqual((calculation["participating_orders"], calculation["released_orders"]), (136, 133))
+        self.assertEqual(calculation["released_activity_benefit"], 1995)
+        self.assertEqual(len(detail["activities"]), 1)
+        activity = detail["activities"][0]
+        self.assertEqual((activity["activity_name"], activity["activity_type"]), ("可口可乐满减", "满减"))
+        self.assertEqual((activity["participating_orders"], activity["released_orders"], activity["released_amount"], activity["pending_orders"], activity["pending_amount"]), (136, 133, 1995, 3, 45))
+        self.assertEqual(pending["total"], 3)
+        self.assertEqual({row["reason"] for row in pending["rows"]}, {"订单状态=部分发货"})
+
+    def test_manzeng_matches_audited_baseline(self):
+        with tempfile.TemporaryDirectory() as directory:
+            db_path, batch_id, calculation = self._import(Path(directory), {
+                "客户": [PILOT / "User-202609221722.xlsx"],
+                "商品": [PILOT / "Product-202609141043.xlsx"],
+                "订单": [PILOT / "满赠/快马-兴路强-满赠-订单明细-20260819-20260831.xls"],
+                "活动": [PILOT / "满赠/快马-兴路强-满赠-活动明细-20260819-20260831.xls"],
+            })
+            detail = get_import(db_path, batch_id)
+        self.assertEqual(calculation["activity_benefit"], 0)
+        self.assertEqual((calculation["participating_orders"], calculation["released_orders"]), (98, 98))
+        activity = detail["activities"][0]
+        self.assertEqual((activity["activity_name"], activity["activity_type"], activity["participating_orders"], activity["released_orders"]), ("满赠优惠", "满赠", 98, 98))
 
 
 if __name__ == "__main__":

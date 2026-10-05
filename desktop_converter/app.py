@@ -2,12 +2,30 @@
 
 from __future__ import annotations
 
-import json
-import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
 
 from converters.common import ConversionRequest
+
+try:  # Tk is only needed for the GUI; request building stays importable on headless machines.
+    import tkinter as tk
+    from tkinter import filedialog, messagebox, ttk
+except ImportError:  # pragma: no cover - exercised only where Tk is absent
+    tk = None  # type: ignore[assignment]
+
+
+# 界面上的中文角色 -> 转换器识别的源文件角色。
+SOURCE_ROLES = {
+    "客户": "customer",
+    "商品": "product",
+    "订单": "order_detail",
+    "活动": "activity_execution",
+    "优惠券": "coupon_redemption",
+    "履约": "fulfillment",
+}
+
+
+def normalize_source_paths(source_paths: dict[str, list[Path]]) -> dict[str, list[Path]]:
+    return {SOURCE_ROLES.get(role, role): list(paths) for role, paths in source_paths.items() if paths}
 
 
 def build_conversion_request(platform: str, dealer_name: str, source_paths: dict[str, list[Path]], output_dir: Path, activity_inputs=None, coupon_inputs=None) -> ConversionRequest:
@@ -15,20 +33,31 @@ def build_conversion_request(platform: str, dealer_name: str, source_paths: dict
         raise ValueError("请选择平台（快马或舟谱）")
     if not dealer_name.strip():
         raise ValueError("请输入经销商")
-    if not any(source_paths.values()):
+    normalized = normalize_source_paths(source_paths)
+    if not normalized:
         raise ValueError("请选择至少一个源文件")
-    return ConversionRequest(platform, dealer_name.strip(), source_paths, activity_inputs or [], coupon_inputs or [], output_dir)
+    return ConversionRequest(platform, dealer_name.strip(), normalized, activity_inputs or [], coupon_inputs or [], output_dir)
+
+
+def run_conversion(request: ConversionRequest):
+    if request.platform == "快马":
+        from converters.kuaima import convert_kuaima
+        return convert_kuaima(request)
+    from converters.zhoupu import convert_zhoupu
+    return convert_zhoupu(request)
 
 
 class DesktopApp:
-    def __init__(self, root: tk.Tk | None = None):
+    def __init__(self, root=None):
+        if tk is None:
+            raise RuntimeError("当前 Python 未安装 tkinter，无法启动桌面界面")
         self.root = root or tk.Tk()
         self.root.title("EC101 标准数据转换工具")
         self.root.geometry("760x520")
         self.platform = tk.StringVar(value="快马")
         self.dealer = tk.StringVar()
         self.output = tk.StringVar()
-        self.files: dict[str, list[Path]] = {"客户": [], "商品": [], "订单": [], "活动": [], "优惠券": [], "履约": []}
+        self.files: dict[str, list[Path]] = {role: [] for role in SOURCE_ROLES}
         self._build()
 
     def _build(self):
@@ -60,10 +89,10 @@ class DesktopApp:
     def convert(self):
         try:
             request = build_conversion_request(self.platform.get(), self.dealer.get(), self.files, Path(self.output.get() or Path.cwd() / "ec101-standard-output"))
-            converter = __import__("converters.kuaima" if request.platform == "快马" else "converters.zhoupu", fromlist=["convert_kuaima", "convert_zhoupu"])
-            result = (converter.convert_kuaima if request.platform == "快马" else converter.convert_zhoupu)(request)
+            result = run_conversion(request)
+            summary = "\n".join(f"{sheet}：{count} 行" for sheet, count in result.counts.items() if count)
             self.status.configure(text=f"转换完成：{result.workbook_path}")
-            messagebox.showinfo("转换完成", f"标准 Excel：{result.workbook_path}\n归档：{result.sources_zip_path}\n报告：{result.report_path}")
+            messagebox.showinfo("转换完成", f"标准 Excel：{result.workbook_path}\n归档：{result.sources_zip_path}\n报告：{result.report_path}\n\n{summary}")
         except Exception as exc:
             self.status.configure(text="转换失败")
             messagebox.showerror("转换失败", str(exc))

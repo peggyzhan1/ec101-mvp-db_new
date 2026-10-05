@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mvp.import_service import ArchiveMetadata, create_database, import_snapshot, validate_import
+from mvp.import_service import ArchiveMetadata, create_database, import_snapshot, run_calculation, validate_import
 from mvp.standard_schema import STANDARD_SHEETS
 from mvp.standard_workbook import StandardWorkbook
 
@@ -72,6 +72,77 @@ class ImportServiceTests(unittest.TestCase):
             row = connection.execute("SELECT activity_benefit, coupon_benefit, total_benefit FROM calculation_run").fetchone()
         self.assertEqual(result.status, "calculated")
         self.assertEqual(row, (15.0, 10.0, 25.0))
+
+    def test_activity_without_schedule_is_accepted(self):
+        workbook = workbook_with_rows(
+            **{
+                "标准客户": [{"客户编号": "C1", "客户名称": "客户"}],
+                "标准商品": [{"商品编号": "P1", "商品名称": "商品"}],
+                "标准订单明细": [{"单据编号": "O1", "下单时间": "2026-01-01 10:00:00", "客户编号": "C1", "商品编号": "P1", "数量": "1", "实付金额": "75", "订单状态": "已完成"}],
+                "标准活动": [{"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "活动类型": "满减"}],
+                "标准活动核销明细": [{"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "客户编号": "C1", "订单号": "O1", "优惠金额": "15"}],
+            }
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            db_path = Path(directory) / "new.db"
+            create_database(db_path)
+            connection = sqlite3.connect(db_path)
+            self.assertEqual(validate_import(workbook, connection), [])
+            import_snapshot(connection, workbook, ArchiveMetadata("sources.zip", "sha256", 10))
+            self.assertEqual(connection.execute("SELECT start_time, activity_status FROM activity").fetchone(), (None, None))
+
+    def test_release_is_decided_per_participating_order_by_status_and_t2(self):
+        workbook = workbook_with_rows(
+            **{
+                "标准客户": [{"客户编号": "C1", "客户名称": "客户"}],
+                "标准商品": [{"商品编号": "P1", "商品名称": "商品"}],
+                "标准订单明细": [
+                    {"单据编号": "OLD-DONE", "下单时间": "2026-09-19 23:59:59", "客户编号": "C1", "商品编号": "P1", "数量": "1", "实付金额": "285", "订单状态": "已完成"},
+                    {"单据编号": "OLD-PARTIAL", "下单时间": "2026-09-10 10:00:00", "客户编号": "C1", "商品编号": "P1", "数量": "1", "实付金额": "285", "订单状态": "部分发货"},
+                    {"单据编号": "NEW-DONE", "下单时间": "2026-09-20 00:00:00", "客户编号": "C1", "商品编号": "P1", "数量": "1", "实付金额": "285", "订单状态": "已完成"},
+                    {"单据编号": "COUPON-ONLY", "下单时间": "2026-09-01 10:00:00", "客户编号": "C1", "商品编号": "P1", "数量": "1", "实付金额": "100", "订单状态": "已完成"},
+                    {"单据编号": "NO-PROMO", "下单时间": "2026-09-01 10:00:00", "客户编号": "C1", "商品编号": "P1", "数量": "1", "实付金额": "100", "订单状态": "已完成"},
+                ],
+                "标准活动": [{"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "活动类型": "满减"}],
+                "标准活动核销明细": [
+                    {"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "客户编号": "C1", "订单号": "OLD-DONE", "优惠金额": "15"},
+                    {"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "客户编号": "C1", "订单号": "OLD-PARTIAL", "优惠金额": "15"},
+                    {"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "客户编号": "C1", "订单号": "NEW-DONE", "优惠金额": "15"},
+                ],
+                "标准优惠券核销明细": [{"优惠券编号": "CP1", "客户编号": "C1", "状态": "已使用", "订单号": "COUPON-ONLY", "优惠金额": "10"}],
+            }
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            db_path = Path(directory) / "new.db"
+            create_database(db_path)
+            connection = sqlite3.connect(db_path)
+            import_snapshot(connection, workbook, ArchiveMetadata("sources.zip", "sha256", 10), calc_date="2026-09-22")
+            run = run_calculation(connection, 1)
+            release = {
+                order_no: (is_candidate, reason)
+                for order_no, is_candidate, reason in connection.execute("SELECT oh.order_no, rc.is_candidate, rc.reason FROM release_candidate rc JOIN order_header oh ON oh.order_id=rc.order_id")
+            }
+            summary = connection.execute("SELECT participating_orders, released_orders, released_amount, pending_orders, pending_amount FROM activity_fee_summary").fetchone()
+            issues = connection.execute("SELECT order_no, level FROM calculation_quality_issue ORDER BY order_no").fetchall()
+        self.assertEqual(run["release_cutoff"], "2026-09-20 00:00:00")
+        self.assertEqual(release["OLD-DONE"], (1, "已完成且达到T-2"))
+        self.assertEqual(release["COUPON-ONLY"], (1, "已完成且达到T-2"))
+        self.assertEqual(release["OLD-PARTIAL"], (0, "订单状态=部分发货"))
+        self.assertEqual(release["NEW-DONE"][0], 0)
+        self.assertIn("未达T-2", release["NEW-DONE"][1])
+        self.assertNotIn("NO-PROMO", release)
+        self.assertEqual(summary, (3, 1, 15.0, 2, 30.0))
+        self.assertEqual((run["participating_orders"], run["released_orders"], run["released_activity_benefit"], run["released_coupon_benefit"]), (4, 2, 15.0, 10.0))
+        self.assertEqual(issues, [("NEW-DONE", "提示"), ("OLD-PARTIAL", "提示")])
+
+    def test_calc_date_must_be_iso_date(self):
+        workbook = workbook_with_rows()
+        with tempfile.TemporaryDirectory() as directory:
+            db_path = Path(directory) / "new.db"
+            create_database(db_path)
+            connection = sqlite3.connect(db_path)
+            with self.assertRaises(ValueError):
+                import_snapshot(connection, workbook, ArchiveMetadata("sources.zip", "sha256", 10), calc_date="2026/09/22")
 
 
 if __name__ == "__main__":

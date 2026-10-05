@@ -26,6 +26,17 @@ class DesktopRequestTests(unittest.TestCase):
             self.assertEqual(request.dealer_name, "经销商")
             self.assertEqual(request.source_paths["orders"], [source])
 
+    def test_ui_role_labels_are_mapped_to_converter_roles(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            files = {label: [root / f"{label}.xlsx"] for label in ("客户", "商品", "订单", "活动", "优惠券")}
+            for paths in files.values():
+                paths[0].touch()
+            request = build_conversion_request("快马", "经销商", {**files, "履约": []}, root / "out")
+            self.assertEqual(set(request.source_paths), {"customer", "product", "order_detail", "activity_execution", "coupon_redemption"})
+            self.assertEqual(request.source_paths["order_detail"], files["订单"])
+            self.assertEqual(request.source_paths["activity_execution"], files["活动"])
+
 
 if __name__ == "__main__":
     unittest.main()

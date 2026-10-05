@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import zipfile
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -95,14 +96,15 @@ def finish_conversion(request: ConversionRequest, tables: dict[str, list[dict[st
     source_files = [path for paths in request.source_paths.values() for path in paths]
     archive_path = request.output_dir / "sources.zip"
     archive_hash = build_sources_archive(source_files, archive_path)
+    order_dates = sorted(str(row.get("下单时间", ""))[:10] for row in tables.get("标准订单明细", ()) if row.get("下单时间"))
     manifest = {
         "模板版本": "v1",
         "转换工具版本": "v1",
         "经销商名称": request.dealer_name,
         "平台名称": request.platform,
-        "数据开始日期": "",
-        "数据结束日期": "",
-        "生成时间": "",
+        "数据开始日期": order_dates[0] if order_dates else "",
+        "数据结束日期": order_dates[-1] if order_dates else "",
+        "生成时间": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
     workbook_path = request.output_dir / "standard.xlsx"
     write_standard_workbook(workbook_path, tables, manifest)
