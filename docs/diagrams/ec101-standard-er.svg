@@ -1,639 +1,639 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 2520 2320" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="2520" height="2320" viewBox="0 0 2520 2320" role="img" aria-labelledby="title desc">
 <title id="title">EC101 标准库 ER 图</title>
 <desc id="desc">根据 mvp/ddl/ec101_standard_sqlite.sql 与 import_service.py 生成。实线=外键，虚线=同一编号文本关联。</desc>
 <defs><filter id="shadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.12"/></filter></defs>
-<rect width="100%" height="100%" fill="#ffffff"/>
-<text x="80" y="36" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#102A43">EC101 标准导入库 ER 图</text>
-<text x="80" y="58" font-family="Arial, sans-serif" font-size="13" fill="#627D98">来源：mvp/ddl/ec101_standard_sqlite.sql · 实线 FK · 虚线 客户编号/商品编号/单据编号文本关联 · ← 表示来自标准 Excel</text>
+<rect width="2520" height="2320" fill="#ffffff"/>
+<text x="80" y="36" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="24" font-weight="700" fill="#102A43">EC101 标准导入库 ER 图</text>
+<text x="80" y="58" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="13" fill="#627D98">来源：mvp/ddl/ec101_standard_sqlite.sql · 实线 FK · 虚线 客户编号/商品编号/单据编号文本关联 · ← 表示来自标准 Excel</text>
 <path d="M 232.5 290.0 L 232.5 380.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="221.5" y="326.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="232.5" y="339.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="232.5" y="339.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 385.0 185.0 L 460.0 459.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="411.5" y="313.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="422.5" y="326.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="422.5" y="326.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 232.5 290.0 L 192.5 620.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="201.5" y="446.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="212.5" y="459.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="212.5" y="459.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 232.5 290.0 L 532.5 620.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="371.5" y="446.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="382.5" y="459.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="382.5" y="459.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 385.0 185.0 L 720.0 725.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="541.5" y="446.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="552.5" y="459.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="552.5" y="459.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 385.0 185.0 L 1060.0 725.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="711.5" y="446.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="722.5" y="459.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="722.5" y="459.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 385.0 185.0 L 1400.0 712.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="881.5" y="439.5" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="892.5" y="452.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="892.5" y="452.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 385.0 185.0 L 1740.0 712.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="1051.5" y="439.5" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="1062.5" y="452.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="1062.5" y="452.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 385.0 185.0 L 720.0 1632.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="541.5" y="899.5" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="552.5" y="912.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="552.5" y="912.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 232.5 290.0 L 192.5 1960.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="201.5" y="1116.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="212.5" y="1129.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="212.5" y="1129.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 460.0 146.0 L 345.0 725.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="391.5" y="426.5" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="402.5" y="439.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="402.5" y="439.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 612.5 212.0 L 532.5 620.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="561.5" y="407.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="572.5" y="420.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="572.5" y="420.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 612.5 212.0 L 872.5 620.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="731.5" y="407.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="742.5" y="420.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="742.5" y="420.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 872.5 830.0 L 872.5 1100.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="861.5" y="956.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="872.5" y="969.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="872.5" y="969.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 720.0 725.0 L 685.0 1632.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="691.5" y="1169.5" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="702.5" y="1182.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="702.5" y="1182.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 872.5 830.0 L 872.5 1540.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="861.5" y="1176.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="872.5" y="1189.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="872.5" y="1189.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 1212.5 830.0 L 1212.5 1100.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="1201.5" y="956.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="1212.5" y="969.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="1212.5" y="969.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 1365.0 725.0 L 1400.0 1179.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="1371.5" y="943.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="1382.5" y="956.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="1382.5" y="956.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 1365.0 725.0 L 1740.0 1179.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="1541.5" y="943.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="1552.5" y="956.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="1552.5" y="956.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 1060.0 725.0 L 685.0 1632.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="861.5" y="1169.5" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="872.5" y="1182.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="872.5" y="1182.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 1212.5 830.0 L 1212.5 1960.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="1201.5" y="1386.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="1212.5" y="1399.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="1212.5" y="1399.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 1552.5 804.0 L 1552.5 1540.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="1541.5" y="1163.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="1552.5" y="1176.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:1</text>
+<text x="1552.5" y="1176.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:1</text>
 <path d="M 1705.0 712.0 L 1740.0 1619.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="1711.5" y="1156.5" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="1722.5" y="1169.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:1</text>
+<text x="1722.5" y="1169.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:1</text>
 <path d="M 1705.0 712.0 L 2080.0 1606.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="1881.5" y="1150.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="1892.5" y="1163.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="1892.5" y="1163.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 345.0 2052.0 L 380.0 2039.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="351.5" y="2036.5" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="362.5" y="2049.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="362.5" y="2049.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 345.0 2052.0 L 720.0 2039.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="521.5" y="2036.5" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="532.5" y="2049.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="532.5" y="2049.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 345.0 2052.0 L 1060.0 2052.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="691.5" y="2043.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="702.5" y="2056.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="702.5" y="2056.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 345.0 2052.0 L 1400.0 2039.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="861.5" y="2036.5" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="872.5" y="2049.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="872.5" y="2049.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 720.0 725.0 L 685.0 2039.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="691.5" y="1373.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="702.5" y="1386.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="702.5" y="1386.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 872.5 830.0 L 872.5 1960.0" stroke="#9FB3C8" stroke-width="1.4" fill="none"/>
 <rect x="861.5" y="1386.0" width="22.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="872.5" y="1399.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">1:N</text>
+<text x="872.5" y="1399.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">1:N</text>
 <path d="M 345.0 725.0 L 720.0 725.0" stroke="#B4235A" stroke-width="1.4" fill="none" stroke-dasharray="6 4"/>
 <rect x="518.5" y="716.0" width="28.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="532.5" y="729.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">客户编号</text>
+<text x="532.5" y="729.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">客户编号</text>
 <path d="M 685.0 725.0 L 720.0 1205.0" stroke="#B4235A" stroke-width="1.4" fill="none" stroke-dasharray="6 4"/>
 <rect x="688.5" y="956.0" width="28.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="702.5" y="969.0" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">商品编号</text>
+<text x="702.5" y="969.0" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">商品编号</text>
 <path d="M 1025.0 725.0 L 1740.0 712.0" stroke="#B4235A" stroke-width="1.4" fill="none" stroke-dasharray="6 4"/>
 <rect x="1368.5" y="709.5" width="28.0" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>
-<text x="1382.5" y="722.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">单据编号</text>
+<text x="1382.5" y="722.5" text-anchor="middle" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">单据编号</text>
 <g filter="url(#shadow)"><rect x="80" y="80" width="305" height="210" rx="8" fill="#ffffff" stroke="#7851A9" stroke-width="1.5"/><rect x="80" y="80" width="305" height="42" rx="8" fill="#F4EEFF"/><rect x="80" y="114" width="305" height="8" fill="#F4EEFF"/>
-<text x="94" y="107" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#7851A9">导入批次</text><text x="373" y="106" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">import_batch</text>
+<text x="94" y="107" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#7851A9">导入批次</text><text x="373" y="106" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">import_batch</text>
 <rect x="81" y="122" width="303" height="26" fill="#F8FAFC"/>
-<text x="90" y="139" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="158" y="139" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="298" y="139" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#7851A9">PK</text>
-<text x="377" y="139" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">一次导入</text>
-<text x="90" y="165" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="158" y="165" font-family="Arial, sans-serif" font-size="11" fill="#102A43">snapshot_key</text>
-<text x="298" y="165" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#7851A9">UK</text>
-<text x="377" y="165" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">系统 UUID</text>
+<text x="90" y="139" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="158" y="139" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="298" y="139" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#7851A9">PK</text>
+<text x="377" y="139" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">一次导入</text>
+<text x="90" y="165" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="158" y="165" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">snapshot_key</text>
+<text x="298" y="165" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#7851A9">UK</text>
+<text x="377" y="165" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">系统 UUID</text>
 <rect x="81" y="174" width="303" height="26" fill="#F8FAFC"/>
-<text x="90" y="191" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="158" y="191" font-family="Arial, sans-serif" font-size="11" fill="#102A43">dealer_name / platform_name</text>
-<text x="377" y="191" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 导入清单</text>
-<text x="90" y="217" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="158" y="217" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coverage_start / end</text>
-<text x="377" y="217" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 数据起止日期</text>
+<text x="90" y="191" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="158" y="191" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">dealer_name / platform_name</text>
+<text x="377" y="191" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 导入清单</text>
+<text x="90" y="217" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="158" y="217" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coverage_start / end</text>
+<text x="377" y="217" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 数据起止日期</text>
 <rect x="81" y="226" width="303" height="26" fill="#F8FAFC"/>
-<text x="90" y="243" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="158" y="243" font-family="Arial, sans-serif" font-size="11" fill="#102A43">template / converter</text>
-<text x="377" y="243" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 版本</text>
-<text x="90" y="269" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="158" y="269" font-family="Arial, sans-serif" font-size="11" fill="#102A43">is_current</text>
-<text x="377" y="269" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">当前有效=1</text>
+<text x="90" y="243" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="158" y="243" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">template / converter</text>
+<text x="377" y="243" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 版本</text>
+<text x="90" y="269" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="158" y="269" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">is_current</text>
+<text x="377" y="269" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">当前有效=1</text>
 </g>
 <g filter="url(#shadow)"><rect x="460" y="80" width="305" height="132" rx="8" fill="#ffffff" stroke="#167E6D" stroke-width="1.5"/><rect x="460" y="80" width="305" height="42" rx="8" fill="#E8F5F2"/><rect x="460" y="114" width="305" height="8" fill="#E8F5F2"/>
-<text x="474" y="107" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#167E6D">经销商·平台</text><text x="753" y="106" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">dealer_platform</text>
+<text x="474" y="107" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#167E6D">经销商·平台</text><text x="753" y="106" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">dealer_platform</text>
 <rect x="461" y="122" width="303" height="26" fill="#F8FAFC"/>
-<text x="470" y="139" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="538" y="139" font-family="Arial, sans-serif" font-size="11" fill="#102A43">dealer_platform_id</text>
-<text x="678" y="139" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">PK</text>
-<text x="757" y="139" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">内部主键</text>
-<text x="470" y="165" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="538" y="165" font-family="Arial, sans-serif" font-size="11" fill="#102A43">dealer_name</text>
-<text x="678" y="165" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">UK</text>
-<text x="757" y="165" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 导入清单</text>
+<text x="470" y="139" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="538" y="139" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">dealer_platform_id</text>
+<text x="678" y="139" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">PK</text>
+<text x="757" y="139" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">内部主键</text>
+<text x="470" y="165" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="538" y="165" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">dealer_name</text>
+<text x="678" y="165" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">UK</text>
+<text x="757" y="165" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 导入清单</text>
 <rect x="461" y="174" width="303" height="26" fill="#F8FAFC"/>
-<text x="470" y="191" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="538" y="191" font-family="Arial, sans-serif" font-size="11" fill="#102A43">platform_name</text>
-<text x="678" y="191" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">UK</text>
-<text x="757" y="191" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 导入清单</text>
+<text x="470" y="191" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="538" y="191" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">platform_name</text>
+<text x="678" y="191" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">UK</text>
+<text x="757" y="191" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 导入清单</text>
 </g>
 <g filter="url(#shadow)"><rect x="80" y="380" width="305" height="132" rx="8" fill="#ffffff" stroke="#7851A9" stroke-width="1.5"/><rect x="80" y="380" width="305" height="42" rx="8" fill="#F4EEFF"/><rect x="80" y="414" width="305" height="8" fill="#F4EEFF"/>
-<text x="94" y="407" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#7851A9">导入归档</text><text x="373" y="406" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">import_file</text>
+<text x="94" y="407" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#7851A9">导入归档</text><text x="373" y="406" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">import_file</text>
 <rect x="81" y="422" width="303" height="26" fill="#F8FAFC"/>
-<text x="90" y="439" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="158" y="439" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_file_id</text>
-<text x="298" y="439" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#7851A9">PK</text>
-<text x="377" y="439" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="90" y="465" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="158" y="465" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="298" y="465" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#7851A9">FK</text>
-<text x="377" y="465" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
+<text x="90" y="439" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="158" y="439" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_file_id</text>
+<text x="298" y="439" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#7851A9">PK</text>
+<text x="377" y="439" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="90" y="465" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="158" y="465" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="298" y="465" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#7851A9">FK</text>
+<text x="377" y="465" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
 <rect x="81" y="474" width="303" height="26" fill="#F8FAFC"/>
-<text x="90" y="491" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="158" y="491" font-family="Arial, sans-serif" font-size="11" fill="#102A43">file_path / sha256</text>
-<text x="377" y="491" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">sources.zip 归档</text>
+<text x="90" y="491" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="158" y="491" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">file_path / sha256</text>
+<text x="377" y="491" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">sources.zip 归档</text>
 </g>
 <g filter="url(#shadow)"><rect x="460" y="380" width="305" height="158" rx="8" fill="#ffffff" stroke="#7851A9" stroke-width="1.5"/><rect x="460" y="380" width="305" height="42" rx="8" fill="#F4EEFF"/><rect x="460" y="414" width="305" height="8" fill="#F4EEFF"/>
-<text x="474" y="407" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#7851A9">导入校验问题</text><text x="753" y="406" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">import_validation_issue</text>
+<text x="474" y="407" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#7851A9">导入校验问题</text><text x="753" y="406" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">import_validation_issue</text>
 <rect x="461" y="422" width="303" height="26" fill="#F8FAFC"/>
-<text x="470" y="439" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="538" y="439" font-family="Arial, sans-serif" font-size="11" fill="#102A43">issue_id</text>
-<text x="678" y="439" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#7851A9">PK</text>
-<text x="757" y="439" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="470" y="465" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="538" y="465" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="678" y="465" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#7851A9">FK</text>
-<text x="757" y="465" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch，可空</text>
+<text x="470" y="439" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="538" y="439" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">issue_id</text>
+<text x="678" y="439" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#7851A9">PK</text>
+<text x="757" y="439" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="470" y="465" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="538" y="465" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="678" y="465" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#7851A9">FK</text>
+<text x="757" y="465" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch，可空</text>
 <rect x="461" y="474" width="303" height="26" fill="#F8FAFC"/>
-<text x="470" y="491" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="538" y="491" font-family="Arial, sans-serif" font-size="11" fill="#102A43">code / message</text>
-<text x="757" y="491" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">校验失败原因</text>
-<text x="470" y="517" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT/INT</text>
-<text x="538" y="517" font-family="Arial, sans-serif" font-size="11" fill="#102A43">sheet_name / row_number</text>
-<text x="757" y="517" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">出错的工作表行</text>
+<text x="470" y="491" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="538" y="491" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">code / message</text>
+<text x="757" y="491" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">校验失败原因</text>
+<text x="470" y="517" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT/INT</text>
+<text x="538" y="517" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">sheet_name / row_number</text>
+<text x="757" y="517" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">出错的工作表行</text>
 </g>
 <g filter="url(#shadow)"><rect x="40" y="620" width="305" height="210" rx="8" fill="#ffffff" stroke="#167E6D" stroke-width="1.5"/><rect x="40" y="620" width="305" height="42" rx="8" fill="#E8F5F2"/><rect x="40" y="654" width="305" height="8" fill="#E8F5F2"/>
-<text x="54" y="647" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#167E6D">客户</text><text x="333" y="646" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">customer</text>
+<text x="54" y="647" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#167E6D">客户</text><text x="333" y="646" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">customer</text>
 <rect x="41" y="662" width="303" height="26" fill="#F8FAFC"/>
-<text x="50" y="679" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="118" y="679" font-family="Arial, sans-serif" font-size="11" fill="#102A43">customer_id</text>
-<text x="258" y="679" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">PK</text>
-<text x="337" y="679" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="50" y="705" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="118" y="705" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="258" y="705" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">FK</text>
-<text x="337" y="705" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
+<text x="50" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="118" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">customer_id</text>
+<text x="258" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">PK</text>
+<text x="337" y="679" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="50" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="118" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="258" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">FK</text>
+<text x="337" y="705" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
 <rect x="41" y="714" width="303" height="26" fill="#F8FAFC"/>
-<text x="50" y="731" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="118" y="731" font-family="Arial, sans-serif" font-size="11" fill="#102A43">dealer_platform_id</text>
-<text x="258" y="731" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">FK</text>
-<text x="337" y="731" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ dealer_platform</text>
-<text x="50" y="757" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="118" y="757" font-family="Arial, sans-serif" font-size="11" fill="#102A43">customer_no</text>
-<text x="258" y="757" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">UK</text>
-<text x="337" y="757" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 客户编号</text>
+<text x="50" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="118" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">dealer_platform_id</text>
+<text x="258" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">FK</text>
+<text x="337" y="731" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ dealer_platform</text>
+<text x="50" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="118" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">customer_no</text>
+<text x="258" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">UK</text>
+<text x="337" y="757" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 客户编号</text>
 <rect x="41" y="766" width="303" height="26" fill="#F8FAFC"/>
-<text x="50" y="783" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="118" y="783" font-family="Arial, sans-serif" font-size="11" fill="#102A43">customer_name</text>
-<text x="337" y="783" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 客户名称</text>
-<text x="50" y="809" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="118" y="809" font-family="Arial, sans-serif" font-size="11" fill="#102A43">salesperson</text>
-<text x="337" y="809" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 所属业务员</text>
+<text x="50" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="118" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">customer_name</text>
+<text x="337" y="783" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 客户名称</text>
+<text x="50" y="809" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="118" y="809" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">salesperson</text>
+<text x="337" y="809" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 所属业务员</text>
 </g>
 <g filter="url(#shadow)"><rect x="380" y="620" width="305" height="210" rx="8" fill="#ffffff" stroke="#167E6D" stroke-width="1.5"/><rect x="380" y="620" width="305" height="42" rx="8" fill="#E8F5F2"/><rect x="380" y="654" width="305" height="8" fill="#E8F5F2"/>
-<text x="394" y="647" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#167E6D">商品</text><text x="673" y="646" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">product</text>
+<text x="394" y="647" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#167E6D">商品</text><text x="673" y="646" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">product</text>
 <rect x="381" y="662" width="303" height="26" fill="#F8FAFC"/>
-<text x="390" y="679" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="458" y="679" font-family="Arial, sans-serif" font-size="11" fill="#102A43">product_id</text>
-<text x="598" y="679" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">PK</text>
-<text x="677" y="679" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="390" y="705" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="458" y="705" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="598" y="705" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">FK</text>
-<text x="677" y="705" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
+<text x="390" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="458" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">product_id</text>
+<text x="598" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">PK</text>
+<text x="677" y="679" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="390" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="458" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="598" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">FK</text>
+<text x="677" y="705" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
 <rect x="381" y="714" width="303" height="26" fill="#F8FAFC"/>
-<text x="390" y="731" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="458" y="731" font-family="Arial, sans-serif" font-size="11" fill="#102A43">dealer_platform_id</text>
-<text x="598" y="731" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">FK</text>
-<text x="677" y="731" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ dealer_platform</text>
-<text x="390" y="757" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="458" y="757" font-family="Arial, sans-serif" font-size="11" fill="#102A43">product_no</text>
-<text x="598" y="757" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#167E6D">UK</text>
-<text x="677" y="757" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 商品编号</text>
+<text x="390" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="458" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">dealer_platform_id</text>
+<text x="598" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">FK</text>
+<text x="677" y="731" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ dealer_platform</text>
+<text x="390" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="458" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">product_no</text>
+<text x="598" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#167E6D">UK</text>
+<text x="677" y="757" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 商品编号</text>
 <rect x="381" y="766" width="303" height="26" fill="#F8FAFC"/>
-<text x="390" y="783" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="458" y="783" font-family="Arial, sans-serif" font-size="11" fill="#102A43">product_name</text>
-<text x="677" y="783" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 商品名称</text>
-<text x="390" y="809" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="458" y="809" font-family="Arial, sans-serif" font-size="11" fill="#102A43">brand / spec</text>
-<text x="677" y="809" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 品牌 / 规格</text>
+<text x="390" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="458" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">product_name</text>
+<text x="677" y="783" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 商品名称</text>
+<text x="390" y="809" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="458" y="809" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">brand / spec</text>
+<text x="677" y="809" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 品牌 / 规格</text>
 </g>
 <g filter="url(#shadow)"><rect x="720" y="620" width="305" height="210" rx="8" fill="#ffffff" stroke="#3B67B1" stroke-width="1.5"/><rect x="720" y="620" width="305" height="42" rx="8" fill="#EEF4FF"/><rect x="720" y="654" width="305" height="8" fill="#EEF4FF"/>
-<text x="734" y="647" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#3B67B1">订单头</text><text x="1013" y="646" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">order_header</text>
+<text x="734" y="647" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#3B67B1">订单头</text><text x="1013" y="646" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">order_header</text>
 <rect x="721" y="662" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="679" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="679" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_id</text>
-<text x="938" y="679" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">PK</text>
-<text x="1017" y="679" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="730" y="705" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="705" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="938" y="705" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">FK</text>
-<text x="1017" y="705" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
+<text x="730" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_id</text>
+<text x="938" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">PK</text>
+<text x="1017" y="679" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="730" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="938" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">FK</text>
+<text x="1017" y="705" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
 <rect x="721" y="714" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="731" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="731" font-family="Arial, sans-serif" font-size="11" fill="#102A43">dealer_platform_id</text>
-<text x="938" y="731" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">FK</text>
-<text x="1017" y="731" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ dealer_platform</text>
-<text x="730" y="757" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="798" y="757" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_no</text>
-<text x="938" y="757" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">UK</text>
-<text x="1017" y="757" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 单据编号</text>
+<text x="730" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">dealer_platform_id</text>
+<text x="938" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">FK</text>
+<text x="1017" y="731" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ dealer_platform</text>
+<text x="730" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="798" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_no</text>
+<text x="938" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">UK</text>
+<text x="1017" y="757" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 单据编号</text>
 <rect x="721" y="766" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="783" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="798" y="783" font-family="Arial, sans-serif" font-size="11" fill="#102A43">customer_no</text>
-<text x="1017" y="783" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 客户编号（文本）</text>
-<text x="730" y="809" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="798" y="809" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_time / order_status</text>
-<text x="1017" y="809" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">释放条件看这两列</text>
+<text x="730" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="798" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">customer_no</text>
+<text x="1017" y="783" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 客户编号（文本）</text>
+<text x="730" y="809" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="798" y="809" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_time / order_status</text>
+<text x="1017" y="809" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">释放条件看这两列</text>
 </g>
 <g filter="url(#shadow)"><rect x="1060" y="620" width="305" height="210" rx="8" fill="#ffffff" stroke="#B16A13" stroke-width="1.5"/><rect x="1060" y="620" width="305" height="42" rx="8" fill="#FFF4E6"/><rect x="1060" y="654" width="305" height="8" fill="#FFF4E6"/>
-<text x="1074" y="647" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#B16A13">活动</text><text x="1353" y="646" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">activity</text>
+<text x="1074" y="647" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#B16A13">活动</text><text x="1353" y="646" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">activity</text>
 <rect x="1061" y="662" width="303" height="26" fill="#F8FAFC"/>
-<text x="1070" y="679" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1138" y="679" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_id</text>
-<text x="1278" y="679" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">PK</text>
-<text x="1357" y="679" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="1070" y="705" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1138" y="705" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="1278" y="705" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
-<text x="1357" y="705" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
+<text x="1070" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1138" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_id</text>
+<text x="1278" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">PK</text>
+<text x="1357" y="679" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="1070" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1138" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="1278" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
+<text x="1357" y="705" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
 <rect x="1061" y="714" width="303" height="26" fill="#F8FAFC"/>
-<text x="1070" y="731" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1138" y="731" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_no</text>
-<text x="1278" y="731" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">UK</text>
-<text x="1357" y="731" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 活动编号</text>
-<text x="1070" y="757" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1138" y="757" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_name</text>
-<text x="1357" y="757" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 活动名称</text>
+<text x="1070" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1138" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_no</text>
+<text x="1278" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">UK</text>
+<text x="1357" y="731" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 活动编号</text>
+<text x="1070" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1138" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_name</text>
+<text x="1357" y="757" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 活动名称</text>
 <rect x="1061" y="766" width="303" height="26" fill="#F8FAFC"/>
-<text x="1070" y="783" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1138" y="783" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_type</text>
-<text x="1357" y="783" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 满减 / 满赠</text>
-<text x="1070" y="809" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1138" y="809" font-family="Arial, sans-serif" font-size="11" fill="#102A43">start_time / end_time</text>
-<text x="1357" y="809" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">可空</text>
+<text x="1070" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1138" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_type</text>
+<text x="1357" y="783" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 满减 / 满赠</text>
+<text x="1070" y="809" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1138" y="809" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">start_time / end_time</text>
+<text x="1357" y="809" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">可空</text>
 </g>
 <g filter="url(#shadow)"><rect x="1400" y="620" width="305" height="184" rx="8" fill="#ffffff" stroke="#B4235A" stroke-width="1.5"/><rect x="1400" y="620" width="305" height="42" rx="8" fill="#FDECF2"/><rect x="1400" y="654" width="305" height="8" fill="#FDECF2"/>
-<text x="1414" y="647" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#B4235A">优惠券配置</text><text x="1693" y="646" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">coupon_config</text>
+<text x="1414" y="647" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#B4235A">优惠券配置</text><text x="1693" y="646" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">coupon_config</text>
 <rect x="1401" y="662" width="303" height="26" fill="#F8FAFC"/>
-<text x="1410" y="679" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1478" y="679" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coupon_config_id</text>
-<text x="1618" y="679" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">PK</text>
-<text x="1697" y="679" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="1410" y="705" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1478" y="705" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="1618" y="705" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK</text>
-<text x="1697" y="705" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
+<text x="1410" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1478" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coupon_config_id</text>
+<text x="1618" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">PK</text>
+<text x="1697" y="679" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="1410" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1478" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="1618" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK</text>
+<text x="1697" y="705" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
 <rect x="1401" y="714" width="303" height="26" fill="#F8FAFC"/>
-<text x="1410" y="731" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1478" y="731" font-family="Arial, sans-serif" font-size="11" fill="#102A43">config_no</text>
-<text x="1618" y="731" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">UK</text>
-<text x="1697" y="731" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 配置编号</text>
-<text x="1410" y="757" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1478" y="757" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coupon_name</text>
-<text x="1697" y="757" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 优惠券名称</text>
+<text x="1410" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1478" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">config_no</text>
+<text x="1618" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">UK</text>
+<text x="1697" y="731" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 配置编号</text>
+<text x="1410" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1478" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coupon_name</text>
+<text x="1697" y="757" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 优惠券名称</text>
 <rect x="1401" y="766" width="303" height="26" fill="#F8FAFC"/>
-<text x="1410" y="783" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1478" y="783" font-family="Arial, sans-serif" font-size="11" fill="#102A43">config_status</text>
-<text x="1697" y="783" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 配置状态</text>
+<text x="1410" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1478" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">config_status</text>
+<text x="1697" y="783" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 配置状态</text>
 </g>
 <g filter="url(#shadow)"><rect x="1740" y="620" width="305" height="184" rx="8" fill="#ffffff" stroke="#3B67B1" stroke-width="1.5"/><rect x="1740" y="620" width="305" height="42" rx="8" fill="#EEF4FF"/><rect x="1740" y="654" width="305" height="8" fill="#EEF4FF"/>
-<text x="1754" y="647" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#3B67B1">履约</text><text x="2033" y="646" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">fulfillment</text>
+<text x="1754" y="647" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#3B67B1">履约</text><text x="2033" y="646" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">fulfillment</text>
 <rect x="1741" y="662" width="303" height="26" fill="#F8FAFC"/>
-<text x="1750" y="679" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1818" y="679" font-family="Arial, sans-serif" font-size="11" fill="#102A43">fulfillment_id</text>
-<text x="1958" y="679" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">PK</text>
-<text x="2037" y="679" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="1750" y="705" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1818" y="705" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="1958" y="705" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">FK</text>
-<text x="2037" y="705" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
+<text x="1750" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1818" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">fulfillment_id</text>
+<text x="1958" y="679" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">PK</text>
+<text x="2037" y="679" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="1750" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1818" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="1958" y="705" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">FK</text>
+<text x="2037" y="705" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
 <rect x="1741" y="714" width="303" height="26" fill="#F8FAFC"/>
-<text x="1750" y="731" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1818" y="731" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_no</text>
-<text x="2037" y="731" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 单据编号（文本）</text>
-<text x="1750" y="757" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1818" y="757" font-family="Arial, sans-serif" font-size="11" fill="#102A43">fulfillment_status</text>
-<text x="2037" y="757" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 履约订单状态</text>
+<text x="1750" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1818" y="731" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_no</text>
+<text x="2037" y="731" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 单据编号（文本）</text>
+<text x="1750" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1818" y="757" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">fulfillment_status</text>
+<text x="2037" y="757" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 履约订单状态</text>
 <rect x="1741" y="766" width="303" height="26" fill="#F8FAFC"/>
-<text x="1750" y="783" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1818" y="783" font-family="Arial, sans-serif" font-size="11" fill="#102A43">completed_at</text>
-<text x="2037" y="783" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 完成时间</text>
+<text x="1750" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1818" y="783" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">completed_at</text>
+<text x="2037" y="783" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 完成时间</text>
 </g>
 <g filter="url(#shadow)"><rect x="720" y="1100" width="305" height="210" rx="8" fill="#ffffff" stroke="#3B67B1" stroke-width="1.5"/><rect x="720" y="1100" width="305" height="42" rx="8" fill="#EEF4FF"/><rect x="720" y="1134" width="305" height="8" fill="#EEF4FF"/>
-<text x="734" y="1127" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#3B67B1">订单明细</text><text x="1013" y="1126" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">order_line</text>
+<text x="734" y="1127" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#3B67B1">订单明细</text><text x="1013" y="1126" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">order_line</text>
 <rect x="721" y="1142" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="1159" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="1159" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_line_id</text>
-<text x="938" y="1159" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">PK</text>
-<text x="1017" y="1159" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="730" y="1185" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="1185" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_id</text>
-<text x="938" y="1185" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">FK</text>
-<text x="1017" y="1185" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ order_header</text>
+<text x="730" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_line_id</text>
+<text x="938" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">PK</text>
+<text x="1017" y="1159" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="730" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_id</text>
+<text x="938" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#3B67B1">FK</text>
+<text x="1017" y="1185" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ order_header</text>
 <rect x="721" y="1194" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="1211" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="798" y="1211" font-family="Arial, sans-serif" font-size="11" fill="#102A43">product_no</text>
-<text x="1017" y="1211" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 商品编号（文本）</text>
-<text x="730" y="1237" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="798" y="1237" font-family="Arial, sans-serif" font-size="11" fill="#102A43">quantity / paid_amount</text>
-<text x="1017" y="1237" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 数量 / 实付</text>
+<text x="730" y="1211" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="798" y="1211" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">product_no</text>
+<text x="1017" y="1211" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 商品编号（文本）</text>
+<text x="730" y="1237" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="798" y="1237" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">quantity / paid_amount</text>
+<text x="1017" y="1237" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 数量 / 实付</text>
 <rect x="721" y="1246" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="1263" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="798" y="1263" font-family="Arial, sans-serif" font-size="11" fill="#102A43">discount_amount</text>
-<text x="1017" y="1263" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">展示用，核算不用</text>
-<text x="730" y="1289" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="798" y="1289" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_numbers</text>
-<text x="1017" y="1289" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">展示用</text>
+<text x="730" y="1263" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="798" y="1263" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">discount_amount</text>
+<text x="1017" y="1263" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">展示用，核算不用</text>
+<text x="730" y="1289" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="798" y="1289" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_numbers</text>
+<text x="1017" y="1289" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">展示用</text>
 </g>
 <g filter="url(#shadow)"><rect x="1060" y="1100" width="305" height="184" rx="8" fill="#ffffff" stroke="#B16A13" stroke-width="1.5"/><rect x="1060" y="1100" width="305" height="42" rx="8" fill="#FFF4E6"/><rect x="1060" y="1134" width="305" height="8" fill="#FFF4E6"/>
-<text x="1074" y="1127" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#B16A13">活动规则</text><text x="1353" y="1126" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">activity_rule</text>
+<text x="1074" y="1127" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#B16A13">活动规则</text><text x="1353" y="1126" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">activity_rule</text>
 <rect x="1061" y="1142" width="303" height="26" fill="#F8FAFC"/>
-<text x="1070" y="1159" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1138" y="1159" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_rule_id</text>
-<text x="1278" y="1159" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">PK</text>
-<text x="1357" y="1159" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="1070" y="1185" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1138" y="1185" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_id</text>
-<text x="1278" y="1185" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
-<text x="1357" y="1185" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ activity</text>
+<text x="1070" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1138" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_rule_id</text>
+<text x="1278" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">PK</text>
+<text x="1357" y="1159" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="1070" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1138" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_id</text>
+<text x="1278" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
+<text x="1357" y="1185" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ activity</text>
 <rect x="1061" y="1194" width="303" height="26" fill="#F8FAFC"/>
-<text x="1070" y="1211" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1138" y="1211" font-family="Arial, sans-serif" font-size="11" fill="#102A43">rule_no</text>
-<text x="1278" y="1211" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">UK</text>
-<text x="1357" y="1211" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 规则编号</text>
-<text x="1070" y="1237" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="1138" y="1237" font-family="Arial, sans-serif" font-size="11" fill="#102A43">threshold_value</text>
-<text x="1357" y="1237" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 门槛值</text>
+<text x="1070" y="1211" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1138" y="1211" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">rule_no</text>
+<text x="1278" y="1211" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">UK</text>
+<text x="1357" y="1211" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 规则编号</text>
+<text x="1070" y="1237" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="1138" y="1237" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">threshold_value</text>
+<text x="1357" y="1237" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 门槛值</text>
 <rect x="1061" y="1246" width="303" height="26" fill="#F8FAFC"/>
-<text x="1070" y="1263" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="1138" y="1263" font-family="Arial, sans-serif" font-size="11" fill="#102A43">reduce_amount</text>
-<text x="1357" y="1263" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 立减金额</text>
+<text x="1070" y="1263" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="1138" y="1263" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">reduce_amount</text>
+<text x="1357" y="1263" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 立减金额</text>
 </g>
 <g filter="url(#shadow)"><rect x="1400" y="1100" width="305" height="158" rx="8" fill="#ffffff" stroke="#B16A13" stroke-width="1.5"/><rect x="1400" y="1100" width="305" height="42" rx="8" fill="#FFF4E6"/><rect x="1400" y="1134" width="305" height="8" fill="#FFF4E6"/>
-<text x="1414" y="1127" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#B16A13">活动权益</text><text x="1693" y="1126" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">activity_benefit</text>
+<text x="1414" y="1127" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#B16A13">活动权益</text><text x="1693" y="1126" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">activity_benefit</text>
 <rect x="1401" y="1142" width="303" height="26" fill="#F8FAFC"/>
-<text x="1410" y="1159" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1478" y="1159" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_benefit_id</text>
-<text x="1618" y="1159" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">PK</text>
-<text x="1697" y="1159" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="1410" y="1185" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1478" y="1185" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_id</text>
-<text x="1618" y="1185" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
-<text x="1697" y="1185" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ activity</text>
+<text x="1410" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1478" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_benefit_id</text>
+<text x="1618" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">PK</text>
+<text x="1697" y="1159" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="1410" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1478" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_id</text>
+<text x="1618" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
+<text x="1697" y="1185" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ activity</text>
 <rect x="1401" y="1194" width="303" height="26" fill="#F8FAFC"/>
-<text x="1410" y="1211" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1478" y="1211" font-family="Arial, sans-serif" font-size="11" fill="#102A43">benefit_type</text>
-<text x="1697" y="1211" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 权益类型</text>
-<text x="1410" y="1237" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT/NUM</text>
-<text x="1478" y="1237" font-family="Arial, sans-serif" font-size="11" fill="#102A43">gift_product_no / qty</text>
-<text x="1697" y="1237" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 赠品</text>
+<text x="1410" y="1211" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1478" y="1211" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">benefit_type</text>
+<text x="1697" y="1211" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 权益类型</text>
+<text x="1410" y="1237" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT/NUM</text>
+<text x="1478" y="1237" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">gift_product_no / qty</text>
+<text x="1697" y="1237" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 赠品</text>
 </g>
 <g filter="url(#shadow)"><rect x="1740" y="1100" width="305" height="158" rx="8" fill="#ffffff" stroke="#B16A13" stroke-width="1.5"/><rect x="1740" y="1100" width="305" height="42" rx="8" fill="#FFF4E6"/><rect x="1740" y="1134" width="305" height="8" fill="#FFF4E6"/>
-<text x="1754" y="1127" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#B16A13">活动范围</text><text x="2033" y="1126" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">activity_scope</text>
+<text x="1754" y="1127" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#B16A13">活动范围</text><text x="2033" y="1126" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">activity_scope</text>
 <rect x="1741" y="1142" width="303" height="26" fill="#F8FAFC"/>
-<text x="1750" y="1159" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1818" y="1159" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_scope_id</text>
-<text x="1958" y="1159" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">PK</text>
-<text x="2037" y="1159" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="1750" y="1185" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1818" y="1185" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_id</text>
-<text x="1958" y="1185" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
-<text x="2037" y="1185" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ activity</text>
+<text x="1750" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1818" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_scope_id</text>
+<text x="1958" y="1159" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">PK</text>
+<text x="2037" y="1159" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="1750" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1818" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_id</text>
+<text x="1958" y="1185" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
+<text x="2037" y="1185" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ activity</text>
 <rect x="1741" y="1194" width="303" height="26" fill="#F8FAFC"/>
-<text x="1750" y="1211" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1818" y="1211" font-family="Arial, sans-serif" font-size="11" fill="#102A43">scope_category</text>
-<text x="2037" y="1211" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 范围类别</text>
-<text x="1750" y="1237" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1818" y="1237" font-family="Arial, sans-serif" font-size="11" fill="#102A43">scope_value</text>
-<text x="2037" y="1237" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 范围值</text>
+<text x="1750" y="1211" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1818" y="1211" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">scope_category</text>
+<text x="2037" y="1211" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 范围类别</text>
+<text x="1750" y="1237" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1818" y="1237" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">scope_value</text>
+<text x="2037" y="1237" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 范围值</text>
 </g>
 <g filter="url(#shadow)"><rect x="380" y="1540" width="305" height="184" rx="8" fill="#ffffff" stroke="#B16A13" stroke-width="1.5"/><rect x="380" y="1540" width="305" height="42" rx="8" fill="#FFF4E6"/><rect x="380" y="1574" width="305" height="8" fill="#FFF4E6"/>
-<text x="394" y="1567" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#B16A13">活动核销</text><text x="673" y="1566" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">activity_execution</text>
+<text x="394" y="1567" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#B16A13">活动核销</text><text x="673" y="1566" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">activity_execution</text>
 <rect x="381" y="1582" width="303" height="26" fill="#F8FAFC"/>
-<text x="390" y="1599" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="458" y="1599" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_execution_id</text>
-<text x="598" y="1599" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">PK</text>
-<text x="677" y="1599" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="390" y="1625" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="458" y="1625" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_id</text>
-<text x="598" y="1625" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
-<text x="677" y="1625" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ activity</text>
+<text x="390" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="458" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_execution_id</text>
+<text x="598" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">PK</text>
+<text x="677" y="1599" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="390" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="458" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_id</text>
+<text x="598" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
+<text x="677" y="1625" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ activity</text>
 <rect x="381" y="1634" width="303" height="26" fill="#F8FAFC"/>
-<text x="390" y="1651" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="458" y="1651" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_id</text>
-<text x="598" y="1651" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
-<text x="677" y="1651" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ order_header</text>
-<text x="390" y="1677" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="458" y="1677" font-family="Arial, sans-serif" font-size="11" fill="#102A43">product_amount</text>
-<text x="677" y="1677" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 商品总金额</text>
+<text x="390" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="458" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_id</text>
+<text x="598" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B16A13">FK</text>
+<text x="677" y="1651" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ order_header</text>
+<text x="390" y="1677" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="458" y="1677" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">product_amount</text>
+<text x="677" y="1677" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 商品总金额</text>
 <rect x="381" y="1686" width="303" height="26" fill="#F8FAFC"/>
-<text x="390" y="1703" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="458" y="1703" font-family="Arial, sans-serif" font-size="11" fill="#102A43">discount_amount</text>
-<text x="677" y="1703" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 优惠金额（计费）</text>
+<text x="390" y="1703" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="458" y="1703" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">discount_amount</text>
+<text x="677" y="1703" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 优惠金额（计费）</text>
 </g>
 <g filter="url(#shadow)"><rect x="720" y="1540" width="305" height="184" rx="8" fill="#ffffff" stroke="#B4235A" stroke-width="1.5"/><rect x="720" y="1540" width="305" height="42" rx="8" fill="#FDECF2"/><rect x="720" y="1574" width="305" height="8" fill="#FDECF2"/>
-<text x="734" y="1567" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#B4235A">优惠券核销</text><text x="1013" y="1566" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">coupon_redemption</text>
+<text x="734" y="1567" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#B4235A">优惠券核销</text><text x="1013" y="1566" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">coupon_redemption</text>
 <rect x="721" y="1582" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="1599" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="1599" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coupon_redemption_id</text>
-<text x="938" y="1599" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">PK</text>
-<text x="1017" y="1599" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="730" y="1625" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="1625" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="938" y="1625" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK</text>
-<text x="1017" y="1625" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
+<text x="730" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coupon_redemption_id</text>
+<text x="938" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">PK</text>
+<text x="1017" y="1599" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="730" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="938" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK</text>
+<text x="1017" y="1625" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
 <rect x="721" y="1634" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="1651" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="1651" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_id</text>
-<text x="938" y="1651" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK</text>
-<text x="1017" y="1651" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ order_header，可空</text>
-<text x="730" y="1677" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="798" y="1677" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coupon_no</text>
-<text x="1017" y="1677" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 优惠券编号</text>
+<text x="730" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_id</text>
+<text x="938" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK</text>
+<text x="1017" y="1651" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ order_header，可空</text>
+<text x="730" y="1677" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="798" y="1677" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coupon_no</text>
+<text x="1017" y="1677" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 优惠券编号</text>
 <rect x="721" y="1686" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="1703" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="798" y="1703" font-family="Arial, sans-serif" font-size="11" fill="#102A43">discount_amount</text>
-<text x="1017" y="1703" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 优惠金额（计费）</text>
+<text x="730" y="1703" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="798" y="1703" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">discount_amount</text>
+<text x="1017" y="1703" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 优惠金额（计费）</text>
 </g>
 <g filter="url(#shadow)"><rect x="1400" y="1540" width="305" height="158" rx="8" fill="#ffffff" stroke="#B4235A" stroke-width="1.5"/><rect x="1400" y="1540" width="305" height="42" rx="8" fill="#FDECF2"/><rect x="1400" y="1574" width="305" height="8" fill="#FDECF2"/>
-<text x="1414" y="1567" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#B4235A">券发放规则</text><text x="1693" y="1566" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">coupon_issue_rule</text>
+<text x="1414" y="1567" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#B4235A">券发放规则</text><text x="1693" y="1566" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">coupon_issue_rule</text>
 <rect x="1401" y="1582" width="303" height="26" fill="#F8FAFC"/>
-<text x="1410" y="1599" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1478" y="1599" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coupon_issue_rule_id</text>
-<text x="1618" y="1599" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">PK</text>
-<text x="1697" y="1599" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="1410" y="1625" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1478" y="1625" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coupon_config_id</text>
-<text x="1618" y="1625" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK,UK</text>
-<text x="1697" y="1625" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ coupon_config</text>
+<text x="1410" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1478" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coupon_issue_rule_id</text>
+<text x="1618" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">PK</text>
+<text x="1697" y="1599" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="1410" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1478" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coupon_config_id</text>
+<text x="1618" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK,UK</text>
+<text x="1697" y="1625" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ coupon_config</text>
 <rect x="1401" y="1634" width="303" height="26" fill="#F8FAFC"/>
-<text x="1410" y="1651" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1478" y="1651" font-family="Arial, sans-serif" font-size="11" fill="#102A43">issue_mode</text>
-<text x="1697" y="1651" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 发放方式</text>
-<text x="1410" y="1677" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="1478" y="1677" font-family="Arial, sans-serif" font-size="11" fill="#102A43">qty_per_issue</text>
-<text x="1697" y="1677" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 每次发放数量</text>
+<text x="1410" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1478" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">issue_mode</text>
+<text x="1697" y="1651" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 发放方式</text>
+<text x="1410" y="1677" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="1478" y="1677" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">qty_per_issue</text>
+<text x="1697" y="1677" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 每次发放数量</text>
 </g>
 <g filter="url(#shadow)"><rect x="1740" y="1540" width="305" height="158" rx="8" fill="#ffffff" stroke="#B4235A" stroke-width="1.5"/><rect x="1740" y="1540" width="305" height="42" rx="8" fill="#FDECF2"/><rect x="1740" y="1574" width="305" height="8" fill="#FDECF2"/>
-<text x="1754" y="1567" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#B4235A">券使用规则</text><text x="2033" y="1566" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">coupon_use_rule</text>
+<text x="1754" y="1567" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#B4235A">券使用规则</text><text x="2033" y="1566" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">coupon_use_rule</text>
 <rect x="1741" y="1582" width="303" height="26" fill="#F8FAFC"/>
-<text x="1750" y="1599" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1818" y="1599" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coupon_use_rule_id</text>
-<text x="1958" y="1599" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">PK</text>
-<text x="2037" y="1599" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="1750" y="1625" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1818" y="1625" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coupon_config_id</text>
-<text x="1958" y="1625" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK,UK</text>
-<text x="2037" y="1625" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ coupon_config</text>
+<text x="1750" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1818" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coupon_use_rule_id</text>
+<text x="1958" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">PK</text>
+<text x="2037" y="1599" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="1750" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1818" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coupon_config_id</text>
+<text x="1958" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK,UK</text>
+<text x="2037" y="1625" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ coupon_config</text>
 <rect x="1741" y="1634" width="303" height="26" fill="#F8FAFC"/>
-<text x="1750" y="1651" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1818" y="1651" font-family="Arial, sans-serif" font-size="11" fill="#102A43">validity_mode</text>
-<text x="2037" y="1651" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 有效期类型</text>
-<text x="1750" y="1677" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="1818" y="1677" font-family="Arial, sans-serif" font-size="11" fill="#102A43">max_use_per_coupon</text>
-<text x="2037" y="1677" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 最多使用次数</text>
+<text x="1750" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1818" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">validity_mode</text>
+<text x="2037" y="1651" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 有效期类型</text>
+<text x="1750" y="1677" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="1818" y="1677" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">max_use_per_coupon</text>
+<text x="2037" y="1677" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 最多使用次数</text>
 </g>
 <g filter="url(#shadow)"><rect x="2080" y="1540" width="305" height="132" rx="8" fill="#ffffff" stroke="#B4235A" stroke-width="1.5"/><rect x="2080" y="1540" width="305" height="42" rx="8" fill="#FDECF2"/><rect x="2080" y="1574" width="305" height="8" fill="#FDECF2"/>
-<text x="2094" y="1567" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#B4235A">券适用范围</text><text x="2373" y="1566" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">coupon_scope</text>
+<text x="2094" y="1567" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#B4235A">券适用范围</text><text x="2373" y="1566" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">coupon_scope</text>
 <rect x="2081" y="1582" width="303" height="26" fill="#F8FAFC"/>
-<text x="2090" y="1599" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="2158" y="1599" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coupon_scope_id</text>
-<text x="2298" y="1599" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">PK</text>
-<text x="2377" y="1599" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="2090" y="1625" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="2158" y="1625" font-family="Arial, sans-serif" font-size="11" fill="#102A43">coupon_config_id</text>
-<text x="2298" y="1625" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK</text>
-<text x="2377" y="1625" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ coupon_config</text>
+<text x="2090" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="2158" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coupon_scope_id</text>
+<text x="2298" y="1599" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">PK</text>
+<text x="2377" y="1599" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="2090" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="2158" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">coupon_config_id</text>
+<text x="2298" y="1625" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#B4235A">FK</text>
+<text x="2377" y="1625" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ coupon_config</text>
 <rect x="2081" y="1634" width="303" height="26" fill="#F8FAFC"/>
-<text x="2090" y="1651" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="2158" y="1651" font-family="Arial, sans-serif" font-size="11" fill="#102A43">scope_value</text>
-<text x="2377" y="1651" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">← 范围值</text>
+<text x="2090" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="2158" y="1651" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">scope_value</text>
+<text x="2377" y="1651" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">← 范围值</text>
 </g>
 <g filter="url(#shadow)"><rect x="40" y="1960" width="305" height="184" rx="8" fill="#ffffff" stroke="#147D4A" stroke-width="1.5"/><rect x="40" y="1960" width="305" height="42" rx="8" fill="#ECFDF3"/><rect x="40" y="1994" width="305" height="8" fill="#ECFDF3"/>
-<text x="54" y="1987" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#147D4A">核算批次</text><text x="333" y="1986" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">calculation_run</text>
+<text x="54" y="1987" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#147D4A">核算批次</text><text x="333" y="1986" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">calculation_run</text>
 <rect x="41" y="2002" width="303" height="26" fill="#F8FAFC"/>
-<text x="50" y="2019" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="118" y="2019" font-family="Arial, sans-serif" font-size="11" fill="#102A43">calculation_run_id</text>
-<text x="258" y="2019" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">PK</text>
-<text x="337" y="2019" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">导入后生成</text>
-<text x="50" y="2045" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="118" y="2045" font-family="Arial, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
-<text x="258" y="2045" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
-<text x="337" y="2045" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
+<text x="50" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="118" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">calculation_run_id</text>
+<text x="258" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">PK</text>
+<text x="337" y="2019" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">导入后生成</text>
+<text x="50" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="118" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">import_batch_id</text>
+<text x="258" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
+<text x="337" y="2045" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ import_batch</text>
 <rect x="41" y="2054" width="303" height="26" fill="#F8FAFC"/>
-<text x="50" y="2071" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="118" y="2071" font-family="Arial, sans-serif" font-size="11" fill="#102A43">calc_date / release_cutoff</text>
-<text x="337" y="2071" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">核算日 / T-2</text>
-<text x="50" y="2097" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="118" y="2097" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_benefit</text>
-<text x="337" y="2097" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">核销活动优惠合计</text>
+<text x="50" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="118" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">calc_date / release_cutoff</text>
+<text x="337" y="2071" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">核算日 / T-2</text>
+<text x="50" y="2097" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="118" y="2097" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_benefit</text>
+<text x="337" y="2097" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">核销活动优惠合计</text>
 <rect x="41" y="2106" width="303" height="26" fill="#F8FAFC"/>
-<text x="50" y="2123" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="118" y="2123" font-family="Arial, sans-serif" font-size="11" fill="#102A43">released_orders</text>
-<text x="337" y="2123" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">可释放单数</text>
+<text x="50" y="2123" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="118" y="2123" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">released_orders</text>
+<text x="337" y="2123" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">可释放单数</text>
 </g>
 <g filter="url(#shadow)"><rect x="380" y="1960" width="305" height="158" rx="8" fill="#ffffff" stroke="#147D4A" stroke-width="1.5"/><rect x="380" y="1960" width="305" height="42" rx="8" fill="#ECFDF3"/><rect x="380" y="1994" width="305" height="8" fill="#ECFDF3"/>
-<text x="394" y="1987" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#147D4A">权益核对</text><text x="673" y="1986" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">entitlement_check</text>
+<text x="394" y="1987" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#147D4A">权益核对</text><text x="673" y="1986" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">entitlement_check</text>
 <rect x="381" y="2002" width="303" height="26" fill="#F8FAFC"/>
-<text x="390" y="2019" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="458" y="2019" font-family="Arial, sans-serif" font-size="11" fill="#102A43">entitlement_check_id</text>
-<text x="598" y="2019" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">PK</text>
-<text x="677" y="2019" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="390" y="2045" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="458" y="2045" font-family="Arial, sans-serif" font-size="11" fill="#102A43">calculation_run_id</text>
-<text x="598" y="2045" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
-<text x="677" y="2045" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ calculation_run</text>
+<text x="390" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="458" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">entitlement_check_id</text>
+<text x="598" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">PK</text>
+<text x="677" y="2019" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="390" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="458" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">calculation_run_id</text>
+<text x="598" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
+<text x="677" y="2045" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ calculation_run</text>
 <rect x="381" y="2054" width="303" height="26" fill="#F8FAFC"/>
-<text x="390" y="2071" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="458" y="2071" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_id</text>
-<text x="598" y="2071" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
-<text x="677" y="2071" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ order_header</text>
-<text x="390" y="2097" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="458" y="2097" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity / coupon_benefit</text>
-<text x="677" y="2097" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">按核销明细</text>
+<text x="390" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="458" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_id</text>
+<text x="598" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
+<text x="677" y="2071" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ order_header</text>
+<text x="390" y="2097" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="458" y="2097" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity / coupon_benefit</text>
+<text x="677" y="2097" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">按核销明细</text>
 </g>
 <g filter="url(#shadow)"><rect x="720" y="1960" width="305" height="158" rx="8" fill="#ffffff" stroke="#147D4A" stroke-width="1.5"/><rect x="720" y="1960" width="305" height="42" rx="8" fill="#ECFDF3"/><rect x="720" y="1994" width="305" height="8" fill="#ECFDF3"/>
-<text x="734" y="1987" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#147D4A">逐单释放</text><text x="1013" y="1986" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">release_candidate</text>
+<text x="734" y="1987" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#147D4A">逐单释放</text><text x="1013" y="1986" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">release_candidate</text>
 <rect x="721" y="2002" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="2019" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="2019" font-family="Arial, sans-serif" font-size="11" fill="#102A43">release_candidate_id</text>
-<text x="938" y="2019" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">PK</text>
-<text x="1017" y="2019" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="730" y="2045" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="2045" font-family="Arial, sans-serif" font-size="11" fill="#102A43">calculation_run_id</text>
-<text x="938" y="2045" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
-<text x="1017" y="2045" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ calculation_run</text>
+<text x="730" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">release_candidate_id</text>
+<text x="938" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">PK</text>
+<text x="1017" y="2019" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="730" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">calculation_run_id</text>
+<text x="938" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
+<text x="1017" y="2045" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ calculation_run</text>
 <rect x="721" y="2054" width="303" height="26" fill="#F8FAFC"/>
-<text x="730" y="2071" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="798" y="2071" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_id</text>
-<text x="938" y="2071" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK,UK</text>
-<text x="1017" y="2071" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ order_header</text>
-<text x="730" y="2097" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INT/TEXT</text>
-<text x="798" y="2097" font-family="Arial, sans-serif" font-size="11" fill="#102A43">is_candidate / reason</text>
-<text x="1017" y="2097" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">可否释放及原因</text>
+<text x="730" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="798" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_id</text>
+<text x="938" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK,UK</text>
+<text x="1017" y="2071" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ order_header</text>
+<text x="730" y="2097" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INT/TEXT</text>
+<text x="798" y="2097" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">is_candidate / reason</text>
+<text x="1017" y="2097" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">可否释放及原因</text>
 </g>
 <g filter="url(#shadow)"><rect x="1060" y="1960" width="305" height="184" rx="8" fill="#ffffff" stroke="#147D4A" stroke-width="1.5"/><rect x="1060" y="1960" width="305" height="42" rx="8" fill="#ECFDF3"/><rect x="1060" y="1994" width="305" height="8" fill="#ECFDF3"/>
-<text x="1074" y="1987" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#147D4A">活动费用汇总</text><text x="1353" y="1986" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">activity_fee_summary</text>
+<text x="1074" y="1987" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#147D4A">活动费用汇总</text><text x="1353" y="1986" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">activity_fee_summary</text>
 <rect x="1061" y="2002" width="303" height="26" fill="#F8FAFC"/>
-<text x="1070" y="2019" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1138" y="2019" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_fee_summary_id</text>
-<text x="1278" y="2019" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">PK</text>
-<text x="1357" y="2019" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="1070" y="2045" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1138" y="2045" font-family="Arial, sans-serif" font-size="11" fill="#102A43">calculation_run_id</text>
-<text x="1278" y="2045" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
-<text x="1357" y="2045" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ calculation_run</text>
+<text x="1070" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1138" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_fee_summary_id</text>
+<text x="1278" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">PK</text>
+<text x="1357" y="2019" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="1070" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1138" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">calculation_run_id</text>
+<text x="1278" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
+<text x="1357" y="2045" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ calculation_run</text>
 <rect x="1061" y="2054" width="303" height="26" fill="#F8FAFC"/>
-<text x="1070" y="2071" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1138" y="2071" font-family="Arial, sans-serif" font-size="11" fill="#102A43">activity_id</text>
-<text x="1278" y="2071" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
-<text x="1357" y="2071" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ activity</text>
-<text x="1070" y="2097" font-family="Arial, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
-<text x="1138" y="2097" font-family="Arial, sans-serif" font-size="11" fill="#102A43">released_amount</text>
-<text x="1357" y="2097" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">可释放金额</text>
+<text x="1070" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1138" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">activity_id</text>
+<text x="1278" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
+<text x="1357" y="2071" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ activity</text>
+<text x="1070" y="2097" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">NUMERIC</text>
+<text x="1138" y="2097" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">released_amount</text>
+<text x="1357" y="2097" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">可释放金额</text>
 <rect x="1061" y="2106" width="303" height="26" fill="#F8FAFC"/>
-<text x="1070" y="2123" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1138" y="2123" font-family="Arial, sans-serif" font-size="11" fill="#102A43">pending_orders</text>
-<text x="1357" y="2123" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">待释放单数</text>
+<text x="1070" y="2123" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1138" y="2123" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">pending_orders</text>
+<text x="1357" y="2123" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">待释放单数</text>
 </g>
 <g filter="url(#shadow)"><rect x="1400" y="1960" width="305" height="158" rx="8" fill="#ffffff" stroke="#147D4A" stroke-width="1.5"/><rect x="1400" y="1960" width="305" height="42" rx="8" fill="#ECFDF3"/><rect x="1400" y="1994" width="305" height="8" fill="#ECFDF3"/>
-<text x="1414" y="1987" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#147D4A">核算质量问题</text><text x="1693" y="1986" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">calculation_quality_issue</text>
+<text x="1414" y="1987" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="700" fill="#147D4A">核算质量问题</text><text x="1693" y="1986" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#829AB1">calculation_quality_issue</text>
 <rect x="1401" y="2002" width="303" height="26" fill="#F8FAFC"/>
-<text x="1410" y="2019" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1478" y="2019" font-family="Arial, sans-serif" font-size="11" fill="#102A43">calculation_quality_issue_id</text>
-<text x="1618" y="2019" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">PK</text>
-<text x="1697" y="2019" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1"></text>
-<text x="1410" y="2045" font-family="Arial, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
-<text x="1478" y="2045" font-family="Arial, sans-serif" font-size="11" fill="#102A43">calculation_run_id</text>
-<text x="1618" y="2045" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
-<text x="1697" y="2045" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">→ calculation_run</text>
+<text x="1410" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1478" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">calculation_quality_issue_id</text>
+<text x="1618" y="2019" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">PK</text>
+<text x="1697" y="2019" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1"></text>
+<text x="1410" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">INTEGER</text>
+<text x="1478" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">calculation_run_id</text>
+<text x="1618" y="2045" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" font-weight="700" fill="#147D4A">FK</text>
+<text x="1697" y="2045" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">→ calculation_run</text>
 <rect x="1401" y="2054" width="303" height="26" fill="#F8FAFC"/>
-<text x="1410" y="2071" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1478" y="2071" font-family="Arial, sans-serif" font-size="11" fill="#102A43">order_no</text>
-<text x="1697" y="2071" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">不可释放订单</text>
-<text x="1410" y="2097" font-family="Arial, sans-serif" font-size="10" fill="#52606D">TEXT</text>
-<text x="1478" y="2097" font-family="Arial, sans-serif" font-size="11" fill="#102A43">level / reason</text>
-<text x="1697" y="2097" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">提示 / 未达释放节点</text>
+<text x="1410" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1478" y="2071" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">order_no</text>
+<text x="1697" y="2071" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">不可释放订单</text>
+<text x="1410" y="2097" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="10" fill="#52606D">TEXT</text>
+<text x="1478" y="2097" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#102A43">level / reason</text>
+<text x="1697" y="2097" text-anchor="end" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="9.5" fill="#829AB1">提示 / 未达释放节点</text>
 </g>
-<g transform="translate(80,2268)"><rect width="980" height="34" rx="8" fill="#F8FAFC" stroke="#D9E2EC"/><circle cx="18" cy="17" r="6" fill="#7851A9"/><text x="32" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">导入审计</text><circle cx="120" cy="17" r="6" fill="#167E6D"/><text x="134" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">主数据</text><circle cx="210" cy="17" r="6" fill="#3B67B1"/><text x="224" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">订单履约</text><circle cx="320" cy="17" r="6" fill="#B16A13"/><text x="334" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">活动</text><circle cx="400" cy="17" r="6" fill="#B4235A"/><text x="414" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">优惠券</text><circle cx="500" cy="17" r="6" fill="#147D4A"/><text x="514" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">核算结果</text><line x1="640" y1="17" x2="680" y2="17" stroke="#9FB3C8" stroke-width="1.6"/><text x="688" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">外键</text><line x1="760" y1="17" x2="800" y2="17" stroke="#B4235A" stroke-width="1.6" stroke-dasharray="6 4"/><text x="808" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">编号文本关联（无 FK）</text></g></svg>
+<g transform="translate(80,2268)"><rect width="980" height="34" rx="8" fill="#F8FAFC" stroke="#D9E2EC"/><circle cx="18" cy="17" r="6" fill="#7851A9"/><text x="32" y="21" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#52606D">导入审计</text><circle cx="120" cy="17" r="6" fill="#167E6D"/><text x="134" y="21" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#52606D">主数据</text><circle cx="210" cy="17" r="6" fill="#3B67B1"/><text x="224" y="21" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#52606D">订单履约</text><circle cx="320" cy="17" r="6" fill="#B16A13"/><text x="334" y="21" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#52606D">活动</text><circle cx="400" cy="17" r="6" fill="#B4235A"/><text x="414" y="21" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#52606D">优惠券</text><circle cx="500" cy="17" r="6" fill="#147D4A"/><text x="514" y="21" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#52606D">核算结果</text><line x1="640" y1="17" x2="680" y2="17" stroke="#9FB3C8" stroke-width="1.6"/><text x="688" y="21" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#52606D">外键</text><line x1="760" y1="17" x2="800" y2="17" stroke="#B4235A" stroke-width="1.6" stroke-dasharray="6 4"/><text x="808" y="21" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif" font-size="11" fill="#52606D">编号文本关联（无 FK）</text></g></svg>

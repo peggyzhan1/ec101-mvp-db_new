@@ -30,6 +30,11 @@ class StandardMappingDocsTests(unittest.TestCase):
         for table in tables:
             self.assertIn(f">{table}<", svg, table)
 
+    def test_er_png_is_generated_in_repo(self):
+        png = Path(__file__).resolve().parents[2] / "docs" / "diagrams" / "ec101-standard-er.png"
+        self.assertTrue(png.is_file(), png)
+        self.assertGreater(png.stat().st_size, 50_000)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,13 +1,17 @@
-"""Generate docs/diagrams/ec101-standard-er.svg from the standard-import schema."""
+"""Generate docs/diagrams/ec101-standard-er.svg and a PNG the chat/GitHub can display."""
 
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-OUT = Path(__file__).resolve().parents[1] / "docs" / "diagrams" / "ec101-standard-er.svg"
+DIAGRAMS = Path(__file__).resolve().parents[1] / "docs" / "diagrams"
+OUT = DIAGRAMS / "ec101-standard-er.svg"
+OUT_PNG = DIAGRAMS / "ec101-standard-er.png"
 W, H = 2520, 2320
 BOX_W = 305
 ROW_H = 26
 HEADER_H = 42
+# Arial has no CJK glyphs; use a system Chinese font so PNG/SVG stay readable.
+FONT = "WenQuanYi Micro Hei, Droid Sans Fallback, Noto Sans CJK SC, sans-serif"
 
 COLORS = {
     "audit": ("#F4EEFF", "#7851A9"),
@@ -242,13 +246,13 @@ def route(a, b):
 
 def render() -> Path:
     parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 {W} {H}" role="img" aria-labelledby="title desc">',
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-labelledby="title desc">',
         '<title id="title">EC101 标准库 ER 图</title>',
         '<desc id="desc">根据 mvp/ddl/ec101_standard_sqlite.sql 与 import_service.py 生成。实线=外键，虚线=同一编号文本关联。</desc>',
         '<defs><filter id="shadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.12"/></filter></defs>',
-        '<rect width="100%" height="100%" fill="#ffffff"/>',
-        '<text x="80" y="36" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#102A43">EC101 标准导入库 ER 图</text>',
-        '<text x="80" y="58" font-family="Arial, sans-serif" font-size="13" fill="#627D98">来源：mvp/ddl/ec101_standard_sqlite.sql · 实线 FK · 虚线 客户编号/商品编号/单据编号文本关联 · ← 表示来自标准 Excel</text>',
+        f'<rect width="{W}" height="{H}" fill="#ffffff"/>',
+        f'<text x="80" y="36" font-family="{FONT}" font-size="24" font-weight="700" fill="#102A43">EC101 标准导入库 ER 图</text>',
+        f'<text x="80" y="58" font-family="{FONT}" font-size="13" fill="#627D98">来源：mvp/ddl/ec101_standard_sqlite.sql · 实线 FK · 虚线 客户编号/商品编号/单据编号文本关联 · ← 表示来自标准 Excel</text>',
     ]
     for kind, source, target, label in edges:
         p1, p2 = route(entities[source], entities[target])
@@ -258,33 +262,33 @@ def render() -> Path:
         width = 22 + 6 * max(len(label) - 3, 0)
         parts.append(f'<path d="M {p1[0]:.1f} {p1[1]:.1f} L {p2[0]:.1f} {p2[1]:.1f}" stroke="{color}" stroke-width="1.4" fill="none"{dash}/>')
         parts.append(f'<rect x="{mx - width / 2:.1f}" y="{my - 9:.1f}" width="{width:.1f}" height="18" rx="9" fill="#ffffff" stroke="#D9E2EC"/>')
-        parts.append(f'<text x="{mx:.1f}" y="{my + 4:.1f}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#52606D">{escape(label)}</text>')
+        parts.append(f'<text x="{mx:.1f}" y="{my + 4:.1f}" text-anchor="middle" font-family="{FONT}" font-size="10" fill="#52606D">{escape(label)}</text>')
     for name, entity in entities.items():
         x, y = entity["xy"]
         bg, accent = COLORS[entity["domain"]]
         h = box_height(entity)
         parts.append(f'<g filter="url(#shadow)"><rect x="{x}" y="{y}" width="{BOX_W}" height="{h}" rx="8" fill="#ffffff" stroke="{accent}" stroke-width="1.5"/><rect x="{x}" y="{y}" width="{BOX_W}" height="{HEADER_H}" rx="8" fill="{bg}"/><rect x="{x}" y="{y + HEADER_H - 8}" width="{BOX_W}" height="8" fill="{bg}"/>')
-        parts.append(f'<text x="{x + 14}" y="{y + 27}" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="{accent}">{escape(entity["title"])}</text><text x="{x + BOX_W - 12}" y="{y + 26}" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#829AB1">{escape(name)}</text>')
+        parts.append(f'<text x="{x + 14}" y="{y + 27}" font-family="{FONT}" font-size="15" font-weight="700" fill="{accent}">{escape(entity["title"])}</text><text x="{x + BOX_W - 12}" y="{y + 26}" text-anchor="end" font-family="{FONT}" font-size="10" fill="#829AB1">{escape(name)}</text>')
         for i, (field, typ, key, comment) in enumerate(entity["rows"]):
             yy = y + HEADER_H + i * ROW_H
             if i % 2 == 0:
                 parts.append(f'<rect x="{x + 1}" y="{yy}" width="{BOX_W - 2}" height="{ROW_H}" fill="#F8FAFC"/>')
-            parts.append(f'<text x="{x + 10}" y="{yy + 17}" font-family="Arial, sans-serif" font-size="10" fill="#52606D">{escape(typ)}</text>')
-            parts.append(f'<text x="{x + 78}" y="{yy + 17}" font-family="Arial, sans-serif" font-size="11" fill="#102A43">{escape(field)}</text>')
+            parts.append(f'<text x="{x + 10}" y="{yy + 17}" font-family="{FONT}" font-size="10" fill="#52606D">{escape(typ)}</text>')
+            parts.append(f'<text x="{x + 78}" y="{yy + 17}" font-family="{FONT}" font-size="11" fill="#102A43">{escape(field)}</text>')
             if key:
-                parts.append(f'<text x="{x + 218}" y="{yy + 17}" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="{accent}">{escape(key)}</text>')
-            parts.append(f'<text x="{x + BOX_W - 8}" y="{yy + 17}" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" fill="#829AB1">{escape(comment)}</text>')
+                parts.append(f'<text x="{x + 218}" y="{yy + 17}" font-family="{FONT}" font-size="10" font-weight="700" fill="{accent}">{escape(key)}</text>')
+            parts.append(f'<text x="{x + BOX_W - 8}" y="{yy + 17}" text-anchor="end" font-family="{FONT}" font-size="9.5" fill="#829AB1">{escape(comment)}</text>')
         parts.append("</g>")
     parts.append(
         '<g transform="translate(80,2268)"><rect width="980" height="34" rx="8" fill="#F8FAFC" stroke="#D9E2EC"/>'
-        '<circle cx="18" cy="17" r="6" fill="#7851A9"/><text x="32" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">导入审计</text>'
-        '<circle cx="120" cy="17" r="6" fill="#167E6D"/><text x="134" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">主数据</text>'
-        '<circle cx="210" cy="17" r="6" fill="#3B67B1"/><text x="224" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">订单履约</text>'
-        '<circle cx="320" cy="17" r="6" fill="#B16A13"/><text x="334" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">活动</text>'
-        '<circle cx="400" cy="17" r="6" fill="#B4235A"/><text x="414" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">优惠券</text>'
-        '<circle cx="500" cy="17" r="6" fill="#147D4A"/><text x="514" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">核算结果</text>'
-        '<line x1="640" y1="17" x2="680" y2="17" stroke="#9FB3C8" stroke-width="1.6"/><text x="688" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">外键</text>'
-        '<line x1="760" y1="17" x2="800" y2="17" stroke="#B4235A" stroke-width="1.6" stroke-dasharray="6 4"/><text x="808" y="21" font-family="Arial, sans-serif" font-size="11" fill="#52606D">编号文本关联（无 FK）</text>'
+        f'<circle cx="18" cy="17" r="6" fill="#7851A9"/><text x="32" y="21" font-family="{FONT}" font-size="11" fill="#52606D">导入审计</text>'
+        f'<circle cx="120" cy="17" r="6" fill="#167E6D"/><text x="134" y="21" font-family="{FONT}" font-size="11" fill="#52606D">主数据</text>'
+        f'<circle cx="210" cy="17" r="6" fill="#3B67B1"/><text x="224" y="21" font-family="{FONT}" font-size="11" fill="#52606D">订单履约</text>'
+        f'<circle cx="320" cy="17" r="6" fill="#B16A13"/><text x="334" y="21" font-family="{FONT}" font-size="11" fill="#52606D">活动</text>'
+        f'<circle cx="400" cy="17" r="6" fill="#B4235A"/><text x="414" y="21" font-family="{FONT}" font-size="11" fill="#52606D">优惠券</text>'
+        f'<circle cx="500" cy="17" r="6" fill="#147D4A"/><text x="514" y="21" font-family="{FONT}" font-size="11" fill="#52606D">核算结果</text>'
+        f'<line x1="640" y1="17" x2="680" y2="17" stroke="#9FB3C8" stroke-width="1.6"/><text x="688" y="21" font-family="{FONT}" font-size="11" fill="#52606D">外键</text>'
+        f'<line x1="760" y1="17" x2="800" y2="17" stroke="#B4235A" stroke-width="1.6" stroke-dasharray="6 4"/><text x="808" y="21" font-family="{FONT}" font-size="11" fill="#52606D">编号文本关联（无 FK）</text>'
         "</g></svg>"
     )
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -292,5 +296,22 @@ def render() -> Path:
     return OUT
 
 
+def render_png(svg_path: Path | None = None) -> Path:
+    """Rasterize the SVG so chat clients that skip SVG can still show the ER."""
+    import cairosvg
+
+    svg_path = svg_path or OUT
+    cairosvg.svg2png(
+        url=str(svg_path),
+        write_to=str(OUT_PNG),
+        output_width=W * 2,
+        output_height=H * 2,
+    )
+    return OUT_PNG
+
+
 if __name__ == "__main__":
-    print(render())
+    svg = render()
+    png = render_png(svg)
+    print(svg)
+    print(png)

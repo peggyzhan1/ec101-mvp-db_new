@@ -44,4 +44,4 @@ Windows 使用 `py api/server.py` 和 PowerShell 环境变量写法，详见 `ap
 
 当前 API 仍为本地 SQLite，未配置认证、权限和线上统一数据库。异常确认、负责人、P0/P1、支付和 ERP 上账尚未实现；页面仅展示 RESULT 的原始“警告/提示”。生产多人使用前需迁移到受管数据库并加入认证、权限和审计。
 
-后续如需更新实体关系图，应以 `mvp/ddl/ec101_standard_sqlite.sql` 为准，并用 `python3 scripts/build_standard_er_svg.py` 重新生成 `docs/diagrams/ec101-standard-er.svg`。字段对照见 `docs/标准数据到标准库对照.md`。
+后续如需更新实体关系图，应以 `mvp/ddl/ec101_standard_sqlite.sql` 为准，并用 `python3 scripts/build_standard_er_svg.py` 重新生成 `docs/diagrams/ec101-standard-er.svg` 和 `docs/diagrams/ec101-standard-er.png`。字段对照见 `docs/标准数据到标准库对照.md`。
