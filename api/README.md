@@ -1,6 +1,6 @@
 # EC101 本地真实数据 API
 
-这是一个只读本地 API，直接查询仓库内的 `mvp/ec101_mvp.db`。它不修改数据库，也不提供核算重跑、审批或结算写入。
+这是一个本地 API，默认使用新库 `mvp/ec101_standard.db`。业务查询接口只读；标准数据导入接口会以事务方式写入导入审计、业务事实和核算结果。历史样例库 `mvp/ec101_mvp.db` 不会被自动迁移。
 
 ## 环境要求
 
@@ -36,6 +36,10 @@ python3 server.py
 GET /health
 GET /api/business-data/orders?dealer=兴路强&limit=20
 GET /api/business-data/orders/1
+GET /api/imports
+GET /api/imports/{import_batch_id}
+GET /api/imports/{import_batch_id}/issues
+POST /api/imports
 ```
 
 支持的业务对象：`orders`、`order-lines`、`activities`、`activity-details`、`customers`、`products`、`fulfillments`、`order-activities`。
@@ -44,7 +48,7 @@ GET /api/business-data/orders/1
 
 ## 费用与促销 TPM RESULT 接口
 
-以下接口同样只读，直接展示 RESULT 层的计算结论，不在 API 或页面中重算促销门槛、T-2 或结算金额：
+以下接口直接展示计算结论，不在 API 或页面中重算促销门槛、T-2 或结算金额：
 
 ```text
 GET /api/fee-tpm/overview
