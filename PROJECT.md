@@ -24,7 +24,7 @@ Windows 使用 `py api/server.py` 和 PowerShell 环境变量写法，详见 `ap
 
 ## Main flow
 
-平台文件 → RAW/标准化脚本 → 通用促销核算 → RESULT → 只读 API → 费用运营平台。
+平台原始文件 → 平台转换器 → 固定标准 Excel → 导入/校验 → 业务事实与核算 → API → 费用运营平台。
 
 ## Important files
 
@@ -35,9 +35,11 @@ Windows 使用 `py api/server.py` 和 PowerShell 环境变量写法，详见 `ap
 - `mvp/scripts/migrate_coupon_core.py`：优惠券 CORE 结构迁移、券配置导入和本地数据库备份。
 - `docs/diagrams/ec101-mvp-core-er.svg`：CORE 层 ER 图，供业务和开发理解实体、字段与关系。
 - `scripts/build_core_er_svg.py`：ER 图生成脚本；DDL 关系变化后重新运行即可生成新版图。
+- `mvp/standard_schema.py`：已审核的标准 Excel 工作表和字段契约；转换器与导入器共同使用。
+- `mvp/standard_workbook.py`：固定模板的 Excel 读写和基础行校验。
 
 ## Current limits and next step
 
-当前 API 仍为本地 SQLite，未配置认证、权限和线上统一数据库。异常确认、负责人、P0/P1、支付和 ERP 上账尚未实现；页面仅展示 RESULT 的原始“警告/提示”。生产多人使用前需迁移到受管数据库并加入认证、权限和审计。
+当前 API 仍为本地 SQLite，标准导入 API 和 Windows 转换器尚在后续任务中，未配置认证、权限和线上统一数据库。异常确认、负责人、P0/P1、支付和 ERP 上账尚未实现；页面仅展示 RESULT 的原始“警告/提示”。生产多人使用前需迁移到受管数据库并加入认证、权限和审计。
 
 CORE ER 图只展示 CORE 业务事实层；RAW、STANDARD、RESULT 层未展开。订单头中的 `batch_id` 对 RAW 层 `raw_import_batch` 的引用在图中作为外部引用字段保留。
