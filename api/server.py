@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import sqlite3
+import sys
 import tempfile
 from cgi import FieldStorage
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -13,11 +14,14 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, unquote, urlparse
 
-from mvp.import_service import ArchiveMetadata, ImportValidationError, create_database, import_snapshot, run_calculation
-from mvp.standard_workbook import read_standard_workbook
-
-
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:  # `python3 api/server.py` puts api/ on sys.path, not the repo root.
+    sys.path.insert(0, str(ROOT))
+
+from mvp.import_service import ArchiveMetadata, ImportValidationError, create_database, import_snapshot, run_calculation  # noqa: E402
+from mvp.standard_workbook import read_standard_workbook  # noqa: E402
+
+
 DEFAULT_DB_PATH = ROOT / "mvp" / "ec101_standard.db"
 
 
