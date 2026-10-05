@@ -353,7 +353,7 @@ def make_handler(db_path: Path):
 
         def do_POST(self):
             parsed = urlparse(self.path)
-            if parsed.path != "/api/imports":
+            if parsed.path not in ("/api/imports", "/imports"):
                 _json(self, 404, {"error": "not_found"})
                 return
             try:
@@ -381,15 +381,15 @@ def make_handler(db_path: Path):
                 if parts == ["health"]:
                     _json(self, 200, {"status": "ok", "database": str(db_path), "objects": list(SUPPORTED_OBJECTS), "read_only": True})
                     return
-                if parts == ["api", "imports"]:
+                if parts in (["api", "imports"], ["imports"]):
                     _json(self, 200, list_imports(db_path)); return
-                if len(parts) == 3 and parts[:2] == ["api", "imports"]:
-                    import_batch_id = int(parts[2])
+                if len(parts) in (2, 3) and ((len(parts) == 3 and parts[:2] == ["api", "imports"]) or (len(parts) == 2 and parts[0] == "imports")):
+                    import_batch_id = int(parts[-1])
                     detail = get_import(db_path, import_batch_id)
                     _json(self, 200, detail) if detail is not None else _json(self, 404, {"error": "not_found"})
                     return
-                if len(parts) == 4 and parts[:2] == ["api", "imports"] and parts[3] == "issues":
-                    import_batch_id = int(parts[2])
+                if len(parts) in (3, 4) and ((len(parts) == 4 and parts[:2] == ["api", "imports"]) or (len(parts) == 3 and parts[0] == "imports")) and parts[-1] == "issues":
+                    import_batch_id = int(parts[-2])
                     if get_import(db_path, import_batch_id) is None:
                         _json(self, 404, {"error": "not_found"})
                     else:
