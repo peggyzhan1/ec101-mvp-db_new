@@ -3,16 +3,50 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sqlite3
+import tempfile
+from cgi import FieldStorage
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, unquote, urlparse
 
+from mvp.import_service import ArchiveMetadata, ImportValidationError, create_database, import_snapshot
+from mvp.standard_workbook import read_standard_workbook
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = ROOT / "mvp" / "ec101_mvp.db"
+
+
+def import_uploaded_files(db_path: Path, workbook_bytes: bytes, source_bytes: bytes | None = None, source_name: str = "sources.zip") -> dict[str, Any]:
+    """Import one uploaded standard workbook and archive metadata without storing raw rows."""
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="ec101-import-") as directory:
+        root = Path(directory)
+        workbook_path = root / "standard.xlsx"
+        workbook_path.write_bytes(workbook_bytes)
+        source_name = Path(source_name).name or "sources.zip"
+        source_path = root / source_name
+        source_path.write_bytes(source_bytes or b"")
+        if not db_path.exists() or not _has_table(db_path, "import_batch"):
+            create_database(db_path)
+        workbook = read_standard_workbook(workbook_path)
+        source_hash = hashlib.sha256(source_bytes or b"").hexdigest()
+        archive_path = db_path.parent / "archives" / f"{source_hash[:16]}-{source_name}"
+        archive_path.parent.mkdir(parents=True, exist_ok=True)
+        archive_path.write_bytes(source_bytes or b"")
+        archive = ArchiveMetadata(str(archive_path), source_hash, len(source_bytes or b""))
+        with sqlite3.connect(db_path) as connection:
+            result = import_snapshot(connection, workbook, archive)
+        return {"import_batch_id": result.import_batch_id, "calculation_run_id": result.calculation_run_id, "status": result.status}
+
+
+def _has_table(db_path: Path, table_name: str) -> bool:
+    with sqlite3.connect(db_path) as connection:
+        return connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table_name,)).fetchone() is not None
 
 
 class NotFoundError(KeyError):
@@ -288,9 +322,32 @@ def make_handler(db_path: Path):
         def do_OPTIONS(self):
             self.send_response(204)
             self.send_header("Access-Control-Allow-Origin", _cors_origin(self))
-            self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type")
             self.end_headers()
+
+        def do_POST(self):
+            parsed = urlparse(self.path)
+            if parsed.path != "/api/imports":
+                _json(self, 404, {"error": "not_found"})
+                return
+            try:
+                form = FieldStorage(fp=self.rfile, headers=self.headers, environ={"REQUEST_METHOD": "POST", "CONTENT_TYPE": self.headers.get("Content-Type", "")})
+                workbook_field = form["workbook"] if "workbook" in form else None
+                if workbook_field is None or not getattr(workbook_field, "file", None):
+                    _json(self, 400, {"error": "workbook_required"})
+                    return
+                source_field = form["sources"] if "sources" in form else None
+                source_bytes = source_field.file.read() if source_field is not None and getattr(source_field, "file", None) else None
+                source_name = getattr(source_field, "filename", None) or "sources.zip"
+                payload = import_uploaded_files(db_path, workbook_field.file.read(), source_bytes, source_name)
+                _json(self, 201, payload)
+            except ImportValidationError as exc:
+                _json(self, 422, {"error": "validation_failed", "issues": [issue.__dict__ for issue in exc.issues]})
+            except (KeyError, ValueError, OSError) as exc:
+                _json(self, 400, {"error": "invalid_import", "message": str(exc)})
+            except sqlite3.Error as exc:
+                _json(self, 500, {"error": "database_error", "message": str(exc)})
 
         def do_GET(self):
             parsed = urlparse(self.path)
