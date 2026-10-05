@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from api.server import get_import, get_import_release
+from api.server import get_detail, get_import, get_import_release, query_dataset, query_fee_tpm_overview, query_fee_tpm_settlements
 from converters.common import ConversionRequest
 from converters.kuaima import convert_kuaima
 from desktop_converter.app import build_conversion_request, run_conversion
@@ -74,6 +74,29 @@ class KuaimaBaselineRegressionTests(unittest.TestCase):
         self.assertEqual((activity["participating_orders"], activity["released_orders"], activity["released_amount"], activity["pending_orders"], activity["pending_amount"]), (136, 133, 1995, 3, 45))
         self.assertEqual(pending["total"], 3)
         self.assertEqual({row["reason"] for row in pending["rows"]}, {"订单状态=部分发货"})
+
+    def test_platform_pages_read_the_same_numbers(self):
+        """业务数据页与费用页读到的必须是同一套标准库数字。"""
+        with tempfile.TemporaryDirectory() as directory:
+            db_path, _, _ = self._import(Path(directory), {
+                "客户": [PILOT / "User-202609221722.xlsx"],
+                "商品": [PILOT / "Product-202609141043.xlsx"],
+                "订单": [PILOT / "满减/快马-兴路强-满减-订单明细-20260831-20260917.xls"],
+                "活动": [PILOT / "满减/快马-兴路强-满减-活动明细-20260831-20260917.xls"],
+                "优惠券": [PILOT / "优惠券/快马-兴路强-优惠券-test1优惠券-活动明细-20260909-20260912.xls"],
+            })
+            overview = query_fee_tpm_overview(db_path, {})
+            settlements = query_fee_tpm_settlements(db_path, {})["rows"]
+            executions = query_dataset(db_path, "activity-executions", {"limit": 1})
+            orders = query_dataset(db_path, "orders", {"q": "1012420526026091000081"})
+            detail = get_detail(db_path, "orders", str(orders["rows"][0]["id"]))
+        self.assertEqual((overview["submittableAmount"], overview["releasedCouponBenefit"], overview["participatingOrders"], overview["releasedOrders"]), (1995, 200, 136, 133))
+        self.assertEqual([(row["activityName"], row["settleAmount"], row["releasedOrders"], row["status"]) for row in settlements], [("可口可乐满减", 1995, 133, "可提交")])
+        self.assertEqual(executions["total"], 136)
+        self.assertEqual((orders["rows"][0]["activities"], orders["rows"][0]["coupons"]), ("可口可乐满减", "202609091700313431"))
+        # 订单行优惠 215 = 可乐满减 15 + 券 200；费用只取核销明细里的 15 和 200
+        self.assertEqual(orders["rows"][0]["discount_amount"], 215)
+        self.assertEqual((detail["release"]["activity_benefit"], detail["release"]["coupon_benefit"], detail["release"]["is_candidate"]), (15, 200, 1))
 
     def test_manzeng_matches_audited_baseline(self):
         with tempfile.TemporaryDirectory() as directory:

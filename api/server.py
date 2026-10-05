@@ -1,4 +1,9 @@
-"""Cross-platform, read-only HTTP API for the EC101 SQLite business facts."""
+"""Cross-platform HTTP API over the EC101 standard import database (mvp/ec101_standard.db).
+
+Every query reads the *standard* schema (mvp/ddl/ec101_standard_sqlite.sql): import batches, the
+business facts they carry, and the calculation runs produced right after import. The old MVP database
+(mvp/ec101_mvp.db) is not served here; it only remains as the audited acceptance baseline.
+"""
 
 from __future__ import annotations
 
@@ -9,6 +14,7 @@ import sqlite3
 import sys
 import tempfile
 from cgi import FieldStorage
+from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -23,11 +29,60 @@ from mvp.standard_workbook import read_standard_workbook  # noqa: E402
 
 
 DEFAULT_DB_PATH = ROOT / "mvp" / "ec101_standard.db"
+STANDARD_DDL = ROOT / "mvp" / "ddl" / "ec101_standard_sqlite.sql"
+
+
+def expected_schema() -> dict[str, set[str]]:
+    """Table -> column names that the current DDL produces."""
+    connection = sqlite3.connect(":memory:")
+    connection.executescript(STANDARD_DDL.read_text(encoding="utf-8"))
+    schema = {
+        table: {row[1] for row in connection.execute(f'PRAGMA table_info("{table}")').fetchall()}
+        for (table,) in connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall()
+    }
+    connection.close()
+    return schema
+
+
+def schema_differences(db_path: Path) -> list[str]:
+    """Human-readable list of tables/columns the DDL expects but the database file lacks."""
+    expected = expected_schema()
+    problems: list[str] = []
+    with sqlite3.connect(db_path) as connection:
+        for table, columns in expected.items():
+            actual = {row[1] for row in connection.execute(f'PRAGMA table_info("{table}")').fetchall()}
+            if not actual:
+                problems.append(f"缺少表 {table}")
+                continue
+            missing = sorted(columns - actual)
+            if missing:
+                problems.append(f"表 {table} 缺少列 {', '.join(missing)}")
+    return problems
+
+
+def ensure_database(db_path: Path) -> str | None:
+    """Create the standard database if needed; if an older-schema file is found, set it aside and start fresh.
+
+    The standard database is a snapshot store (every upload is a full re-import), so recreating it never
+    loses anything that cannot be re-uploaded. Returns the backup path when a file was set aside.
+    """
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    if not db_path.exists():
+        create_database(db_path)
+        return None
+    problems = schema_differences(db_path)
+    if not problems:
+        return None
+    backup = db_path.with_name(f"{db_path.name}.bak-{datetime.now():%Y%m%d-%H%M%S}")
+    db_path.rename(backup)
+    create_database(db_path)
+    print(f"[ec101] 旧结构数据库已备份为 {backup.name} 并重建: {'; '.join(problems)}")
+    return str(backup)
 
 
 def import_uploaded_files(db_path: Path, workbook_bytes: bytes, source_bytes: bytes | None = None, source_name: str = "sources.zip", calc_date: str | None = None) -> dict[str, Any]:
     """Import one uploaded standard workbook and archive metadata without storing raw rows."""
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_database(db_path)
     with tempfile.TemporaryDirectory(prefix="ec101-import-") as directory:
         root = Path(directory)
         workbook_path = root / "standard.xlsx"
@@ -35,8 +90,6 @@ def import_uploaded_files(db_path: Path, workbook_bytes: bytes, source_bytes: by
         source_name = Path(source_name).name or "sources.zip"
         source_path = root / source_name
         source_path.write_bytes(source_bytes or b"")
-        if not db_path.exists() or not _has_table(db_path, "import_batch"):
-            create_database(db_path)
         workbook = read_standard_workbook(workbook_path)
         source_hash = hashlib.sha256(source_bytes or b"").hexdigest()
         archive_path = db_path.parent / "archives" / f"{source_hash[:16]}-{source_name}"
@@ -49,15 +102,19 @@ def import_uploaded_files(db_path: Path, workbook_bytes: bytes, source_bytes: by
         return {"import_batch_id": result.import_batch_id, "calculation_run_id": result.calculation_run_id, "status": result.status, "calculation": calculation}
 
 
-def _has_table(db_path: Path, table_name: str) -> bool:
-    with sqlite3.connect(db_path) as connection:
-        return connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table_name,)).fetchone() is not None
-
-
 def list_imports(db_path: Path) -> dict[str, Any]:
     with sqlite3.connect(db_path) as connection:
         connection.row_factory = sqlite3.Row
-        rows = [dict(row) for row in connection.execute("SELECT * FROM import_batch ORDER BY import_batch_id DESC").fetchall()]
+        rows = [dict(row) for row in connection.execute(
+            """
+            SELECT ib.*, cr.calculation_run_id, cr.calc_date, cr.participating_orders, cr.released_orders,
+                   cr.activity_benefit, cr.coupon_benefit, cr.released_activity_benefit, cr.released_coupon_benefit,
+                   (SELECT COUNT(*) FROM order_header oh WHERE oh.import_batch_id=ib.import_batch_id) AS order_count
+            FROM import_batch ib
+            LEFT JOIN calculation_run cr ON cr.calculation_run_id=(SELECT MAX(calculation_run_id) FROM calculation_run WHERE import_batch_id=ib.import_batch_id)
+            ORDER BY ib.import_batch_id DESC
+            """
+        ).fetchall()]
     return {"rows": rows, "total": len(rows)}
 
 
@@ -138,96 +195,130 @@ def get_import_release(db_path: Path, import_batch_id: int, params: dict[str, An
 
 
 class NotFoundError(KeyError):
-    """A requested, immutable calculation batch or activity does not exist."""
+    """A requested, immutable calculation run or activity does not exist."""
 
 
-def _config(select: str, joins: str, search: tuple[str, ...], id_column: str, order: str):
-    return {"select": select, "joins": joins, "search": search, "id_column": id_column, "order": order}
+# ---------------------------------------------------------------------------
+# 业务数据：按当前有效导入批次（import_batch.is_current=1）读取标准库事实表
+# ---------------------------------------------------------------------------
 
+def _config(source: str, select: str, joins: str, search: tuple[str, ...], id_column: str) -> dict[str, Any]:
+    return {"source": source, "select": select, "joins": joins, "search": search, "id_column": id_column}
+
+
+_BATCH = "JOIN import_batch ib ON ib.import_batch_id={owner}.import_batch_id"
+_ORDER_BATCH = "JOIN order_header oh ON oh.order_id={owner}.order_id " + _BATCH.format(owner="oh")
 
 CONFIGS = {
     "orders": _config(
-        "oh.order_id AS id, oh.order_no, dp.dealer_name AS dealer, dp.platform_name AS platform, c.customer_name AS customer, oh.order_time, oh.order_status, oh.batch_id AS source_batch",
-        "JOIN dealer_platform dp ON dp.dealer_platform_id = oh.dealer_platform_id LEFT JOIN customer c ON c.customer_id = oh.customer_id",
-        ("oh.order_no", "c.customer_name", "oh.order_status"),
-        "oh.order_id",
+        "order_header oh",
+        "oh.order_id AS id, oh.import_batch_id, oh.order_no, ib.dealer_name AS dealer, ib.platform_name AS platform, oh.customer_no, oh.customer_name AS customer, "
+        "oh.salesperson, oh.order_time, oh.order_status, oh.order_source, oh.order_type, oh.payment_method, "
+        "(SELECT COUNT(*) FROM order_line ol WHERE ol.order_id=oh.order_id) AS line_count, "
+        "(SELECT ROUND(COALESCE(SUM(ol.paid_amount),0),2) FROM order_line ol WHERE ol.order_id=oh.order_id) AS paid_amount, "
+        "(SELECT ROUND(COALESCE(SUM(ol.discount_amount),0),2) FROM order_line ol WHERE ol.order_id=oh.order_id) AS discount_amount, "
+        "(SELECT GROUP_CONCAT(a.activity_name, ';') FROM activity_execution ae JOIN activity a ON a.activity_id=ae.activity_id WHERE ae.order_id=oh.order_id) AS activities, "
+        "(SELECT GROUP_CONCAT(cr.coupon_no, ';') FROM coupon_redemption cr WHERE cr.order_id=oh.order_id) AS coupons",
+        _BATCH.format(owner="oh"),
+        ("oh.order_no", "oh.customer_name", "oh.customer_no", "oh.order_status", "oh.salesperson"),
         "oh.order_id",
     ),
     "order-lines": _config(
-        "ol.order_line_id AS id, oh.order_no, dp.dealer_name AS dealer, dp.platform_name AS platform, p.product_name AS product, p.platform_product_no AS product_no, ol.order_qty, ol.order_unit, ol.pre_discount_amount, ol.discount_amount",
-        "JOIN order_header oh ON oh.order_id = ol.order_id JOIN dealer_platform dp ON dp.dealer_platform_id = oh.dealer_platform_id LEFT JOIN product p ON p.product_id = ol.product_id",
-        ("oh.order_no", "p.product_name", "p.platform_product_no"),
-        "ol.order_line_id",
+        "order_line ol",
+        "ol.order_line_id AS id, oh.import_batch_id, oh.order_no, ib.dealer_name AS dealer, ib.platform_name AS platform, oh.order_time, oh.customer_name AS customer, oh.order_status, "
+        "ol.product_no, ol.product_name AS product, ol.category, ol.spec, ol.unit, ol.quantity, ol.unit_price, ol.pre_discount_amount, ol.discount_amount, ol.paid_amount, "
+        "ol.activity_numbers, ol.coupon_numbers, ol.return_qty",
+        _ORDER_BATCH.format(owner="ol"),
+        ("oh.order_no", "ol.product_name", "ol.product_no", "oh.customer_name"),
         "ol.order_line_id",
     ),
     "activities": _config(
-        "a.activity_id AS id, a.activity_name, dp.dealer_name AS dealer, dp.platform_name AS platform, a.promotion_type, a.start_time, a.end_time, a.activity_status, a.rule_version",
-        "JOIN dealer_platform dp ON dp.dealer_platform_id = a.dealer_platform_id",
-        ("a.activity_name", "a.promotion_type", "a.activity_status"),
-        "a.activity_id",
+        "activity a",
+        "a.activity_id AS id, a.import_batch_id, a.activity_no, a.activity_name, a.activity_type, ib.dealer_name AS dealer, ib.platform_name AS platform, a.promo_method, "
+        "a.start_time, a.end_time, a.activity_status, "
+        "(SELECT COUNT(*) FROM activity_execution ae WHERE ae.activity_id=a.activity_id) AS execution_count, "
+        "(SELECT ROUND(COALESCE(SUM(ae.discount_amount),0),2) FROM activity_execution ae WHERE ae.activity_id=a.activity_id) AS discount_total",
+        _BATCH.format(owner="a"),
+        ("a.activity_no", "a.activity_name", "a.activity_type"),
         "a.activity_id",
     ),
-    "activity-details": _config(
-        "oa.order_activity_id AS id, oh.order_no, dp.dealer_name AS dealer, dp.platform_name AS platform, a.activity_name, oa.activity_product_amount, oa.platform_actual_benefit, oa.gift_qty_actual, oa.exec_status, oa.evidence_ref",
-        "JOIN order_header oh ON oh.order_id = oa.order_id JOIN dealer_platform dp ON dp.dealer_platform_id = oh.dealer_platform_id JOIN activity a ON a.activity_id = oa.activity_id",
-        ("oh.order_no", "a.activity_name", "oa.exec_status"),
-        "oa.order_activity_id",
-        "oa.order_activity_id",
+    "activity-executions": _config(
+        "activity_execution ae",
+        "ae.activity_execution_id AS id, oh.import_batch_id, oh.order_no, ib.dealer_name AS dealer, ib.platform_name AS platform, a.activity_no, a.activity_name, a.activity_type, "
+        "oh.order_time, oh.order_status, ae.customer_no, ae.customer_name, ae.salesperson, ae.product_amount, ae.discount_amount",
+        _ORDER_BATCH.format(owner="ae") + " JOIN activity a ON a.activity_id=ae.activity_id",
+        ("oh.order_no", "a.activity_name", "ae.customer_name", "ae.customer_no"),
+        "ae.activity_execution_id",
+    ),
+    "coupon-redemptions": _config(
+        "coupon_redemption cr",
+        "cr.coupon_redemption_id AS id, cr.import_batch_id, cr.coupon_no, ib.dealer_name AS dealer, ib.platform_name AS platform, oh.order_no, oh.order_time, oh.order_status, "
+        "cr.customer_no, cr.customer_name, cr.salesperson, cr.receive_time, cr.use_period, cr.status, cr.used_at, cr.discount_amount",
+        _BATCH.format(owner="cr") + " LEFT JOIN order_header oh ON oh.order_id=cr.order_id",
+        ("cr.coupon_no", "oh.order_no", "cr.customer_name", "cr.customer_no", "cr.status"),
+        "cr.coupon_redemption_id",
     ),
     "customers": _config(
-        "c.customer_id AS id, c.platform_customer_no AS customer_no, dp.dealer_name AS dealer, dp.platform_name AS platform, c.customer_name, c.customer_type, c.customer_level, c.customer_region, c.salesperson_name, c.status",
-        "JOIN dealer_platform dp ON dp.dealer_platform_id = c.dealer_platform_id",
-        ("c.platform_customer_no", "c.customer_name", "c.customer_region", "c.salesperson_name"),
-        "c.customer_id",
+        "customer c",
+        "c.customer_id AS id, c.import_batch_id, c.customer_no, ib.dealer_name AS dealer, ib.platform_name AS platform, c.customer_name, c.customer_type, c.customer_region, "
+        "c.address, c.phone, c.added_at, c.salesperson",
+        _BATCH.format(owner="c"),
+        ("c.customer_no", "c.customer_name", "c.customer_region", "c.salesperson"),
         "c.customer_id",
     ),
     "products": _config(
-        "p.product_id AS id, p.platform_product_no AS product_no, dp.dealer_name AS dealer, dp.platform_name AS platform, p.product_name, p.brand, p.category, p.spec, p.base_unit, p.shelf_status",
-        "JOIN dealer_platform dp ON dp.dealer_platform_id = p.dealer_platform_id",
-        ("p.platform_product_no", "p.product_name", "p.brand", "p.category"),
-        "p.product_id",
+        "product p",
+        "p.product_id AS id, p.import_batch_id, p.product_no, ib.dealer_name AS dealer, ib.platform_name AS platform, p.product_name, p.brand, p.category, p.barcode, p.spec, "
+        "p.base_unit, p.box_conversion, p.base_qty_per_box",
+        _BATCH.format(owner="p"),
+        ("p.product_no", "p.product_name", "p.brand", "p.category", "p.barcode"),
         "p.product_id",
     ),
     "fulfillments": _config(
-        "f.fulfillment_id AS id, oh.order_no, dp.dealer_name AS dealer, dp.platform_name AS platform, f.order_status, f.completed_at, f.t2_release_candidate, f.return_qty, f.special_reason",
-        "JOIN order_header oh ON oh.order_id = f.order_id JOIN dealer_platform dp ON dp.dealer_platform_id = oh.dealer_platform_id",
-        ("oh.order_no", "f.order_status", "f.special_reason"),
+        "fulfillment f",
+        "f.fulfillment_id AS id, f.import_batch_id, f.order_no, ib.dealer_name AS dealer, ib.platform_name AS platform, f.downstream_order_no, f.fulfillment_status, "
+        "f.outbound_at, f.completed_at, f.settlement_status, f.return_qty",
+        _BATCH.format(owner="f"),
+        ("f.order_no", "f.downstream_order_no", "f.fulfillment_status", "f.settlement_status"),
         "f.fulfillment_id",
-        "f.fulfillment_id",
-    ),
-    "order-activities": _config(
-        "oa.order_activity_id AS id, oh.order_no, dp.dealer_name AS dealer, dp.platform_name AS platform, a.activity_name, ar.threshold_value, ar.reduce_amount, oa.activity_product_amount, oa.platform_actual_benefit, oa.exec_status",
-        "JOIN order_header oh ON oh.order_id = oa.order_id JOIN dealer_platform dp ON dp.dealer_platform_id = oh.dealer_platform_id JOIN activity a ON a.activity_id = oa.activity_id LEFT JOIN activity_rule ar ON ar.rule_id = oa.rule_id",
-        ("oh.order_no", "a.activity_name", "oa.exec_status"),
-        "oa.order_activity_id",
-        "oa.order_activity_id",
     ),
 }
 SUPPORTED_OBJECTS = tuple(CONFIGS)
 
 
+def _batch_scope(params: dict[str, Any]) -> tuple[str, list[Any]]:
+    """Default to the current snapshot of every dealer/platform; ``import_batch_id`` pins one batch."""
+    raw = params.get("import_batch_id")
+    if raw in (None, ""):
+        return "ib.is_current=1", []
+    try:
+        return "ib.import_batch_id=?", [int(raw)]
+    except (TypeError, ValueError) as exc:
+        raise ValueError("import_batch_id must be an integer") from exc
+
+
 def _conditions(config: dict[str, Any], params: dict[str, Any]) -> tuple[str, list[Any]]:
-    clauses: list[str] = []
-    values: list[Any] = []
+    scope, values = _batch_scope(params)
+    clauses: list[str] = [scope]
     dealer = str(params.get("dealer", "")).strip()
     platform = str(params.get("platform", "")).strip()
     search = str(params.get("q", "")).strip()
     if dealer:
-        clauses.append("dp.dealer_name LIKE ?")
+        clauses.append("ib.dealer_name LIKE ?")
         values.append(f"%{dealer}%")
     if platform:
-        clauses.append("dp.platform_name LIKE ?")
+        clauses.append("ib.platform_name LIKE ?")
         values.append(f"%{platform}%")
     if search:
         clauses.append("(" + " OR ".join(f"{column} LIKE ?" for column in config["search"]) + ")")
         values.extend([f"%{search}%"] * len(config["search"]))
-    return (" WHERE " + " AND ".join(clauses)) if clauses else "", values
+    return " WHERE " + " AND ".join(clauses), values
 
 
 def _bounds(params: dict[str, Any]) -> tuple[int, int]:
     try:
-        limit = min(max(int(params.get("limit", 50)), 1), 100)
-        offset = min(max(int(params.get("offset", 0)), 0), 10000)
+        limit = min(max(int(params.get("limit", 50)), 1), 500)
+        offset = max(int(params.get("offset", 0)), 0)
     except (TypeError, ValueError) as exc:
         raise ValueError("limit and offset must be integers") from exc
     return limit, offset
@@ -239,11 +330,11 @@ def query_dataset(db_path: Path, object_name: str, params: dict[str, Any]) -> di
     config = CONFIGS[object_name]
     where, values = _conditions(config, params)
     limit, offset = _bounds(params)
-    base = f"SELECT {config['select']} FROM { {'orders':'order_header oh','order-lines':'order_line ol','activities':'activity a','activity-details':'order_activity oa','customers':'customer c','products':'product p','fulfillments':'fulfillment f','order-activities':'order_activity oa'}[object_name] } {config['joins']}"
+    base = f"SELECT {config['select']} FROM {config['source']} {config['joins']}"
     with sqlite3.connect(db_path) as connection:
         connection.row_factory = sqlite3.Row
         total = connection.execute(f"SELECT COUNT(*) FROM ({base}{where})", values).fetchone()[0]
-        rows = [dict(row) for row in connection.execute(f"{base}{where} ORDER BY {config['order']} LIMIT ? OFFSET ?", [*values, limit, offset]).fetchall()]
+        rows = [dict(row) for row in connection.execute(f"{base}{where} ORDER BY {config['id_column']} LIMIT ? OFFSET ?", [*values, limit, offset]).fetchall()]
     return {"object": object_name, "columns": list(rows[0].keys()) if rows else [], "rows": rows, "total": total, "limit": limit, "offset": offset}
 
 
@@ -251,141 +342,190 @@ def get_detail(db_path: Path, object_name: str, record_id: str) -> dict[str, Any
     if object_name not in CONFIGS:
         raise KeyError(object_name)
     config = CONFIGS[object_name]
-    bases = {"orders":"order_header oh", "order-lines":"order_line ol", "activities":"activity a", "activity-details":"order_activity oa", "customers":"customer c", "products":"product p", "fulfillments":"fulfillment f", "order-activities":"order_activity oa"}
-    base = f"SELECT {config['select']} FROM {bases[object_name]} {config['joins']} WHERE {config['id_column']} = ?"
+    base = f"SELECT {config['select']} FROM {config['source']} {config['joins']} WHERE {config['id_column']} = ?"
     with sqlite3.connect(db_path) as connection:
         connection.row_factory = sqlite3.Row
         row = connection.execute(base, (record_id,)).fetchone()
-    return dict(row) if row else None
+        if row is None:
+            return None
+        payload = dict(row)
+        if object_name == "orders":
+            payload["lines"] = [dict(item) for item in connection.execute(
+                "SELECT order_line_id, product_no, product_name, category, spec, unit, quantity, unit_price, pre_discount_amount, discount_amount, paid_amount, activity_numbers, coupon_numbers, return_qty FROM order_line WHERE order_id=? ORDER BY order_line_id",
+                (record_id,),
+            ).fetchall()]
+            payload["activity_executions"] = [dict(item) for item in connection.execute(
+                "SELECT a.activity_no, a.activity_name, a.activity_type, ae.product_amount, ae.discount_amount FROM activity_execution ae JOIN activity a ON a.activity_id=ae.activity_id WHERE ae.order_id=? ORDER BY ae.activity_execution_id",
+                (record_id,),
+            ).fetchall()]
+            payload["coupon_redemptions"] = [dict(item) for item in connection.execute(
+                "SELECT coupon_no, status, used_at, discount_amount FROM coupon_redemption WHERE order_id=? ORDER BY coupon_redemption_id",
+                (record_id,),
+            ).fetchall()]
+            payload["release"] = next((dict(item) for item in connection.execute(
+                "SELECT rc.is_candidate, rc.reason, rc.activity_benefit, rc.coupon_benefit, cr.calc_date, cr.release_cutoff FROM release_candidate rc JOIN calculation_run cr ON cr.calculation_run_id=rc.calculation_run_id WHERE rc.order_id=? ORDER BY rc.calculation_run_id DESC LIMIT 1",
+                (record_id,),
+            ).fetchall()), None)
+    return payload
 
 
-def _fee_tpm_bounds(params: dict[str, Any]) -> tuple[int, int]:
-    return _bounds(params)
+# ---------------------------------------------------------------------------
+# 费用核算：按当前批次的最新 calculation_run 读取 activity_fee_summary / calculation_quality_issue
+# ---------------------------------------------------------------------------
 
-
-def _requested_batch(connection: sqlite3.Connection, params: dict[str, Any]) -> int | None:
+def _requested_run(connection: sqlite3.Connection, params: dict[str, Any]) -> int | None:
     raw = params.get("calc_batch_id")
     if raw in (None, ""):
         return None
     try:
-        batch_id = int(raw)
+        run_id = int(raw)
     except (TypeError, ValueError) as exc:
         raise ValueError("calc_batch_id must be an integer") from exc
-    if connection.execute("SELECT 1 FROM result_calc_batch WHERE calc_batch_id=?", (batch_id,)).fetchone() is None:
+    if connection.execute("SELECT 1 FROM calculation_run WHERE calculation_run_id=?", (run_id,)).fetchone() is None:
         raise NotFoundError("calc_batch_id")
-    return batch_id
+    return run_id
 
 
-def _fee_activity_rows(connection: sqlite3.Connection, params: dict[str, Any]) -> tuple[list[dict[str, Any]], int | None]:
-    batch_id = _requested_batch(connection, params)
+def _fee_runs(connection: sqlite3.Connection, params: dict[str, Any]) -> tuple[list[dict[str, Any]], int | None]:
+    """Calculation runs in scope: one pinned run, or the latest run of every current import batch."""
+    run_id = _requested_run(connection, params)
     dealer = str(params.get("dealer", "")).strip()
     platform = str(params.get("platform", "")).strip()
     clauses, values = [], []
-    if dealer:
-        clauses.append("dp.dealer_name LIKE ?"); values.append(f"%{dealer}%")
-    if platform:
-        clauses.append("dp.platform_name LIKE ?"); values.append(f"%{platform}%")
-    if batch_id is None:
-        batch_clause = "rf.calc_batch_id=(SELECT MAX(current_fee.calc_batch_id) FROM result_fee current_fee WHERE current_fee.activity_id=a.activity_id)"
+    if run_id is None:
+        clauses.append("ib.is_current=1 AND cr.calculation_run_id=(SELECT MAX(calculation_run_id) FROM calculation_run WHERE import_batch_id=ib.import_batch_id)")
     else:
-        batch_clause = "rf.calc_batch_id=?"; values.append(batch_id)
-    where = " WHERE " + " AND ".join([batch_clause, *clauses])
-    sql = """
-        SELECT a.activity_id, a.activity_name, a.activity_category, a.promotion_type, a.rule_version,
-               dp.dealer_name, dp.platform_name, rf.tpm_id, rf.actual_discount_total, rf.gift_cost_total,
-               rf.settle_amount, rf.diff_amount, rf.settle_status, rf.calc_batch_id,
-               cb.calc_date, cb.rule_version AS calc_rule_version,
-               t.tpm_code, t.apply_amount, t.budget_reserve_no, t.fee_pay_dept,
-               COALESCE(SUM(re.gift_qty_entitled), 0) AS gift_qty_entitled,
-               COALESCE(SUM(re.gift_qty_actual), 0) AS gift_qty_actual,
-               COALESCE(SUM(CASE WHEN rc.is_candidate=1 THEN 1 ELSE 0 END), 0) AS release_candidates
-        FROM activity a
-        JOIN dealer_platform dp ON dp.dealer_platform_id=a.dealer_platform_id
-        JOIN result_fee rf ON rf.activity_id=a.activity_id
-        JOIN result_calc_batch cb ON cb.calc_batch_id=rf.calc_batch_id
-        LEFT JOIN tpm_application t ON t.tpm_id=rf.tpm_id
-        LEFT JOIN order_activity oa ON oa.activity_id=a.activity_id
-        LEFT JOIN result_entitlement re ON re.order_activity_id=oa.order_activity_id AND re.calc_batch_id=rf.calc_batch_id
-        LEFT JOIN result_release_candidate rc ON rc.order_id=oa.order_id AND rc.calc_batch_id=rf.calc_batch_id
-    """ + where + " GROUP BY a.activity_id,rf.calc_batch_id ORDER BY a.activity_id"
-    return [dict(row) for row in connection.execute(sql, values).fetchall()], batch_id
+        clauses.append("cr.calculation_run_id=?"); values.append(run_id)
+    if dealer:
+        clauses.append("ib.dealer_name LIKE ?"); values.append(f"%{dealer}%")
+    if platform:
+        clauses.append("ib.platform_name LIKE ?"); values.append(f"%{platform}%")
+    rows = [dict(row) for row in connection.execute(
+        "SELECT cr.*, ib.dealer_name, ib.platform_name, ib.coverage_start, ib.coverage_end FROM calculation_run cr JOIN import_batch ib ON ib.import_batch_id=cr.import_batch_id WHERE "
+        + " AND ".join(clauses) + " ORDER BY cr.calculation_run_id",
+        values,
+    ).fetchall()]
+    return rows, run_id
 
 
-def _issues_for_batches(connection: sqlite3.Connection, batch_ids: set[int]) -> list[dict[str, Any]]:
-    if not batch_ids:
+def _fee_activity_rows(connection: sqlite3.Connection, runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if not runs:
         return []
-    placeholders = ",".join("?" for _ in batch_ids)
-    issues = [dict(row) for row in connection.execute(f"SELECT * FROM result_quality_issue WHERE calc_batch_id IN ({placeholders}) ORDER BY issue_id", list(batch_ids)).fetchall()]
+    placeholders = ",".join("?" for _ in runs)
+    return [dict(row) for row in connection.execute(
+        f"""
+        SELECT a.activity_id, a.activity_no, a.activity_name, a.activity_type, a.start_time, a.end_time,
+               ib.dealer_name, ib.platform_name, cr.calculation_run_id, cr.calc_date, cr.release_cutoff, cr.import_batch_id,
+               s.actual_discount_total, s.participating_orders, s.released_orders, s.released_amount, s.pending_orders, s.pending_amount
+        FROM activity_fee_summary s
+        JOIN activity a ON a.activity_id=s.activity_id
+        JOIN calculation_run cr ON cr.calculation_run_id=s.calculation_run_id
+        JOIN import_batch ib ON ib.import_batch_id=cr.import_batch_id
+        WHERE s.calculation_run_id IN ({placeholders})
+        ORDER BY cr.calculation_run_id, a.activity_id
+        """,
+        [run["calculation_run_id"] for run in runs],
+    ).fetchall()]
+
+
+def _issues_for_runs(connection: sqlite3.Connection, runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if not runs:
+        return []
+    placeholders = ",".join("?" for _ in runs)
+    issues = [dict(row) for row in connection.execute(
+        f"""
+        SELECT qi.calculation_quality_issue_id AS issue_id, qi.calculation_run_id, qi.order_no, qi.issue_type, qi.level, qi.reason,
+               (SELECT GROUP_CONCAT(DISTINCT ae.activity_id) FROM activity_execution ae JOIN order_header oh ON oh.order_id=ae.order_id
+                 WHERE oh.order_no=qi.order_no AND oh.import_batch_id=cr.import_batch_id) AS activity_ids
+        FROM calculation_quality_issue qi JOIN calculation_run cr ON cr.calculation_run_id=qi.calculation_run_id
+        WHERE qi.calculation_run_id IN ({placeholders}) ORDER BY qi.calculation_quality_issue_id
+        """,
+        [run["calculation_run_id"] for run in runs],
+    ).fetchall()]
     for issue in issues:
-        if not issue["order_no"]:
-            issue["activityId"] = None
-            continue
-        activity_ids = [row[0] for row in connection.execute("SELECT DISTINCT oa.activity_id FROM order_activity oa JOIN order_header oh ON oh.order_id=oa.order_id WHERE oh.order_no=?", (issue["order_no"],)).fetchall()]
-        issue["activityId"] = activity_ids[0] if len(activity_ids) == 1 else None
+        ids = [int(value) for value in (issue.pop("activity_ids") or "").split(",") if value]
+        issue["activityId"] = ids[0] if len(ids) == 1 else None
     return issues
 
 
-def _activity_status(row: dict[str, Any], issues: list[dict[str, Any]]) -> str:
-    related = [issue for issue in issues if issue["activityId"] == row["activity_id"] and issue["calc_batch_id"] == row["calc_batch_id"]]
+def _activity_status(row: dict[str, Any], kind: str, issues: list[dict[str, Any]]) -> str:
+    related = [issue for issue in issues if issue["activityId"] == row["activity_id"] and issue["calculation_run_id"] == row["calculation_run_id"]]
     if any(issue["level"] == "警告" for issue in related):
         return "待处理"
-    if any(issue["level"] == "提示" for issue in related):
-        return "待确认"
-    if row["settle_amount"] is not None and row["release_candidates"] and row["tpm_id"] is not None:
+    if kind == "money" and float(row["released_amount"] or 0) > 0:
         return "可提交"
-    return "已核验"
+    if row["released_orders"]:
+        return "已核验"
+    return "待确认"
 
 
 def _activity_payload(row: dict[str, Any], issues: list[dict[str, Any]]) -> dict[str, Any]:
-    kind = "gift" if "赠" in (row["promotion_type"] or "") else "money"
+    kind = "gift" if "赠" in (row["activity_type"] or "") else "money"
+    related = [issue for issue in issues if issue["activityId"] == row["activity_id"] and issue["calculation_run_id"] == row["calculation_run_id"]]
     return {
-        "activityId": row["activity_id"], "activityName": row["activity_name"], "dealer": row["dealer_name"], "platform": row["platform_name"],
-        "promotionType": row["promotion_type"], "benefitKind": kind, "ruleVersion": row["rule_version"], "calcBatchId": row["calc_batch_id"], "calcDate": row["calc_date"],
-        "tpm": None if row["tpm_id"] is None else {"id": row["tpm_id"], "code": row["tpm_code"], "budgetAmount": row["apply_amount"], "budgetReserveNo": row["budget_reserve_no"], "feeBearer": row["fee_pay_dept"]},
-        "actualDiscountTotal": row["actual_discount_total"], "settleAmount": row["settle_amount"], "budgetRemaining": row["diff_amount"],
-        "giftQtyEntitled": row["gift_qty_entitled"] if kind == "gift" else None, "giftQtyActual": row["gift_qty_actual"] if kind == "gift" else None,
-        "releaseCandidates": row["release_candidates"], "warningCount": sum(issue["level"] == "警告" and issue["activityId"] == row["activity_id"] for issue in issues), "tipCount": sum(issue["level"] == "提示" and issue["activityId"] == row["activity_id"] for issue in issues),
-        "status": _activity_status(row, issues),
+        "activityId": row["activity_id"], "activityNo": row["activity_no"], "activityName": row["activity_name"], "dealer": row["dealer_name"], "platform": row["platform_name"],
+        "promotionType": row["activity_type"], "benefitKind": kind, "startTime": row["start_time"], "endTime": row["end_time"],
+        "importBatchId": row["import_batch_id"], "calcBatchId": row["calculation_run_id"], "calcDate": row["calc_date"], "releaseCutoff": row["release_cutoff"],
+        "actualDiscountTotal": row["actual_discount_total"], "settleAmount": row["released_amount"] if kind == "money" else None,
+        "participatingOrders": row["participating_orders"], "releasedOrders": row["released_orders"], "releasedAmount": row["released_amount"],
+        "pendingOrders": row["pending_orders"], "pendingAmount": row["pending_amount"],
+        "warningCount": sum(issue["level"] == "警告" for issue in related), "tipCount": sum(issue["level"] == "提示" for issue in related),
+        "status": _activity_status(row, kind, issues),
     }
 
 
 def query_fee_tpm_activities(db_path: Path, params: dict[str, Any]) -> dict[str, Any]:
-    limit, offset = _fee_tpm_bounds(params)
+    limit, offset = _bounds(params)
     with sqlite3.connect(db_path) as connection:
         connection.row_factory = sqlite3.Row
-        rows, batch_id = _fee_activity_rows(connection, params)
-        issues = _issues_for_batches(connection, {row["calc_batch_id"] for row in rows})
+        runs, run_id = _fee_runs(connection, params)
+        rows = _fee_activity_rows(connection, runs)
+        issues = _issues_for_runs(connection, runs)
     payload_rows = [_activity_payload(row, issues) for row in rows]
-    return {"mode": "historical" if batch_id is not None else "current", "calcBatchId": batch_id, "rows": payload_rows[offset:offset + limit], "total": len(payload_rows), "limit": limit, "offset": offset}
+    return {"mode": "historical" if run_id is not None else "current", "calcBatchId": run_id, "rows": payload_rows[offset:offset + limit], "total": len(payload_rows), "limit": limit, "offset": offset}
 
 
 def query_fee_tpm_issues(db_path: Path, params: dict[str, Any]) -> dict[str, Any]:
-    limit, offset = _fee_tpm_bounds(params)
+    limit, offset = _bounds(params)
     with sqlite3.connect(db_path) as connection:
         connection.row_factory = sqlite3.Row
-        rows, batch_id = _fee_activity_rows(connection, params)
-        issues = _issues_for_batches(connection, {row["calc_batch_id"] for row in rows})
-    payload = [{"issueId": issue["issue_id"], "orderNo": issue["order_no"], "issueType": issue["issue_type"], "level": issue["level"], "reason": issue["reason"], "evidence": issue["evidence_ref"], "calcBatchId": issue["calc_batch_id"], "activityId": issue["activityId"]} for issue in issues]
-    return {"mode": "historical" if batch_id is not None else "current", "calcBatchId": batch_id, "rows": payload[offset:offset + limit], "total": len(payload), "limit": limit, "offset": offset}
+        runs, run_id = _fee_runs(connection, params)
+        issues = _issues_for_runs(connection, runs)
+    payload = [{"issueId": issue["issue_id"], "orderNo": issue["order_no"], "issueType": issue["issue_type"], "level": issue["level"], "reason": issue["reason"], "evidence": None, "calcBatchId": issue["calculation_run_id"], "activityId": issue["activityId"]} for issue in issues]
+    return {"mode": "historical" if run_id is not None else "current", "calcBatchId": run_id, "rows": payload[offset:offset + limit], "total": len(payload), "limit": limit, "offset": offset}
 
 
 def query_fee_tpm_settlements(db_path: Path, params: dict[str, Any]) -> dict[str, Any]:
-    activities = query_fee_tpm_activities(db_path, {**params, "limit": 100, "offset": 0})
+    activities = query_fee_tpm_activities(db_path, {**params, "limit": 500, "offset": 0})
     rows = [row for row in activities["rows"] if row["benefitKind"] == "money" and row["status"] == "可提交" and row["settleAmount"] is not None]
     return {**activities, "rows": rows, "total": len(rows)}
 
 
 def query_fee_tpm_overview(db_path: Path, params: dict[str, Any]) -> dict[str, Any]:
-    activities = query_fee_tpm_activities(db_path, {**params, "limit": 100, "offset": 0})
+    activities = query_fee_tpm_activities(db_path, {**params, "limit": 500, "offset": 0})
     rows = activities["rows"]
-    return {"mode": activities["mode"], "calcBatchId": activities["calcBatchId"], "activityCount": len(rows), "submittableAmount": sum(float(row["settleAmount"] or 0) for row in rows if row["status"] == "可提交"), "giftQtyActual": sum(float(row["giftQtyActual"] or 0) for row in rows), "waitingCount": sum(row["status"] == "待确认" for row in rows), "handlingCount": sum(row["status"] == "待处理" for row in rows), "activities": rows}
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        runs, _ = _fee_runs(connection, params)
+    return {
+        "mode": activities["mode"], "calcBatchId": activities["calcBatchId"], "activityCount": len(rows),
+        "submittableAmount": round(sum(float(row["settleAmount"] or 0) for row in rows if row["status"] == "可提交"), 2),
+        "couponBenefit": round(sum(float(run["coupon_benefit"] or 0) for run in runs), 2),
+        "releasedCouponBenefit": round(sum(float(run["released_coupon_benefit"] or 0) for run in runs), 2),
+        "participatingOrders": sum(int(run["participating_orders"] or 0) for run in runs),
+        "releasedOrders": sum(int(run["released_orders"] or 0) for run in runs),
+        "giftReleasedOrders": sum(int(row["releasedOrders"] or 0) for row in rows if row["benefitKind"] == "gift"),
+        "waitingCount": sum(row["status"] == "待确认" for row in rows), "handlingCount": sum(row["status"] == "待处理" for row in rows),
+        "runs": [{"calcBatchId": run["calculation_run_id"], "importBatchId": run["import_batch_id"], "dealer": run["dealer_name"], "platform": run["platform_name"], "coverageStart": run["coverage_start"], "coverageEnd": run["coverage_end"], "calcDate": run["calc_date"], "releaseCutoff": run["release_cutoff"]} for run in runs],
+        "activities": rows,
+    }
 
 
 def query_fee_tpm_activity_detail(db_path: Path, activity_id: str, params: dict[str, Any]) -> dict[str, Any] | None:
-    payload = query_fee_tpm_activities(db_path, {**params, "limit": 100, "offset": 0})
+    payload = query_fee_tpm_activities(db_path, {**params, "limit": 500, "offset": 0})
     for row in payload["rows"]:
         if row["activityId"] == int(activity_id):
-            issues = query_fee_tpm_issues(db_path, params)["rows"]
+            issues = query_fee_tpm_issues(db_path, {**params, "limit": 500, "offset": 0})["rows"]
             return {**row, "issues": [issue for issue in issues if issue["activityId"] == row["activityId"]]}
     return None
 
@@ -443,7 +583,7 @@ def make_handler(db_path: Path):
             parts = [unquote(part) for part in parsed.path.strip("/").split("/") if part]
             try:
                 if parts == ["health"]:
-                    _json(self, 200, {"status": "ok", "database": str(db_path), "objects": list(SUPPORTED_OBJECTS), "read_only": True})
+                    _json(self, 200, {"status": "ok", "database": str(db_path), "schema": "standard", "objects": list(SUPPORTED_OBJECTS), "schema_issues": schema_differences(db_path) if db_path.exists() else ["数据库文件不存在"]})
                     return
                 if parts in (["api", "imports"], ["imports"]):
                     _json(self, 200, list_imports(db_path)); return
@@ -508,10 +648,9 @@ def make_handler(db_path: Path):
 
 
 def serve(host: str = "127.0.0.1", port: int = 8787, db_path: Path = DEFAULT_DB_PATH) -> None:
-    if not db_path.exists():
-        create_database(db_path)
+    ensure_database(db_path)
     server = ThreadingHTTPServer((host, port), make_handler(db_path))
-    print(f"EC101 read-only API: http://{host}:{port} (database: {db_path})")
+    print(f"EC101 API: http://{host}:{port} (standard database: {db_path})")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

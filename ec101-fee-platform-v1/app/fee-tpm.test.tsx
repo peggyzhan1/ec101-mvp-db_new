@@ -2,17 +2,27 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Home from './page';
 
-const activity = { activityId: 2, activityName: '满赠优惠', dealer: '兴路强', platform: '快马', promotionType: '立赠', benefitKind: 'gift', ruleVersion: 'v1', calcBatchId: 2, calcDate: '2026-10-04', tpm: null, actualDiscountTotal: 0, settleAmount: null, budgetRemaining: null, giftQtyEntitled: 98, giftQtyActual: 98, releaseCandidates: 1, warningCount: 0, tipCount: 0, status: '已核验' };
+const gift = { activityId: 2, activityNo: '满赠优惠', activityName: '满赠优惠', dealer: '深圳市兴路强商贸有限公司', platform: '快马', promotionType: '满赠', benefitKind: 'gift', startTime: null, endTime: null, importBatchId: 2, calcBatchId: 2, calcDate: '2026-09-22', releaseCutoff: '2026-09-20 00:00:00', actualDiscountTotal: 0, settleAmount: null, participatingOrders: 98, releasedOrders: 98, releasedAmount: 0, pendingOrders: 0, pendingAmount: 0, warningCount: 0, tipCount: 0, status: '已核验' };
+const manjian = { ...gift, activityId: 1, activityNo: '可口可乐满减', activityName: '可口可乐满减', promotionType: '满减', benefitKind: 'money', importBatchId: 1, calcBatchId: 1, actualDiscountTotal: 2040, settleAmount: 1995, participatingOrders: 136, releasedOrders: 133, releasedAmount: 1995, pendingOrders: 3, pendingAmount: 45, tipCount: 3, status: '可提交' };
+const overview = { submittableAmount: 1995, couponBenefit: 200, releasedCouponBenefit: 200, participatingOrders: 234, releasedOrders: 231, giftReleasedOrders: 98, waitingCount: 0, handlingCount: 0, runs: [{ calcBatchId: 1, importBatchId: 1, dealer: '深圳市兴路强商贸有限公司', platform: '快马', coverageStart: '2026-08-31', coverageEnd: '2026-09-17', calcDate: '2026-09-22', releaseCutoff: '2026-09-20 00:00:00' }] };
+const emptyOverview = { submittableAmount: 0, couponBenefit: 0, releasedCouponBenefit: 0, participatingOrders: 0, releasedOrders: 0, giftReleasedOrders: 0, waitingCount: 0, handlingCount: 0, runs: [] };
+const importBatch = { import_batch_id: 1, dealer_name: '深圳市兴路强商贸有限公司', platform_name: '快马', coverage_start: '2026-08-31', coverage_end: '2026-09-17', imported_at: '2026-10-05T10:00:00', status: 'calculated', is_current: 1, calc_date: '2026-09-22', order_count: 1764, participating_orders: 136, released_orders: 133, activity_benefit: 2040, coupon_benefit: 200, released_activity_benefit: 1995, released_coupon_benefit: 200 };
+
+const feeApi = (rows: unknown[], summary = overview) => vi.fn((url: string) => Promise.resolve({ ok: true, json: () => Promise.resolve(url.includes('overview') ? summary : url.includes('fee-tpm/activities') ? { rows } : url.includes('settlements') ? { rows: rows.filter((row) => (row as { status: string }).status === '可提交') } : url.endsWith('/api/imports') ? { rows: [importBatch] } : { rows: [] }) }));
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe('fee TPM workspace', () => {
-  it('renders a non-TPM gift as a quantity and never as currency', async () => {
-    vi.stubGlobal('fetch', vi.fn((url: string) => Promise.resolve({ ok: true, json: () => Promise.resolve(url.includes('overview') ? { submittableAmount: 0, giftQtyActual: 98, waitingCount: 0, handlingCount: 0 } : url.includes('activities') ? { rows: [activity] } : { rows: [] }) })));
+  it('renders gift activities as order counts and money activities as released amounts', async () => {
+    vi.stubGlobal('fetch', feeApi([manjian, gift]));
     render(<Home />);
-    await screen.findByText('98 个');
-    expect(screen.getByText(/不走 TPM/)).toBeInTheDocument();
-    expect(screen.getByText(/预算和结算金额不会按零值展示/)).toBeInTheDocument();
+    expect(await screen.findByText('¥ 1995.00')).toBeInTheDocument();
+    expect(screen.getByText(/满赠可释放 98 单/)).toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole('button', { name: '活动中心' })[0]);
+    expect(await screen.findByText('98 单可释放')).toBeInTheDocument();
+    expect(screen.getByText(/赠品按数量统计，不折算金额/)).toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole('button', { name: '核销与对账' })[0]);
+    expect(await screen.findByText(/1 个金额活动可释放，合计 ¥ 1995.00/)).toBeInTheDocument();
   });
 
   it('does not fall back to a snapshot when the API fails', async () => {
@@ -21,8 +31,36 @@ describe('fee TPM workspace', () => {
     expect(await screen.findByText('无法加载核算结果，未使用快照回退。')).toBeInTheDocument();
   });
 
+  it('lists imported batches from the API instead of a static table', async () => {
+    vi.stubGlobal('fetch', feeApi([]));
+    render(<Home />);
+    fireEvent.click(screen.getAllByRole('button', { name: '数据接入' })[0]);
+    expect(await screen.findByText('2026-08-31 至 2026-09-17')).toBeInTheDocument();
+    expect(screen.getByText('当前有效')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '查看结果' })).toBeInTheDocument();
+  });
+
+  it('queries business data from the standard schema and opens an order with its lines', async () => {
+    const order = { id: 713, import_batch_id: 1, order_no: '1012420526026091000081', dealer: '深圳市兴路强商贸有限公司', platform: '快马', customer_no: 'WX-1', customer: '可口可乐客户测试', salesperson: '', order_time: '2026-09-10 16:18:49', order_status: '已完成', line_count: 2, paid_amount: 1704.8, discount_amount: 215, activities: '可口可乐满减', coupons: '202609091700313431' };
+    const detail = { ...order, lines: [{ order_line_id: 1, product_no: 'P1', product_name: '可口可乐 330ml', spec: '330ml', unit: '箱', quantity: 10, unit_price: 50, pre_discount_amount: 500, discount_amount: 15, paid_amount: 485, activity_numbers: '可口可乐满减', coupon_numbers: '' }], activity_executions: [{ activity_no: '可口可乐满减', activity_name: '可口可乐满减', activity_type: '满减', product_amount: 1919.8, discount_amount: 15 }], coupon_redemptions: [{ coupon_no: '202609091700313431', status: '已使用', used_at: '2026-09-10 16:18:48', discount_amount: 200 }], release: { is_candidate: 1, reason: '已完成且达到T-2', activity_benefit: 15, coupon_benefit: 200, calc_date: '2026-09-22', release_cutoff: '2026-09-20 00:00:00' } };
+    const fetchMock = vi.fn((url: string) => {
+      if (url.includes('/api/business-data/orders/713')) return Promise.resolve({ ok: true, json: () => Promise.resolve(detail) });
+      if (url.includes('/api/business-data/orders')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ rows: [order], total: 1, limit: 50, offset: 0 }) });
+      return feeApi([])(url);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    render(<Home />);
+    fireEvent.click(screen.getAllByRole('button', { name: '业务数据' })[0]);
+    expect(await screen.findByText('1012420526026091000081')).toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/api/business-data/orders?') && String(url).includes('limit=50'))).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: '查看详情' }));
+    expect(await screen.findByText('可口可乐 330ml')).toBeInTheDocument();
+    expect(screen.getByText('已完成且达到T-2')).toBeInTheDocument();
+    expect(screen.getByText('券优惠 ¥ 200.00')).toBeInTheDocument();
+  });
+
   it('shows standard workbook import controls in data intake', async () => {
-    vi.stubGlobal('fetch', vi.fn((url: string) => Promise.resolve({ ok: true, json: () => Promise.resolve(url.includes('overview') ? { submittableAmount: 0, giftQtyActual: 0, waitingCount: 0, handlingCount: 0 } : { rows: [] }) })));
+    vi.stubGlobal('fetch', feeApi([], emptyOverview));
     render(<Home />);
     fireEvent.click(screen.getAllByRole('button', { name: '数据接入' })[0]);
     expect(await screen.findByText('上传标准数据')).toBeInTheDocument();
@@ -40,7 +78,7 @@ describe('fee TPM workspace', () => {
       if (init?.method === 'POST') return Promise.resolve({ ok: true, json: () => Promise.resolve({ import_batch_id: 7, calculation_run_id: 1, status: 'calculated', calculation }) });
       if (url.endsWith('/api/imports/7')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ import_batch_id: 7, calculation, activities: [{ activity_id: 1, activity_no: '可口可乐满减', activity_name: '可口可乐满减', activity_type: '满减', actual_discount_total: 30, participating_orders: 2, released_orders: 1, released_amount: 15, pending_orders: 1, pending_amount: 15 }] }) });
       if (url.includes('/api/imports/7/release')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ import_batch_id: 7, calculation, rows: releaseRows, total: 2, limit: 2000, offset: 0 }) });
-      return Promise.resolve({ ok: true, json: () => Promise.resolve(url.includes('overview') ? { submittableAmount: 0, giftQtyActual: 0, waitingCount: 0, handlingCount: 0 } : { rows: [] }) });
+      return feeApi([], emptyOverview)(url);
     });
     vi.stubGlobal('fetch', fetchMock);
     render(<Home />);

@@ -1,80 +1,111 @@
-import sqlite3
+import json
 import tempfile
 import unittest
-import json
 from http.client import HTTPConnection
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
 
-from api.server import NotFoundError, make_handler, query_fee_tpm_activities, query_fee_tpm_issues, query_fee_tpm_settlements
+from api.server import NotFoundError, import_uploaded_files, make_handler, query_fee_tpm_activities, query_fee_tpm_issues, query_fee_tpm_overview, query_fee_tpm_settlements
+from mvp.import_service import create_database
+from mvp.standard_schema import STANDARD_SHEETS
+from mvp.standard_workbook import StandardWorkbook, write_standard_workbook
 
 
-DDL = Path(__file__).resolve().parents[2] / 'mvp' / 'ddl' / 'ec101_mvp_sqlite.sql'
+def workbook(directory: Path, name: str, dealer: str, coverage: tuple[str, str], orders: list[dict], activities: list[dict], executions: list[dict], coupons: list[dict] | None = None) -> bytes:
+    tables = {sheet: [] for sheet in STANDARD_SHEETS[1:]}
+    tables.update({
+        "标准客户": [{"客户编号": "C1", "客户名称": "客户一"}],
+        "标准商品": [{"商品编号": "P1", "商品名称": "可乐"}],
+        "标准订单明细": orders,
+        "标准活动": activities,
+        "标准活动核销明细": executions,
+        "标准优惠券核销明细": coupons or [],
+    })
+    manifest = {"模板版本": "v1", "转换工具版本": "v1", "经销商名称": dealer, "平台名称": "快马", "数据开始日期": coverage[0], "数据结束日期": coverage[1], "生成时间": "2026-09-22 00:00:00"}
+    path = directory / f"{name}.xlsx"
+    write_standard_workbook(path, StandardWorkbook(tables=tables, manifest=manifest).tables, manifest)
+    return path.read_bytes()
 
 
-class FeeTpmQueryTests(unittest.TestCase):
+def order(order_no: str, time: str, status: str = "已完成") -> dict:
+    return {"单据编号": order_no, "下单时间": time, "客户编号": "C1", "客户名称": "客户一", "商品编号": "P1", "数量": "1", "实付金额": "285", "订单状态": status}
+
+
+class FeeTpmStandardSchemaTests(unittest.TestCase):
+    """费用接口按当前批次的最新核算读取 activity_fee_summary / calculation_quality_issue。"""
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.path = Path(self.temp.name) / 'fee.db'
-        con = sqlite3.connect(self.path)
-        con.executescript(DDL.read_text(encoding='utf-8'))
-        con.execute("INSERT INTO dealer_platform(dealer_name,platform_name) VALUES ('经销商','平台')")
-        con.execute("INSERT INTO tpm_application(tpm_code,apply_amount,budget_reserve_no,fee_pay_dept) VALUES ('TPM-1',1000,'B-1','市场部')")
-        con.execute("INSERT INTO activity(dealer_platform_id,tpm_id,activity_name,activity_category,promotion_type,start_time,end_time,rule_version) VALUES (1,1,'金额活动','非券类','满减','2026-01-01','2026-12-31','v1')")
-        con.execute("INSERT INTO activity(dealer_platform_id,activity_name,activity_category,promotion_type,start_time,end_time,rule_version) VALUES (1,'赠品活动','非券类','立赠','2026-01-01','2026-12-31','v1')")
-        con.execute("INSERT INTO result_calc_batch(calc_batch_id,calc_date,rule_version) VALUES (1,'2026-10-01','v1')")
-        con.execute("INSERT INTO result_calc_batch(calc_batch_id,calc_date,rule_version) VALUES (2,'2026-10-02','v2')")
-        con.execute("INSERT INTO order_header(dealer_platform_id,order_no,order_time,order_status) VALUES (1,'O-money','2026-10-01','已完成')")
-        con.execute("INSERT INTO order_header(dealer_platform_id,order_no,order_time,order_status) VALUES (1,'O-gift','2026-10-01','已完成')")
-        con.execute("INSERT INTO order_activity(order_id,activity_id,activity_product_amount) VALUES (1,1,100)")
-        con.execute("INSERT INTO order_activity(order_id,activity_id,activity_product_amount) VALUES (2,2,100)")
-        for batch, amount in ((1, 10), (2, 20)):
-            con.execute("INSERT INTO result_entitlement(order_activity_id,theoretical_benefit,platform_actual_benefit,consistency,calc_batch_id) VALUES (1,?,?, '一致',?)", (amount, amount, batch))
-            con.execute("INSERT INTO result_release_candidate(order_id,calc_date,is_candidate,reason,calc_batch_id) VALUES (1,'2026-10-02',1,'T-2',?)", (batch,))
-            con.execute("INSERT INTO result_fee(tpm_id,activity_id,actual_discount_total,budget_amount,diff_amount,settle_amount,settle_status,calc_batch_id) VALUES (1,1,?,1000,980,?,'待结算',?)", (amount, amount, batch))
-        con.execute("INSERT INTO result_entitlement(order_activity_id,theoretical_benefit,platform_actual_benefit,gift_qty_entitled,gift_qty_actual,consistency,calc_batch_id) VALUES (2,0,0,98,98,'一致',2)")
-        con.execute("INSERT INTO result_release_candidate(order_id,calc_date,is_candidate,reason,calc_batch_id) VALUES (2,'2026-10-02',1,'T-2',2)")
-        con.execute("INSERT INTO result_fee(activity_id,actual_discount_total,gift_cost_total,settle_status,calc_batch_id) VALUES (2,0,NULL,'按赠品数量统计',2)")
-        con.execute("INSERT INTO result_quality_issue(order_no,issue_type,level,reason,evidence_ref,calc_batch_id) VALUES ('O-money','差异','警告','金额差异','evidence',2)")
-        con.execute("INSERT INTO result_quality_issue(order_no,issue_type,level,reason,evidence_ref,calc_batch_id) VALUES ('O-gift','未达释放节点','提示','待确认','evidence',2)")
-        con.execute("INSERT INTO result_quality_issue(order_no,issue_type,level,reason,evidence_ref,calc_batch_id) VALUES ('UNKNOWN','批次问题','警告','无法归属','evidence',2)")
-        con.commit(); con.close()
+        root = Path(self.temp.name)
+        self.path = root / "ec101_standard.db"
+        create_database(self.path)
+        manjian = workbook(root, "manjian", "兴路强", ("2026-09-01", "2026-09-17"),
+            [order("O1", "2026-09-01 10:00:00"), order("O2", "2026-09-10 10:00:00", "部分发货"), order("O3", "2026-09-21 10:00:00")],
+            [{"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "活动类型": "满减"}],
+            [{"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "客户编号": "C1", "订单号": o, "优惠金额": "15"} for o in ("O1", "O2", "O3")],
+            [{"优惠券编号": "CP1", "客户编号": "C1", "订单号": "O1", "状态": "已使用", "优惠金额": "200"}])
+        manzeng = workbook(root, "manzeng", "兴路强", ("2026-08-19", "2026-08-31"),
+            [order("G1", "2026-08-20 10:00:00")],
+            [{"活动编号": "满赠优惠", "活动名称": "满赠优惠", "活动类型": "满赠"}],
+            [{"活动编号": "满赠优惠", "活动名称": "满赠优惠", "客户编号": "C1", "订单号": "G1", "优惠金额": "0"}])
+        self.manjian_run = import_uploaded_files(self.path, manjian, None, "a.zip", calc_date="2026-09-22")["calculation_run_id"]
+        self.manzeng_run = import_uploaded_files(self.path, manzeng, None, "b.zip", calc_date="2026-09-22")["calculation_run_id"]
 
     def tearDown(self):
         self.temp.cleanup()
 
-    def test_activities_uses_requested_calculation_batch_and_keeps_gifts_as_quantities(self):
-        payload = query_fee_tpm_activities(self.path, {'calc_batch_id': '2'})
-        gift = next(row for row in payload['rows'] if row['activityId'] == 2)
-        self.assertEqual(payload['calcBatchId'], 2)
-        self.assertEqual(gift['benefitKind'], 'gift')
-        self.assertIsNone(gift['tpm'])
-        self.assertEqual(gift['giftQtyActual'], 98)
+    def test_current_mode_covers_every_current_batch(self):
+        payload = query_fee_tpm_activities(self.path, {})
+        rows = {row["activityName"]: row for row in payload["rows"]}
+        self.assertEqual(payload["mode"], "current")
+        self.assertEqual(set(rows), {"可口可乐满减", "满赠优惠"})
+        money = rows["可口可乐满减"]
+        self.assertEqual((money["benefitKind"], money["actualDiscountTotal"], money["settleAmount"]), ("money", 45, 15))
+        self.assertEqual((money["participatingOrders"], money["releasedOrders"], money["pendingOrders"], money["pendingAmount"]), (3, 1, 2, 30))
+        self.assertEqual((money["tipCount"], money["status"]), (2, "可提交"))
+        gift = rows["满赠优惠"]
+        self.assertEqual((gift["benefitKind"], gift["settleAmount"], gift["releasedOrders"], gift["status"]), ("gift", None, 1, "已核验"))
 
-    def test_warning_blocks_settlement_and_tip_is_waiting_confirmation(self):
-        rows = {row['activityId']: row for row in query_fee_tpm_activities(self.path, {'calc_batch_id': '2'})['rows']}
-        self.assertEqual(rows[1]['status'], '待处理')
-        self.assertEqual(rows[2]['status'], '待确认')
-        self.assertEqual(query_fee_tpm_settlements(self.path, {'calc_batch_id': '2'})['rows'], [])
+    def test_overview_adds_coupons_and_runs(self):
+        overview = query_fee_tpm_overview(self.path, {})
+        self.assertEqual(overview["submittableAmount"], 15)
+        self.assertEqual((overview["couponBenefit"], overview["releasedCouponBenefit"]), (200, 200))
+        self.assertEqual((overview["participatingOrders"], overview["releasedOrders"], overview["giftReleasedOrders"]), (4, 2, 1))
+        self.assertEqual({run["calcBatchId"] for run in overview["runs"]}, {self.manjian_run, self.manzeng_run})
 
-    def test_unattributable_issue_stays_in_response(self):
-        issue = next(row for row in query_fee_tpm_issues(self.path, {'calc_batch_id': '2'})['rows'] if row['orderNo'] == 'UNKNOWN')
-        self.assertIsNone(issue['activityId'])
+    def test_pending_orders_become_tips_attributed_to_their_activity(self):
+        issues = query_fee_tpm_issues(self.path, {})["rows"]
+        self.assertEqual({issue["orderNo"] for issue in issues}, {"O2", "O3"})
+        self.assertTrue(all(issue["level"] == "提示" and issue["activityId"] is not None for issue in issues))
 
-    def test_missing_batch_is_not_found(self):
+    def test_settlements_only_contain_money_activities_with_released_amount(self):
+        rows = query_fee_tpm_settlements(self.path, {})["rows"]
+        self.assertEqual([row["activityName"] for row in rows], ["可口可乐满减"])
+
+    def test_pinned_run_and_dealer_filter(self):
+        pinned = query_fee_tpm_activities(self.path, {"calc_batch_id": str(self.manzeng_run)})
+        self.assertEqual((pinned["mode"], pinned["calcBatchId"], pinned["total"]), ("historical", self.manzeng_run, 1))
+        self.assertEqual(query_fee_tpm_activities(self.path, {"dealer": "羿柏"})["total"], 0)
         with self.assertRaises(NotFoundError):
-            query_fee_tpm_activities(self.path, {'calc_batch_id': '999'})
+            query_fee_tpm_activities(self.path, {"calc_batch_id": "999"})
+
+    def test_superseded_batch_drops_out_of_current_mode(self):
+        root = Path(self.temp.name)
+        again = workbook(root, "manjian2", "兴路强", ("2026-09-01", "2026-09-17"), [order("O1", "2026-09-01 10:00:00")],
+            [{"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "活动类型": "满减"}],
+            [{"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "客户编号": "C1", "订单号": "O1", "优惠金额": "30"}])
+        import_uploaded_files(self.path, again, None, "c.zip", calc_date="2026-09-22")
+        rows = {row["activityName"]: row for row in query_fee_tpm_activities(self.path, {})["rows"]}
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows["可口可乐满减"]["settleAmount"], 30)
+        self.assertEqual(query_fee_tpm_activities(self.path, {"calc_batch_id": str(self.manjian_run)})["rows"][0]["settleAmount"], 15)
 
 
-if __name__ == '__main__':
-    unittest.main()
-
-
-class FeeTpmRouteTests(FeeTpmQueryTests):
+class FeeTpmRouteTests(FeeTpmStandardSchemaTests):
     def setUp(self):
         super().setUp()
-        self.server = ThreadingHTTPServer(('127.0.0.1', 0), make_handler(self.path))
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(self.path))
         self.thread = Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
 
@@ -82,10 +113,25 @@ class FeeTpmRouteTests(FeeTpmQueryTests):
         self.server.shutdown(); self.thread.join(); self.server.server_close()
         super().tearDown()
 
-    def test_fee_tpm_activity_detail_returns_404_for_an_unknown_activity(self):
-        connection = HTTPConnection('127.0.0.1', self.server.server_address[1])
-        connection.request('GET', '/api/fee-tpm/activities/999?calc_batch_id=2')
+    def _get(self, path: str):
+        connection = HTTPConnection("127.0.0.1", self.server.server_address[1])
+        connection.request("GET", path)
         response = connection.getresponse()
-        payload = json.loads(response.read())
-        self.assertEqual(response.status, 404)
-        self.assertEqual(payload['error'], 'not_found')
+        return response.status, json.loads(response.read())
+
+    def test_fee_tpm_activity_detail_returns_404_for_an_unknown_activity(self):
+        status, payload = self._get("/api/fee-tpm/activities/999")
+        self.assertEqual((status, payload["error"]), (404, "not_found"))
+
+    def test_every_page_endpoint_answers_on_the_standard_database(self):
+        for path in ("/health", "/api/imports", "/api/fee-tpm/overview", "/api/fee-tpm/activities", "/api/fee-tpm/issues", "/api/fee-tpm/settlements",
+                     "/api/business-data/orders", "/api/business-data/order-lines", "/api/business-data/activity-executions", "/api/business-data/coupon-redemptions"):
+            status, payload = self._get(path)
+            self.assertEqual(status, 200, path)
+            self.assertNotIn("error", payload, path)
+        status, health = self._get("/health")
+        self.assertEqual(health["schema_issues"], [])
+
+
+if __name__ == "__main__":
+    unittest.main()
