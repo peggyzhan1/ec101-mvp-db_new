@@ -42,6 +42,23 @@ GET /api/business-data/orders/1
 
 列表接口支持 `q`、`dealer`、`platform`、`limit`、`offset`；`limit` 最大为 100，`offset` 最大为 10000。
 
+## 标准数据导入与逐单释放清单
+
+```text
+POST /api/imports                       multipart: workbook(必填) sources(可选) calc_date(可选, YYYY-MM-DD, 默认今天)
+GET  /api/imports                       导入批次列表
+GET  /api/imports/{id}                  批次详情：calculation（本批核算汇总）+ activities（按活动的参与/可释放/待释放）
+GET  /api/imports/{id}/issues           导入校验问题
+GET  /api/imports/{id}/release          逐单释放清单；支持 candidate=1|0、q（订单号/客户）、limit（≤2000）、offset
+```
+
+核算口径：费用只按“标准活动核销明细”和“标准优惠券核销明细”汇总，订单行上的优惠金额只做展示；一张参与订单可释放的条件是订单状态为“已完成”且下单时间早于 `calc_date` 前两天的 00:00:00，其余订单在清单中带原因（订单状态、未达 T-2）。
+
+```bash
+curl -F workbook=@standard.xlsx -F sources=@sources.zip -F calc_date=2026-09-22 http://127.0.0.1:8787/api/imports
+curl 'http://127.0.0.1:8787/api/imports/1/release?candidate=0'
+```
+
 ## 费用与促销 TPM RESULT 接口
 
 以下接口同样只读，直接展示 RESULT 层的计算结论，不在 API 或页面中重算促销门槛、T-2 或结算金额：
