@@ -28,7 +28,7 @@ describe('fee TPM workspace', () => {
   it('does not fall back to a snapshot when the API fails', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: false, status: 500 })));
     render(<Home />);
-    expect(await screen.findByText('无法加载核算结果，未使用快照回退。')).toBeInTheDocument();
+    expect(await screen.findByText(/无法连接核算服务/)).toBeInTheDocument();
   });
 
   it('lists imported batches from the API instead of a static table', async () => {

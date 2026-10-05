@@ -44,11 +44,19 @@ export default defineConfig(async () => {
   // Wrangler snapshots its log path while the Cloudflare plugin is imported.
   const { cloudflare } = await import('@cloudflare/vite-plugin');
 
+  const apiOrigin = process.env.EC101_API_ORIGIN ?? 'http://127.0.0.1:8787';
+  const sandboxServer = isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {};
+
   return {
     css: { postcss: { plugins: [tailwindcss()] } },
-    server: isCodexSeatbeltSandbox
-      ? { watch: { useFsEvents: false, usePolling: true } }
-      : undefined,
+    server: {
+      host: '0.0.0.0',
+      ...sandboxServer,
+      proxy: {
+        '/api': { target: apiOrigin, changeOrigin: true },
+        '/health': { target: apiOrigin, changeOrigin: true },
+      },
+    },
     plugins: [
       vinext(),
       sites(),

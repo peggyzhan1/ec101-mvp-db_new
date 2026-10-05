@@ -39,19 +39,21 @@ const businessObjects = [
   { key: 'fulfillments', label: '履约记录', columns: [['order_no', '订单号'], ['downstream_order_no', '下游订单号'], ['fulfillment_status', '履约状态'], ['outbound_at', '出库时间'], ['completed_at', '完成时间'], ['settlement_status', '结算状态'], ['return_qty', '退货数量']] },
 ] as const;
 const money = (value: number | string | null | undefined) => `¥ ${Number(value ?? 0).toFixed(2)}`;
+/** 默认走当前页面同源 `/api`（由 vite 转发到 python API），这样 Cursor 预览和局域网都能看到数据。仅在显式设置时才直连 8787。 */
+const ec101Api = () => (process.env.NEXT_PUBLIC_EC101_API_URL ?? '').replace(/\/$/, '');
 const statusStyles: Record<Status, string> = { 可提交: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20', 已核验: 'bg-sky-50 text-sky-700 ring-sky-600/20', 待确认: 'bg-amber-50 text-amber-700 ring-amber-600/20', 待处理: 'bg-rose-50 text-rose-700 ring-rose-600/20', 规划中: 'bg-violet-50 text-violet-700 ring-violet-600/20', 未验证: 'bg-slate-100 text-slate-600 ring-slate-500/20', 当前有效: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20', 已失效: 'bg-slate-100 text-slate-500 ring-slate-400/20' };
 
 function useFeeTpmData(dealer: string, reloadKey: number) {
   const [data, setData] = useState<FeeTpmData | null>(null); const [error, setError] = useState(''); const [loading, setLoading] = useState(true);
-  const apiBase = process.env.NEXT_PUBLIC_EC101_API_URL ?? 'http://127.0.0.1:8787';
-  useEffect(() => { const controller = new AbortController(); const params = new URLSearchParams(); if (dealer !== '全部经销商') params.set('dealer', dealer); const get = <T,>(path: string) => fetch(`${apiBase}${path}?${params}`, { signal: controller.signal }).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json() as Promise<T>; }); Promise.all([get<FeeTpmOverview>('/api/fee-tpm/overview'), get<{ rows: FeeTpmActivityRow[] }>('/api/fee-tpm/activities'), get<{ rows: FeeTpmIssueRow[] }>('/api/fee-tpm/issues'), get<{ rows: FeeTpmSettlementRow[] }>('/api/fee-tpm/settlements')]).then(([overview, activities, issues, settlements]) => { setData({ overview, activities: activities.rows, issues: issues.rows, settlements: settlements.rows }); setError(''); }).catch((reason: Error) => { if (reason.name !== 'AbortError') { setData(null); setError('无法加载核算结果，未使用快照回退。'); } }).finally(() => setLoading(false)); return () => controller.abort(); }, [apiBase, dealer, reloadKey]);
+  const base = ec101Api();
+  useEffect(() => { const controller = new AbortController(); const params = new URLSearchParams(); if (dealer !== '全部经销商') params.set('dealer', dealer); const get = <T,>(path: string) => fetch(`${base}${path}?${params}`, { signal: controller.signal }).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json() as Promise<T>; }); Promise.all([get<FeeTpmOverview>('/api/fee-tpm/overview'), get<{ rows: FeeTpmActivityRow[] }>('/api/fee-tpm/activities'), get<{ rows: FeeTpmIssueRow[] }>('/api/fee-tpm/issues'), get<{ rows: FeeTpmSettlementRow[] }>('/api/fee-tpm/settlements')]).then(([overview, activities, issues, settlements]) => { setData({ overview, activities: activities.rows, issues: issues.rows, settlements: settlements.rows }); setError(''); }).catch((reason: Error) => { if (reason.name !== 'AbortError') { setData(null); setError('无法连接核算服务。请在仓库根目录另开终端运行 python3 api/server.py，前端用 npm run dev 打开同一台机器上的页面；数据和页面必须在同一环境。'); } }).finally(() => setLoading(false)); return () => controller.abort(); }, [base, dealer, reloadKey]);
   return { data, error, loading };
 }
 
 function useImportBatches(reloadKey: number) {
   const [rows, setRows] = useState<ImportBatchRow[]>([]);
-  const apiBase = process.env.NEXT_PUBLIC_EC101_API_URL ?? 'http://127.0.0.1:8787';
-  useEffect(() => { const controller = new AbortController(); fetch(`${apiBase}/api/imports`, { signal: controller.signal }).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json() as Promise<{ rows: ImportBatchRow[] }>; }).then((payload) => setRows(payload.rows ?? [])).catch(() => setRows([])); return () => controller.abort(); }, [apiBase, reloadKey]);
+  const base = ec101Api();
+  useEffect(() => { const controller = new AbortController(); fetch(`${base}/api/imports`, { signal: controller.signal }).then((response) => { if (!response.ok) throw new Error(String(response.status)); return response.json() as Promise<{ rows: ImportBatchRow[] }>; }).then((payload) => setRows(payload.rows ?? [])).catch(() => setRows([])); return () => controller.abort(); }, [base, reloadKey]);
   const dealers = useMemo(() => Array.from(new Set(rows.map((row) => row.dealer_name))), [rows]);
   return { rows, dealers };
 }
@@ -86,7 +88,7 @@ function releaseCsv(rows: ReleaseRow[]): string {
 }
 
 function SourceWorkspace({ imports, onImported }: { imports: ImportBatchRow[]; onImported: () => void }) {
-  const apiBase = process.env.NEXT_PUBLIC_EC101_API_URL ?? 'http://127.0.0.1:8787';
+  const apiBase = ec101Api();
   const [workbook, setWorkbook] = useState<File | null>(null); const [archive, setArchive] = useState<File | null>(null); const [calcDate, setCalcDate] = useState(''); const [message, setMessage] = useState(''); const [error, setError] = useState(''); const [uploading, setUploading] = useState(false);
   const [batchId, setBatchId] = useState<number | null>(null); const [calculation, setCalculation] = useState<ImportCalculation | null>(null); const [activities, setActivities] = useState<ImportActivitySummary[]>([]);
   const [filter, setFilter] = useState<'all' | '1' | '0'>('all'); const [release, setRelease] = useState<ReleaseResponse | null>(null); const [releaseError, setReleaseError] = useState('');
@@ -145,7 +147,7 @@ function BusinessDataWorkspace({ dealers }: { dealers: string[] }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const current = businessObjects.find((item) => item.key === tab) ?? businessObjects[0];
-  const apiBase = process.env.NEXT_PUBLIC_EC101_API_URL ?? 'http://127.0.0.1:8787';
+  const apiBase = ec101Api();
   const changeTab = (value: (typeof businessObjects)[number]['key']) => { setTab(value); setPage(0); };
   const changeQuery = (value: string) => { setQuery(value); setPage(0); };
   const changeDealer = (value: string) => { setDealer(value); setPage(0); };

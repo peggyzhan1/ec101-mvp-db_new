@@ -132,6 +132,14 @@ class FeeTpmRouteTests(FeeTpmStandardSchemaTests):
         status, health = self._get("/health")
         self.assertEqual(health["schema_issues"], [])
 
+    def test_cors_allows_a_browser_preview_origin(self):
+        connection = HTTPConnection("127.0.0.1", self.server.server_address[1])
+        connection.request("GET", "/api/fee-tpm/overview", headers={"Origin": "https://cursor.com"})
+        response = connection.getresponse()
+        response.read()
+        self.assertEqual(response.status, 200)
+        self.assertEqual(response.getheader("Access-Control-Allow-Origin"), "https://cursor.com")
+
 
 if __name__ == "__main__":
     unittest.main()

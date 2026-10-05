@@ -531,8 +531,8 @@ def query_fee_tpm_activity_detail(db_path: Path, activity_id: str, params: dict[
 
 
 def _cors_origin(handler: BaseHTTPRequestHandler) -> str:
-    origin = handler.headers.get("Origin", "")
-    return origin if origin.startswith(("http://localhost:", "http://127.0.0.1:")) else "null"
+    origin = handler.headers.get("Origin", "").strip()
+    return origin or "*"
 
 
 def _json(handler: BaseHTTPRequestHandler, status: int, payload: dict[str, Any]) -> None:
@@ -541,6 +541,9 @@ def _json(handler: BaseHTTPRequestHandler, status: int, payload: dict[str, Any])
     handler.send_header("Content-Type", "application/json; charset=utf-8")
     handler.send_header("Content-Length", str(len(body)))
     handler.send_header("Access-Control-Allow-Origin", _cors_origin(handler))
+    handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    handler.send_header("Access-Control-Allow-Headers", "Content-Type")
+    handler.send_header("Vary", "Origin")
     handler.end_headers()
     handler.wfile.write(body)
 
@@ -552,6 +555,7 @@ def make_handler(db_path: Path):
             self.send_header("Access-Control-Allow-Origin", _cors_origin(self))
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.send_header("Vary", "Origin")
             self.end_headers()
 
         def do_POST(self):
@@ -647,7 +651,7 @@ def make_handler(db_path: Path):
     return Handler
 
 
-def serve(host: str = "127.0.0.1", port: int = 8787, db_path: Path = DEFAULT_DB_PATH) -> None:
+def serve(host: str = "0.0.0.0", port: int = 8787, db_path: Path = DEFAULT_DB_PATH) -> None:
     ensure_database(db_path)
     server = ThreadingHTTPServer((host, port), make_handler(db_path))
     print(f"EC101 API: http://{host}:{port} (standard database: {db_path})")
@@ -661,7 +665,7 @@ def serve(host: str = "127.0.0.1", port: int = 8787, db_path: Path = DEFAULT_DB_
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="EC101 local read-only API")
-    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=8787)
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
     args = parser.parse_args()
