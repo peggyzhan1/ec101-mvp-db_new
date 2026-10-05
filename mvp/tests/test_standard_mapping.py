@@ -4,6 +4,7 @@ from pathlib import Path
 DDL_PATH = Path(__file__).resolve().parents[1] / "ddl" / "ec101_standard_sqlite.sql"
 IMPORT = Path(__file__).resolve().parents[1] / "import_service.py"
 DOC = Path(__file__).resolve().parents[2] / "docs" / "标准数据到标准库对照.md"
+LOGIC_DOC = Path(__file__).resolve().parents[2] / "docs" / "快马转换与核算逻辑.md"
 SVG_SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "build_standard_er_svg.py"
 
 
@@ -34,6 +35,19 @@ class StandardMappingDocsTests(unittest.TestCase):
         png = Path(__file__).resolve().parents[2] / "docs" / "diagrams" / "ec101-standard-er.png"
         self.assertTrue(png.is_file(), png)
         self.assertGreater(png.stat().st_size, 50_000)
+
+    def test_kuaima_and_result_logic_doc_covers_code_entrypoints(self):
+        text = LOGIC_DOC.read_text(encoding="utf-8")
+        for needle in (
+            "convert_kuaima",
+            "calculate_batch",
+            "享受促销政策",
+            "已完成且达到T-2",
+            "activity_execution",
+            "coupon_redemption",
+            "1995",
+        ):
+            self.assertIn(needle, text, needle)
 
 
 if __name__ == "__main__":
