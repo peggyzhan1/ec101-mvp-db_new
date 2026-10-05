@@ -18,7 +18,7 @@ from mvp.standard_workbook import read_standard_workbook
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB_PATH = ROOT / "mvp" / "ec101_mvp.db"
+DEFAULT_DB_PATH = ROOT / "mvp" / "ec101_standard.db"
 
 
 def import_uploaded_files(db_path: Path, workbook_bytes: bytes, source_bytes: bytes | None = None, source_name: str = "sources.zip") -> dict[str, Any]:
@@ -439,6 +439,8 @@ def make_handler(db_path: Path):
 
 
 def serve(host: str = "127.0.0.1", port: int = 8787, db_path: Path = DEFAULT_DB_PATH) -> None:
+    if not db_path.exists():
+        create_database(db_path)
     server = ThreadingHTTPServer((host, port), make_handler(db_path))
     print(f"EC101 read-only API: http://{host}:{port} (database: {db_path})")
     try:

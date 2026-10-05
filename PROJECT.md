@@ -6,7 +6,7 @@
 
 ## Current capabilities
 
-- `mvp/ec101_mvp.db` 是历史样例库；新导入库由 `mvp/import_service.py` 按标准数据契约初始化。
+- `mvp/ec101_mvp.db` 是历史样例库；新导入库默认为 `mvp/ec101_standard.db`，由 `mvp/import_service.py` 按标准数据契约初始化。
 - `api/server.py` 提供业务查询、标准 Excel 导入、批次详情和校验问题 API。
 - `ec101-fee-platform-v1` 的“业务数据”工作区通过 API 查询、筛选、查看详情和导出 CSV；“费用与促销 TPM”读取 RESULT 层的活动、权益、异常和结算候选。
 - 活动和优惠券是独立域，只通过订单间接汇合；活动优惠与券优惠在 RESULT 分别核算后汇总。

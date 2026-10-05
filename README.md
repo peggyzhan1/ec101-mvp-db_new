@@ -12,7 +12,7 @@ cd ec101-fee-platform-v1
 NEXT_PUBLIC_EC101_API_URL=http://127.0.0.1:8787 npm run dev
 ```
 
-当前 API 支持上传标准 Excel（`POST /api/imports`），数据库仅保存标准业务事实、CORE/RESULT 核算结果与 sources.zip 归档元数据，不保存 RAW 逐行表。
+当前 API 默认使用新库 `mvp/ec101_standard.db`，支持上传标准 Excel（`POST /api/imports`），数据库仅保存标准业务事实、CORE/RESULT 核算结果与 sources.zip 归档元数据，不保存 RAW 逐行表。历史样例库 `mvp/ec101_mvp.db` 不会被自动迁移或覆盖。
 
 ## Windows 转换工具
 
