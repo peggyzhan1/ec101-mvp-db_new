@@ -49,6 +49,31 @@ def _has_table(db_path: Path, table_name: str) -> bool:
         return connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table_name,)).fetchone() is not None
 
 
+def list_imports(db_path: Path) -> dict[str, Any]:
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        rows = [dict(row) for row in connection.execute("SELECT * FROM import_batch ORDER BY import_batch_id DESC").fetchall()]
+    return {"rows": rows, "total": len(rows)}
+
+
+def get_import(db_path: Path, import_batch_id: int) -> dict[str, Any] | None:
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        row = connection.execute("SELECT * FROM import_batch WHERE import_batch_id=?", (import_batch_id,)).fetchone()
+        if row is None:
+            return None
+        payload = dict(row)
+        payload["files"] = [dict(item) for item in connection.execute("SELECT * FROM import_file WHERE import_batch_id=?", (import_batch_id,)).fetchall()]
+        payload["calculation"] = next((dict(item) for item in connection.execute("SELECT * FROM calculation_run WHERE import_batch_id=? ORDER BY calculation_run_id DESC LIMIT 1", (import_batch_id,)).fetchall()), None)
+        return payload
+
+
+def get_import_issues(db_path: Path, import_batch_id: int) -> list[dict[str, Any]]:
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        return [dict(row) for row in connection.execute("SELECT * FROM import_validation_issue WHERE import_batch_id=? ORDER BY issue_id", (import_batch_id,)).fetchall()]
+
+
 class NotFoundError(KeyError):
     """A requested, immutable calculation batch or activity does not exist."""
 
@@ -355,6 +380,20 @@ def make_handler(db_path: Path):
             try:
                 if parts == ["health"]:
                     _json(self, 200, {"status": "ok", "database": str(db_path), "objects": list(SUPPORTED_OBJECTS), "read_only": True})
+                    return
+                if parts == ["api", "imports"]:
+                    _json(self, 200, list_imports(db_path)); return
+                if len(parts) == 3 and parts[:2] == ["api", "imports"]:
+                    import_batch_id = int(parts[2])
+                    detail = get_import(db_path, import_batch_id)
+                    _json(self, 200, detail) if detail is not None else _json(self, 404, {"error": "not_found"})
+                    return
+                if len(parts) == 4 and parts[:2] == ["api", "imports"] and parts[3] == "issues":
+                    import_batch_id = int(parts[2])
+                    if get_import(db_path, import_batch_id) is None:
+                        _json(self, 404, {"error": "not_found"})
+                    else:
+                        _json(self, 200, {"rows": get_import_issues(db_path, import_batch_id)})
                     return
                 if len(parts) >= 3 and parts[:2] == ["api", "business-data"]:
                     object_name = parts[2]

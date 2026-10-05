@@ -57,6 +57,16 @@ def convert_kuaima(request: ConversionRequest) -> ConversionResult:
             }
             tables["标准订单明细"].append(record)
             order_lookup[order_no] = record
+    # 快马历史导出偶尔只在订单明细中带商品编号；补齐最小商品主数据，避免订单成为孤儿。
+    known_products = {row["商品编号"] for row in tables["标准商品"]}
+    for record in tables["标准订单明细"]:
+        product_no = record["商品编号"]
+        if product_no and product_no not in known_products:
+            tables["标准商品"].append({
+                "商品编号": product_no, "商品名称": record["商品名称"], "商品品牌": "", "商品目录": record["商品目录"],
+                "商品条码": record["商品条码"], "商品规格": record["规格"], "基本单位": record["单位"], "箱规": "", "每箱基本单位数量": "",
+            })
+            known_products.add(product_no)
     activity_by_order: dict[str, dict[str, str]] = {}
     activity = request.activity_inputs[0] if request.activity_inputs else {}
     for path in request.source_paths.get("activity_execution", ()):
