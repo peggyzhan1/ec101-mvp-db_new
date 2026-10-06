@@ -31,7 +31,7 @@ def main() -> None:
     lines = [
         "# 用通用核算框架算 standard.xlsx",
         "",
-        f"这次算的是 `{WORKBOOK.relative_to(ROOT)}`，核算日 {CALC_DATE}。用的就是原来的 `calculate_activity`，判断规则没有改。",
+        f"这次算的是 `{WORKBOOK.relative_to(ROOT)}`，核算日 {CALC_DATE}。参加名单、应发权益和释放都由 `calculate_activity` 按标准表里的规则计算。",
         "",
         f"标准表里的活动核销明细有 {execution_rows} 行。订单明细里写了活动编号的有 {tagged_lines} 行。优惠券核销明细有 {coupon_rows} 行。",
         "",
@@ -39,10 +39,26 @@ def main() -> None:
     for prepared, summary in results:
         lines.append(f"## {prepared.name}")
         lines.append("")
+        counts = connection.execute(
+            """SELECT COUNT(*),
+                      SUM(CASE WHEN consistency='一致' THEN 1 ELSE 0 END),
+                      SUM(CASE WHEN consistency='差异' THEN 1 ELSE 0 END)
+               FROM result_entitlement
+               WHERE order_activity_id IN (SELECT order_activity_id FROM order_activity WHERE activity_id=?)""",
+            (prepared.activity_id,),
+        ).fetchone()
+        release = connection.execute(
+            """SELECT SUM(CASE WHEN is_candidate=1 THEN 1 ELSE 0 END), SUM(CASE WHEN is_candidate=0 THEN 1 ELSE 0 END)
+               FROM result_release_candidate
+               WHERE order_id IN (SELECT order_id FROM order_activity WHERE activity_id=?)""",
+            (prepared.activity_id,),
+        ).fetchone()
         if summary.template == "gift":
-            lines.append(f"参加名单 {prepared.order_count} 笔，应赠 {summary.gift_qty_entitled}，实赠 {summary.gift_qty_actual}。")
+            lines.append(f"参加 {counts[0]} 笔，应赠 {summary.gift_qty_entitled}，实赠 {summary.gift_qty_actual}，一致 {counts[1]}，差异 {counts[2]}。")
+            lines.append(f"释放：已完成且到了核算日减 2 天的 {release[0]} 笔，未到释放节点的 {release[1]} 笔。可结算候选还要求权益一致，所以是 {summary.release_candidates} 笔。")
         else:
-            lines.append(f"送进框架的券订单 {prepared.order_count} 笔，理论金额 {summary.theoretical_benefit}，实际金额 {summary.actual_benefit}，结算金额 {summary.settle_amount}。其中 {summary.release_candidates} 笔只是订单已经完成、并且下单时间到了核算日减 2 天，不代表算出了优惠金额。")
+            lines.append(f"进入核算的券订单 {counts[0]} 笔，理论金额 {summary.theoretical_benefit}，实际金额 {summary.actual_benefit}，一致 {counts[1]}，差异 {counts[2]}。")
+            lines.append(f"费用里的优惠总额是实际金额。其中订单已完成且到了核算日减 2 天的有 {release[0]} 笔，未到释放节点的 {release[1]} 笔。")
         for note in prepared.notes:
             lines.append(f"- {note}")
         lines.append("")

@@ -45,19 +45,20 @@ class StandardFrameworkTests(unittest.TestCase):
         self.assertEqual(connection.execute("SELECT COUNT(*) FROM result_entitlement").fetchone()[0], 0)
         connection.close()
 
-    def test_zhoupu_coupon_issue_mode_is_not_rewritten_into_a_framework_mode(self):
+    def test_order_rebate_coupon_uses_the_redemption_amount(self):
         tables = _base()
         tables["标准优惠券配置"].append({"优惠券配置编号": "Q1", "优惠券名称": "返15元券", "券类型": "满返", "配置状态": "已结束"})
         tables["标准优惠券发放规则"].append({"优惠券配置编号": "Q1", "发放方式": "下单返券", "发放开始时间": "2026-08-26 00:00:00", "发放结束时间": "2026-09-08 23:59:59", "每次发放数量": "1", "规则状态": "已结束"})
         tables["标准优惠券使用规则"].append({"优惠券配置编号": "Q1", "券类型": "满返", "有效期类型": "固定期间", "使用开始时间": "2026-08-26 00:00:00", "使用结束时间": "2026-09-08 23:59:59", "每张券最多使用次数": "1", "规则状态": "已结束"})
+        tables["标准订单明细"][0]["下单时间"] = "2026-08-27 10:00:00"
         tables["标准优惠券核销明细"].append({"优惠券编号": "C-1", "客户编号": "C1", "状态": "已使用", "订单号": "O1", "优惠金额": "15", "领取时间": "", "使用时间": ""})
         connection = open_calculator_db()
         prepared, summary = calculate_standard_tables(connection, tables, "经销商", "平台", "2026-09-23")[0]
         self.assertEqual(prepared.order_count, 1)
         self.assertEqual(summary.template, "coupon")
-        self.assertEqual(str(summary.theoretical_benefit), "0.00")
-        self.assertEqual(str(summary.actual_benefit), "0.00")
-        self.assertEqual(connection.execute("SELECT COUNT(*) FROM coupon_issue_rule").fetchone()[0], 0)
+        self.assertEqual(str(summary.theoretical_benefit), "15.00")
+        self.assertEqual(str(summary.actual_benefit), "15.00")
+        self.assertEqual(connection.execute("SELECT issue_mode FROM coupon_issue_rule").fetchone()[0], "order_rebate")
         connection.close()
 
 

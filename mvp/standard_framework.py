@@ -1,7 +1,6 @@
 """把标准工作簿装进 promotion_calculator 已经会读的表，再调用原框架。
 
-不改门槛、范围、券时间和 T-2 的判断。标准表里没有的字段保持为空，
-发放方式对不上框架允许的两种方式时，不另造一条规则。
+标准表的范围、门槛、赠品和券核销原样装入。发放方式「下单返券」对应框架的 order_rebate。
 """
 from __future__ import annotations
 
@@ -13,7 +12,10 @@ from pathlib import Path
 from mvp.scripts.promotion_calculator import CalculationSummary, calculate_activity
 
 DDL = Path(__file__).resolve().parent / "ddl" / "ec101_mvp_sqlite.sql"
-ISSUE_MODES = {"auto_grant": "auto_grant", "manual_claim": "manual_claim", "自动发放": "auto_grant", "手动领取": "manual_claim"}
+ISSUE_MODES = {
+    "auto_grant": "auto_grant", "manual_claim": "manual_claim", "order_rebate": "order_rebate",
+    "自动发放": "auto_grant", "手动领取": "manual_claim", "下单返券": "order_rebate",
+}
 VALIDITY_MODES = {"fixed_period": "fixed_period", "days_after_receive": "days_after_receive", "固定期间": "fixed_period", "领取后有效天数": "days_after_receive"}
 
 
@@ -72,7 +74,7 @@ def load_standard_tables(connection: sqlite3.Connection, tables: dict[str, list[
             (dealer_id, product_no, row.get("商品名称", ""), row.get("商品品牌", "")),
         ).lastrowid
     order_ids: dict[str, int] = {}
-    quantities: dict[tuple[int, int], float] = {}
+    quantities: dict[tuple[int, int], list[float]] = {}
     for row in tables.get("标准订单明细", []):
         order_no = row.get("单据编号", "").strip()
         product_no = row.get("商品编号", "").strip()
@@ -89,10 +91,12 @@ def load_standard_tables(connection: sqlite3.Connection, tables: dict[str, list[
                 (dealer_id, order_no, row.get("下单时间") or "1900-01-01 00:00:00", customer_ids.get(row.get("客户编号", "").strip()), row.get("订单状态") or "未知"),
             ).lastrowid
         key = (order_ids[order_no], product_ids[product_no])
-        quantities[key] = quantities.get(key, 0.0) + _num(row.get("数量"))
+        current = quantities.setdefault(key, [0.0, 0.0])
+        current[0] += _num(row.get("数量"))
+        current[1] += _num(row.get("优惠前金额"))
     connection.executemany(
-        "INSERT INTO order_line(order_id, product_id, order_qty) VALUES(?,?,?)",
-        [(order_id, product_id, quantity) for (order_id, product_id), quantity in quantities.items()],
+        "INSERT INTO order_line(order_id, product_id, order_qty, pre_discount_amount) VALUES(?,?,?,?)",
+        [(order_id, product_id, qty, amount) for (order_id, product_id), (qty, amount) in quantities.items()],
     )
     prepared = [_load_activity(connection, dealer_id, tables, row, order_ids) for row in tables.get("标准活动", [])]
     prepared.extend(_load_coupon(connection, dealer_id, tables, order_ids, customer_ids))
@@ -153,7 +157,7 @@ def _load_activity(connection: sqlite3.Connection, dealer_id: int, tables: dict[
     if skipped:
         notes.append(f"{skipped} 笔核销明细的订单号在标准订单里不存在")
     if not loaded:
-        notes.append("这张核销明细是空的，框架没有可核算的参加订单")
+        notes.append("核销明细是空的。满赠由框架按活动规则、范围和订单行确定参加订单")
     return PreparedActivity(row.get("活动名称", activity_no), activity_id, "活动", loaded, notes)
 
 
@@ -182,7 +186,7 @@ def _load_coupon(connection: sqlite3.Connection, dealer_id: int, tables: dict[st
             "INSERT INTO activity_rule(activity_id, tier_no, threshold_type, threshold_value, reduce_amount) VALUES(?,?,?,?,?)",
             (activity_id, 1, "金额", 0, 0),
         ).lastrowid
-        notes = ["标准券配置没有门槛和立减金额，规则金额按 0 装入"]
+        notes = ["券配置没有单独的立减金额时，理论金额使用核销明细上的优惠金额"]
         issue_mode = ISSUE_MODES.get(issue.get("发放方式", "").strip())
         validity_mode = VALIDITY_MODES.get(use.get("有效期类型", "").strip())
         if issue_mode and validity_mode:
@@ -196,7 +200,7 @@ def _load_coupon(connection: sqlite3.Connection, dealer_id: int, tables: dict[st
             )
         else:
             if not issue_mode:
-                notes.append(f"发放方式「{issue.get('发放方式', '')}」不是框架接受的自动发放或手动领取，发券规则没有写入")
+                notes.append(f"发放方式「{issue.get('发放方式', '')}」不是自动发放、手动领取或下单返券，发券规则没有写入")
             if not validity_mode:
                 notes.append(f"有效期类型「{use.get('有效期类型', '')}」不是框架接受的固定期间或领取后有效天数，使用规则没有写入")
             if issue_mode or validity_mode:
@@ -224,7 +228,7 @@ def _load_coupon(connection: sqlite3.Connection, dealer_id: int, tables: dict[st
             linked += 1
         notes.append(f"核销明细里写了订单号的券 {linked} 张，没有唯一订单号的 {skipped} 张不进入框架")
         if blank_time:
-            notes.append(f"其中 {blank_time} 张领取时间或使用时间是空的")
+            notes.append(f"其中 {blank_time} 张领取时间或使用时间是空的。下单返券不依赖这两列，金额用优惠金额")
         prepared.append(PreparedActivity(config.get("优惠券名称", config_no), activity_id, "优惠券", len(seen_orders), notes))
     return prepared
 
