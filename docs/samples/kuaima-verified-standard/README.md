@@ -12,12 +12,14 @@
 
 | 文件 | 是什么 |
 |---|---|
-| `满减/standard.xlsx` | 满减批次完整标准工作簿（15 张固定表，可再导入） |
+| `满减/standard.xlsx` | 满减批次完整标准工作簿（已补进原库满减规则和 test1 券配置） |
 | `满减/standard_preview.xlsx` | 同上，大表只留前 20 行，方便打开看结构 |
 | `满减/conversion_report.txt` | 转换器当次汇总 |
-| `满赠/standard.xlsx` | 满赠批次完整标准工作簿 |
+| `满赠/standard.xlsx` | 满赠批次完整标准工作簿（已补进原库满赠规则/赠品） |
 | `满赠/standard_preview.xlsx` | 满赠预览 |
 | `满赠/conversion_report.txt` | 转换器当次汇总 |
+| `原库配置对照/原库配置与标准表对照.xlsx` | 原 MVP 库配置原文，和映射后的标准表并排 |
+| `原库配置对照/原库配置_standard.xlsx` | 仅标准格式的配置表（含舟谱和「新客户投放」，不编造缺失项） |
 | `ec101_standard.db` | 验收时的标准库快照（两批已核算）。GitHub 上看这个文件，不要找 `mvp/ec101_standard.db` |
 | `ec101_standard库结构与当前数据.xlsx` | 上面这个库的表、字段、行数、一条样例 |
 
@@ -30,14 +32,14 @@
 | 标准商品 | 9175 | 9172 | product |
 | 标准订单明细 | 36157 | 26254 | order_header + order_line |
 | 标准活动 | 1 | 1 | activity |
-| 标准活动规则 | 0 | 0 | activity_rule |
-| 标准活动权益 | 0 | 0 | activity_benefit |
-| 标准活动范围 | 0 | 0 | activity_scope |
+| 标准活动规则 | 1 | 1 | activity_rule |
+| 标准活动权益 | 1 | 1 | activity_benefit |
+| 标准活动范围 | 7 | 23 | activity_scope |
 | 标准活动核销明细 | 136 | 98 | activity_execution |
-| 标准优惠券配置 | 0 | 0 | coupon_config |
-| 标准优惠券发放规则 | 0 | 0 | coupon_issue_rule |
-| 标准优惠券使用规则 | 0 | 0 | coupon_use_rule |
-| 标准优惠券适用范围 | 0 | 0 | coupon_scope |
+| 标准优惠券配置 | 1 | 0 | coupon_config |
+| 标准优惠券发放规则 | 1 | 0 | coupon_issue_rule |
+| 标准优惠券使用规则 | 1 | 0 | coupon_use_rule |
+| 标准优惠券适用范围 | 4 | 0 | coupon_scope |
 | 标准优惠券核销明细 | 1 | 0 | coupon_redemption |
 | 标准履约 | 1764 | 1257 | fulfillment |
 

@@ -134,6 +134,27 @@ class VerifiedStandardSampleTests(unittest.TestCase):
         self.assertEqual(manzeng.tables["标准活动"][0]["活动名称"], "满赠优惠")
         self.assertEqual(len(manzeng.tables["标准优惠券核销明细"]), 0)
         self.assertTrue((root / "ec101_standard库结构与当前数据.xlsx").exists())
+        self.assertEqual(manjian.tables["标准活动规则"][0]["门槛值"], "300")
+        self.assertEqual(manjian.tables["标准活动规则"][0]["立减金额"], "15")
+        self.assertEqual(manjian.tables["标准优惠券配置"][0]["优惠券名称"], "test1")
+        self.assertEqual(manjian.tables["标准优惠券配置"][0]["优惠券配置编号"], "KM-COUPON-AUTO-001")
+        self.assertEqual(manzeng.tables["标准活动权益"][0]["赠品商品编号"], "348721357")
+        self.assertEqual(manzeng.tables["标准活动权益"][0]["赠品单位"], "")
+        self.assertEqual([row["优惠券名称"] for row in manjian.tables["标准优惠券配置"]], ["test1"])
+        self.assertEqual(manzeng.tables["标准优惠券配置"], [])
+
+    def test_original_config_mapping_does_not_invent_values(self):
+        root = ROOT / "docs" / "samples" / "kuaima-verified-standard" / "原库配置对照"
+        mapped = read_standard_workbook(root / "原库配置_standard.xlsx")
+        names = [row["活动名称"] for row in mapped.tables["标准活动"]]
+        self.assertEqual(names, ["可口可乐满减", "满赠优惠", "可口可乐产品288返15元券", "雪碧系列满100元送抱枕", "新客户投放", "test1"])
+        rebate = next(row for row in mapped.tables["标准活动权益"] if row["权益类型"] == "返券")
+        self.assertEqual(rebate["赠品商品名称"], "")
+        self.assertEqual(rebate["赠品数量"], "")
+        coupon_nos = [row["优惠券配置编号"] for row in mapped.tables["标准优惠券配置"]]
+        self.assertEqual(coupon_nos, ["可口可乐产品288返15元券", "KM-COUPON-MANUAL-001", "KM-COUPON-AUTO-001"])
+        self.assertEqual(len(mapped.tables["标准优惠券发放规则"]), 2)
+        self.assertTrue((root / "原库配置与标准表对照.xlsx").exists())
 
     def test_sample_database_snapshot_has_verified_batches(self):
         db_path = ROOT / "docs" / "samples" / "kuaima-verified-standard" / "ec101_standard.db"

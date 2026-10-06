@@ -1,0 +1,75 @@
+{
+  "source_db": "/tmp/ec101-mvp-db/mvp/ec101_mvp.db",
+  "activities": [
+    {
+      "activity_id": 1,
+      "dealer_name": "深圳市兴路强商贸有限公司",
+      "platform_name": "快马",
+      "activity_name": "可口可乐满减",
+      "activity_category": "非券类",
+      "promotion_type": "满一定金额立减",
+      "standard_activity_no": "可口可乐满减"
+    },
+    {
+      "activity_id": 2,
+      "dealer_name": "深圳市兴路强商贸有限公司",
+      "platform_name": "快马",
+      "activity_name": "满赠优惠",
+      "activity_category": "非券类",
+      "promotion_type": "满一定金额立赠",
+      "standard_activity_no": "满赠优惠"
+    },
+    {
+      "activity_id": 17,
+      "dealer_name": "羿柏",
+      "platform_name": "舟谱",
+      "activity_name": "可口可乐产品288返15元券",
+      "activity_category": "券类",
+      "promotion_type": "满288返15元券",
+      "standard_activity_no": "可口可乐产品288返15元券"
+    },
+    {
+      "activity_id": 18,
+      "dealer_name": "羿柏",
+      "platform_name": "舟谱",
+      "activity_name": "雪碧系列满100元送抱枕",
+      "activity_category": "非券类",
+      "promotion_type": "满一定金额立赠",
+      "standard_activity_no": "雪碧系列满100元送抱枕"
+    },
+    {
+      "activity_id": 19,
+      "dealer_name": "深圳市兴路强商贸有限公司",
+      "platform_name": "快马",
+      "activity_name": "新客户投放",
+      "activity_category": "券类",
+      "promotion_type": "满一定金额立减",
+      "standard_activity_no": "KM-COUPON-MANUAL-001"
+    },
+    {
+      "activity_id": 20,
+      "dealer_name": "深圳市兴路强商贸有限公司",
+      "platform_name": "快马",
+      "activity_name": "test1",
+      "activity_category": "券类",
+      "promotion_type": "满一定金额立减",
+      "standard_activity_no": "KM-COUPON-AUTO-001"
+    }
+  ],
+  "mapped_counts": {
+    "标准客户": 0,
+    "标准商品": 0,
+    "标准订单明细": 0,
+    "标准活动": 6,
+    "标准活动规则": 6,
+    "标准活动权益": 4,
+    "标准活动范围": 46,
+    "标准活动核销明细": 0,
+    "标准优惠券配置": 3,
+    "标准优惠券发放规则": 2,
+    "标准优惠券使用规则": 2,
+    "标准优惠券适用范围": 7,
+    "标准优惠券核销明细": 0,
+    "标准履约": 0
+  }
+}
