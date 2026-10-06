@@ -1,0 +1,12 @@
+platform=舟谱
+customers=2492
+products=2655
+orders=6697
+xd_only=2644
+order_lines=76055
+fulfillments=6118
+coupons=102
+used_coupons=48
+synthetic_customers=1
+synthetic_products=8
+sources_sha256=736ff23cfed1b13c583639291eb189735542cda3bfdf80dad968960a39971d9a

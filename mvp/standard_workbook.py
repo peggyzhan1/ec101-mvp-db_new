@@ -38,6 +38,24 @@ def write_standard_workbook(
     workbook.save(path)
 
 
+def write_standard_workbook_fast(
+    path: Path,
+    tables: Mapping[str, Sequence[Mapping[str, object]]],
+    manifest: Mapping[str, object],
+) -> None:
+    """Stream a large standard workbook. Values stay text so long identifiers round-trip."""
+    workbook = Workbook(write_only=True)
+    for sheet in STANDARD_SHEETS:
+        worksheet = workbook.create_sheet(sheet)
+        columns = list(SHEET_COLUMNS[sheet])
+        worksheet.append(columns)
+        records = [manifest] if sheet == "导入清单" else tables.get(sheet, ())
+        for record in records:
+            worksheet.append(["" if record.get(column) is None else str(record.get(column)) for column in columns])
+    path.parent.mkdir(parents=True, exist_ok=True)
+    workbook.save(path)
+
+
 def read_standard_workbook(path: Path) -> StandardWorkbook:
     workbook = load_workbook(path, read_only=True, data_only=True)
     if tuple(workbook.sheetnames) != STANDARD_SHEETS:

@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from .actual_result_calculator import calculate_actual_results
 from .standard_schema import Issue, validate_rows
 from .standard_workbook import StandardWorkbook
 
@@ -82,7 +83,7 @@ def _f(value: Any) -> float:
         return 0.0
 
 
-def import_snapshot(db: sqlite3.Connection, workbook: StandardWorkbook, archive: ArchiveMetadata) -> ImportResult:
+def import_snapshot(db: sqlite3.Connection, workbook: StandardWorkbook, archive: ArchiveMetadata, calc_date: str | None = None) -> ImportResult:
     issues = validate_import(workbook, db)
     if issues:
         raise ImportValidationError(issues)
@@ -154,13 +155,7 @@ def import_snapshot(db: sqlite3.Connection, workbook: StandardWorkbook, archive:
         for row in workbook.tables.get("标准履约", []):
             db.execute("INSERT INTO fulfillment(import_batch_id,order_no,downstream_order_no,fulfillment_status,outbound_at,completed_at,settlement_status,return_qty) VALUES(?,?,?,?,?,?,?,?)",
                        (batch_id, row["单据编号"], row.get("下游订单编号"), row["履约订单状态"], row.get("出库时间"), row.get("完成时间"), row.get("结款状态"), _f(row.get("退货数量"))))
-        activity_benefit = db.execute("SELECT COALESCE(SUM(discount_amount),0) FROM activity_execution WHERE activity_id IN (SELECT activity_id FROM activity WHERE import_batch_id=?)", (batch_id,)).fetchone()[0]
-        coupon_benefit = db.execute("SELECT COALESCE(SUM(discount_amount),0) FROM coupon_redemption WHERE import_batch_id=?", (batch_id,)).fetchone()[0]
-        calc_id = db.execute("INSERT INTO calculation_run(import_batch_id,activity_benefit,coupon_benefit,total_benefit,status) VALUES(?,?,?,?,?)", (batch_id, activity_benefit, coupon_benefit, activity_benefit + coupon_benefit, "calculated")).lastrowid
-        for order_no, order_id in order_ids.items():
-            act = db.execute("SELECT COALESCE(SUM(discount_amount),0) FROM activity_execution WHERE order_id=?", (order_id,)).fetchone()[0]
-            coupon = db.execute("SELECT COALESCE(SUM(discount_amount),0) FROM coupon_redemption WHERE order_id=?", (order_id,)).fetchone()[0]
-            db.execute("INSERT INTO entitlement_check(calculation_run_id,order_id,activity_benefit,coupon_benefit,total_benefit,consistency) VALUES(?,?,?,?,?,?)", (calc_id, order_id, act, coupon, act + coupon, "一致"))
+        calc_id = calculate_actual_results(db, batch_id, calc_date)
         db.execute("UPDATE import_batch SET status='calculated', is_current=1 WHERE import_batch_id=?", (batch_id,))
     return ImportResult(batch_id, calc_id, "calculated")
 

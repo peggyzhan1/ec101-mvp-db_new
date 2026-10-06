@@ -58,7 +58,7 @@ GET /api/fee-tpm/issues
 GET /api/fee-tpm/settlements
 ```
 
-所有列表支持 `dealer`、`platform`、`limit`、`offset`（上限仍为 100）及可选的 `calc_batch_id`。省略 `calc_batch_id` 时为“当前”模式：每个活动读取其自身最新的费用结果批次；传入时为历史回放，所有记录固定来自该批次。不存在的批次返回 `404`，不会回退到最新数据。
+所有列表支持 `dealer`、`platform`、`limit`、`offset`（上限仍为 100）及可选的 `calc_batch_id`。省略 `calc_batch_id` 时为“当前”模式：每个 `is_current=1` 的导入批次各取自己最新的一次核算，快马和舟谱会同时出现。传入 `calc_batch_id` 时为历史回放，记录固定来自该次核算。不存在的批次返回 `404`，不会回退到最新数据。
 
 例如：
 
