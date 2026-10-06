@@ -11,7 +11,10 @@ __MACOSX/
 *.log
 mvp/ec101_mvp.db.*.bak
 
-# 标准导入库是本机运行时生成的快照库（上传即重建），不入库
+# 标准导入库是本机运行时生成的快照库（上传即重建），不入库。
+# GitHub / 克隆仓库里看不到 mvp/ec101_standard.db 是正常的。
+# 验收快照：docs/samples/kuaima-verified-standard/ec101_standard.db
+# 本地生成运行时库：python3 scripts/rebuild_standard_db.py
 mvp/ec101_standard.db
 mvp/ec101_standard.db.bak-*
 mvp/archives/

@@ -2,9 +2,11 @@
 
 之前 e2e 验收（`tests/e2e/test_standard_pipeline.py`）把 `standard.xlsx` 写在临时目录，进程结束就删了，所以仓库里看不到转换结果。本目录用**同一套兴路强试点源文件、同一套转换器**重新导出，方便直接打开。
 
-数据已经进过 `mvp/ec101_standard.db`（两批都是 `calculated`）。标准 Excel 是导入前的中间文件；库是导入后的落库结果。
+`mvp/ec101_standard.db` **不进 git**（见仓库根目录 `.gitignore`），所以在 GitHub 或新克隆的仓库里找不到这个路径是正常的。验收用的库文件在本目录的 `ec101_standard.db`。
 
-重新生成：`python3 scripts/export_kuaima_verified_standard.py`
+- 看库：打开本目录的 `ec101_standard.db`（SQLite），或 `ec101_standard库结构与当前数据.xlsx`
+- 在本机生成平台用的运行时库：`python3 scripts/rebuild_standard_db.py`（会写出 `mvp/ec101_standard.db`）
+- 只重导标准 Excel：`python3 scripts/export_kuaima_verified_standard.py`
 
 ## 文件
 
@@ -16,7 +18,8 @@
 | `满赠/standard.xlsx` | 满赠批次完整标准工作簿 |
 | `满赠/standard_preview.xlsx` | 满赠预览 |
 | `满赠/conversion_report.txt` | 转换器当次汇总 |
-| `ec101_standard库结构与当前数据.xlsx` | 当前 `ec101_standard.db` 的表、字段、行数、一条样例 |
+| `ec101_standard.db` | 验收时的标准库快照（两批已核算）。GitHub 上看这个文件，不要找 `mvp/ec101_standard.db` |
+| `ec101_standard库结构与当前数据.xlsx` | 上面这个库的表、字段、行数、一条样例 |
 
 ## 满减 / 满赠各表行数
 

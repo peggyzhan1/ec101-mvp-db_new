@@ -135,6 +135,18 @@ class VerifiedStandardSampleTests(unittest.TestCase):
         self.assertEqual(len(manzeng.tables["标准优惠券核销明细"]), 0)
         self.assertTrue((root / "ec101_standard库结构与当前数据.xlsx").exists())
 
+    def test_sample_database_snapshot_has_verified_batches(self):
+        db_path = ROOT / "docs" / "samples" / "kuaima-verified-standard" / "ec101_standard.db"
+        self.assertTrue(db_path.exists(), "找不到验收库快照；应提交 docs/samples/kuaima-verified-standard/ec101_standard.db")
+        connection = sqlite3.connect(db_path)
+        batches = list(connection.execute("SELECT import_batch_id, coverage_start, coverage_end, status FROM import_batch ORDER BY import_batch_id"))
+        runs = list(connection.execute(
+            "SELECT import_batch_id, activity_benefit, coupon_benefit, released_activity_benefit, released_coupon_benefit, participating_orders, released_orders FROM calculation_run ORDER BY import_batch_id"
+        ))
+        connection.close()
+        self.assertEqual([(row[1], row[2], row[3]) for row in batches], [("2026-08-31", "2026-09-17", "calculated"), ("2026-08-19", "2026-08-31", "calculated")])
+        self.assertEqual([tuple(row) for row in runs], [(1, 2040, 200, 1995, 200, 136, 133), (2, 0, 0, 0, 0, 98, 98)])
+
 
 if __name__ == "__main__":
     unittest.main()
