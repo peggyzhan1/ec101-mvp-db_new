@@ -6,6 +6,9 @@ The runtime path mvp/ec101_standard.db is gitignored. After clone, run:
 
 That writes the platform database from docs/samples/kuaima-verified-standard/{满减,满赠}/standard.xlsx
 and also refreshes the review copy in the same samples directory.
+
+Do not import 优惠券/standard.xlsx here: that workbook is a coupon-domain extract of the
+满减 batch. Re-importing it would double-count the same 200 yuan redemption.
 """
 
 from __future__ import annotations

@@ -411,7 +411,7 @@ def write_markdown(original: dict[str, list[dict]], mapped: dict[str, list[dict[
         "",
         "- 两边对照：`原库配置与标准表对照.xlsx`（左原库、右标准、另有未编造说明）",
         "- 仅标准格式：`原库配置_standard.xlsx`",
-        "- 已写入快马验收表：`../满减/standard.xlsx`（满减规则 + test1 券配置），`../满赠/standard.xlsx`（满赠规则）。舟谱和「新客户投放」只在对照文件里。",
+        "- 已写入快马验收表：`../满减/standard.xlsx`（满减规则 + test1 券配置），`../满赠/standard.xlsx`（满赠规则），`../优惠券/standard.xlsx`（从满减抽出的券域，不含满减核销）。舟谱和「新客户投放」只在对照文件里。",
         "",
     ])
     path = OUT_DIR / "README.md"
@@ -429,6 +429,8 @@ def main() -> None:
     patch_kuaima_workbook(SAMPLES / "满赠" / "standard.xlsx", mapped, {KUAIMA_MANZENG}, set())
     write_preview(SAMPLES / "满减" / "standard.xlsx")
     write_preview(SAMPLES / "满赠" / "standard.xlsx")
+    from scripts.export_coupon_verified_standard import export_coupon_sample
+    export_coupon_sample(SAMPLES / "满减" / "standard.xlsx")
     write_markdown(original, mapped, db_path)
     dump = {
         "source_db": str(db_path),

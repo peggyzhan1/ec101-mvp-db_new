@@ -142,6 +142,38 @@ class PromotionRecalcTests(unittest.TestCase):
             names = [row[0] for row in connection.execute("SELECT a.activity_name FROM activity_fee_summary s JOIN activity a ON a.activity_id=s.activity_id")]
         self.assertEqual(names, ["满减"])
 
+    def test_coupon_redemption_recalculates_theoretical_and_skips_fee_summary(self):
+        workbook = workbook_with_rows(
+            **{
+                "标准客户": [{"客户编号": "C1", "客户名称": "客户"}],
+                "标准商品": [{"商品编号": "P1", "商品名称": "商品"}],
+                "标准订单明细": [{"单据编号": "O1", "下单时间": "2026-09-10 16:18:49", "客户编号": "C1", "商品编号": "P1", "数量": "1", "优惠前金额": "1919.8", "实付金额": "1704.8", "订单状态": "已完成"}],
+                "标准活动": [{"活动编号": "KM-COUPON-AUTO-001", "活动名称": "test1", "活动类型": "满一定金额立减", "开始时间": "2026-09-09 16:50:00", "结束时间": "2026-09-12 16:50:00"}],
+                "标准活动规则": [{"活动编号": "KM-COUPON-AUTO-001", "规则编号": "1", "门槛类型": "金额", "门槛值": "588", "立减金额": "200"}],
+                "标准优惠券配置": [{"优惠券配置编号": "KM-COUPON-AUTO-001", "优惠券名称": "test1", "券类型": "单品优惠", "配置状态": "已结束"}],
+                "标准优惠券发放规则": [{"优惠券配置编号": "KM-COUPON-AUTO-001", "发放方式": "auto_grant", "发放开始时间": "2026-09-09 16:55:00", "自动发放时间": "2026-09-09 16:55:00", "每次发放数量": "1", "规则状态": "已结束"}],
+                "标准优惠券使用规则": [{"优惠券配置编号": "KM-COUPON-AUTO-001", "券类型": "单品优惠", "有效期类型": "fixed_period", "使用开始时间": "2026-09-09 16:50:00", "使用结束时间": "2026-09-12 16:50:00", "每张券最多使用次数": "1", "规则状态": "已结束"}],
+                "标准优惠券核销明细": [{"优惠券编号": "202609091700313431", "客户编号": "C1", "状态": "已使用", "领取时间": "2026-09-09 17:00:31", "使用时间": "2026-09-10 16:18:48", "订单号": "O1", "优惠金额": "200"}],
+            }
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            db_path = Path(directory) / "new.db"
+            create_database(db_path)
+            connection = sqlite3.connect(db_path)
+            imported = import_snapshot(connection, workbook, ArchiveMetadata("sources.zip", "sha256", 10))
+            calculate_batch(connection, imported.import_batch_id, "2026-09-22")
+            run = run_calculation(connection, imported.import_batch_id)
+            check = connection.execute(
+                "SELECT consistency, theoretical_coupon_benefit, coupon_benefit, activity_benefit FROM entitlement_check"
+            ).fetchone()
+            names = [row[0] for row in connection.execute(
+                "SELECT a.activity_name FROM activity_fee_summary s JOIN activity a ON a.activity_id=s.activity_id"
+            )]
+        self.assertEqual((run["coupon_benefit"], run["released_coupon_benefit"], run["theoretical_coupon_benefit"]), (200.0, 200.0, 200.0))
+        self.assertEqual((run["activity_benefit"], run["theoretical_activity_benefit"], run["consistent_orders"]), (0.0, 0.0, 1))
+        self.assertEqual(tuple(check), ("一致", 200.0, 200.0, 0.0))
+        self.assertEqual(names, [])
+
     def test_gift_counts_quantity_not_currency(self):
         workbook = workbook_with_rows(
             **{

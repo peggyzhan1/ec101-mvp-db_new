@@ -127,6 +127,11 @@ class KuaimaRealSampleTests(unittest.TestCase):
         self.assertEqual(len(execution), 136)
         self.assertEqual(round(sum(float(row["优惠金额"]) for row in execution), 2), 2040.0)
         self.assertEqual({row["优惠金额"] for row in execution}, {"15"})
+        coupons = workbook.tables["标准优惠券核销明细"]
+        self.assertEqual(len(coupons), 1)
+        self.assertEqual(coupons[0]["优惠金额"], "200")
+        self.assertEqual(coupons[0]["订单号"], "1012420526026091000081")
+        self.assertEqual(workbook.tables["标准优惠券配置"], [])
         self.assertTrue(result.sources_zip_path.exists())
 
 

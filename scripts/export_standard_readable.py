@@ -123,6 +123,7 @@ def main() -> None:
     written = [
         write_standard_markdown(SAMPLES / "满减" / "standard.xlsx", "快马满减标准表（可读）"),
         write_standard_markdown(SAMPLES / "满赠" / "standard.xlsx", "快马满赠标准表（可读）"),
+        write_standard_markdown(SAMPLES / "优惠券" / "standard.xlsx", "快马优惠券标准表（可读）"),
         write_standard_markdown(SAMPLES / "原库配置对照" / "原库配置_standard.xlsx", "原库配置（标准格式，可读）"),
         write_comparison_markdown(SAMPLES / "原库配置对照" / "原库配置与标准表对照.xlsx"),
     ]

@@ -69,6 +69,7 @@ class KuaimaBaselineRegressionTests(unittest.TestCase):
             pending = get_import_release(db_path, batch_id, {"candidate": "0"})
         self.assertEqual(calculation["release_cutoff"], "2026-09-20 00:00:00")
         self.assertEqual(calculation["activity_benefit"], 2040)
+        # 快马没有独立券订单导出，转换器路径的券费用挂在满减批次；券域理论验收见 test_coupon_matches_audited_baseline。
         self.assertEqual(calculation["coupon_benefit"], 200)
         self.assertEqual((calculation["participating_orders"], calculation["released_orders"]), (136, 133))
         self.assertEqual(calculation["released_activity_benefit"], 1995)
@@ -125,6 +126,7 @@ class VerifiedStandardSampleTests(unittest.TestCase):
         root = ROOT / "docs" / "samples" / "kuaima-verified-standard"
         manjian = read_standard_workbook(root / "满减" / "standard.xlsx")
         manzeng = read_standard_workbook(root / "满赠" / "standard.xlsx")
+        coupon = read_standard_workbook(root / "优惠券" / "standard.xlsx")
         self.assertEqual(manjian.manifest["平台名称"], "快马")
         self.assertEqual((manjian.manifest["数据开始日期"], manjian.manifest["数据结束日期"]), ("2026-08-31", "2026-09-17"))
         self.assertEqual(len(manjian.tables["标准活动核销明细"]), 136)
@@ -146,6 +148,11 @@ class VerifiedStandardSampleTests(unittest.TestCase):
         self.assertEqual(manzeng.tables["标准活动权益"][0]["赠品单位"], "")
         self.assertEqual([row["优惠券名称"] for row in manjian.tables["标准优惠券配置"]], ["test1"])
         self.assertEqual(manzeng.tables["标准优惠券配置"], [])
+        self.assertEqual(len(coupon.tables["标准优惠券核销明细"]), 1)
+        self.assertEqual(coupon.tables["标准活动核销明细"], [])
+        self.assertEqual(coupon.tables["标准优惠券配置"][0]["优惠券配置编号"], "KM-COUPON-AUTO-001")
+        self.assertEqual(sum(float(row["优惠前金额"]) for row in coupon.tables["标准订单明细"]), 1919.8)
+        self.assertTrue((root / "优惠券" / "可读.md").exists())
         manzeng_text = (root / "满赠" / "可读.md").read_text(encoding="utf-8")
         self.assertIn("满赠优惠", manzeng_text)
         self.assertIn("348721357", manzeng_text)
@@ -203,6 +210,44 @@ class VerifiedStandardSampleTests(unittest.TestCase):
         self.assertEqual(labels, {"一致"})
         self.assertEqual(names, ["可口可乐满减"])
         self.assertEqual(calculation["theoretical_coupon_benefit"], 200)
+
+    def test_coupon_matches_audited_baseline(self):
+        """券域单独验收：同一张 test1 从满减表抽出后，费用/理论都是 200，且不进活动费用汇总。"""
+        root = ROOT / "docs" / "samples" / "kuaima-verified-standard"
+        workbook = read_standard_workbook(root / "优惠券" / "standard.xlsx")
+        self.assertEqual(len(workbook.tables["标准优惠券核销明细"]), 1)
+        self.assertEqual(workbook.tables["标准优惠券核销明细"][0]["优惠金额"], "200")
+        self.assertEqual(workbook.tables["标准优惠券核销明细"][0]["订单号"], "1012420526026091000081")
+        self.assertEqual(workbook.tables["标准优惠券配置"][0]["优惠券配置编号"], "KM-COUPON-AUTO-001")
+        self.assertEqual(workbook.tables["标准活动核销明细"], [])
+        self.assertEqual([row["活动编号"] for row in workbook.tables["标准活动"]], ["KM-COUPON-AUTO-001"])
+        with tempfile.TemporaryDirectory() as directory:
+            db_path = Path(directory) / "ec101.db"
+            create_database(db_path)
+            with sqlite3.connect(db_path) as connection:
+                imported = import_snapshot(connection, workbook, ArchiveMetadata("sample.xlsx", "sample-优惠券", 1))
+                calculate_batch(connection, imported.import_batch_id, BASELINE_CALC_DATE)
+                calculation = run_calculation(connection, imported.import_batch_id)
+                check = connection.execute(
+                    "SELECT consistency, coupon_benefit, theoretical_coupon_benefit, activity_benefit FROM entitlement_check"
+                ).fetchone()
+                names = [row[0] for row in connection.execute(
+                    "SELECT a.activity_name FROM activity_fee_summary s JOIN activity a ON a.activity_id=s.activity_id"
+                )]
+                redemption = connection.execute(
+                    "SELECT coupon_no, status, discount_amount FROM coupon_redemption"
+                ).fetchone()
+            overview = query_fee_tpm_overview(db_path, {})
+        self.assertEqual(calculation["activity_benefit"], 0)
+        self.assertEqual(calculation["coupon_benefit"], 200)
+        self.assertEqual(calculation["released_coupon_benefit"], 200)
+        self.assertEqual(calculation["theoretical_coupon_benefit"], 200)
+        self.assertEqual(calculation["theoretical_activity_benefit"], 0)
+        self.assertEqual((calculation["participating_orders"], calculation["released_orders"], calculation["consistent_orders"]), (1, 1, 1))
+        self.assertEqual(tuple(check), ("一致", 200, 200, 0))
+        self.assertEqual(names, [])
+        self.assertEqual(tuple(redemption), ("202609091700313431", "已使用", 200))
+        self.assertEqual((overview["releasedCouponBenefit"], overview["submittableAmount"], overview["participatingOrders"]), (200, 0, 1))
 
 
 if __name__ == "__main__":

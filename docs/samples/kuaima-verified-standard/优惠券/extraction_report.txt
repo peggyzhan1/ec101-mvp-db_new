@@ -1,0 +1,7 @@
+快马试点优惠券没有独立订单/销售导出，只有一张 test1 活动明细。
+本表从已补原库规则的满减 standard.xlsx 抽出：
+- 券核销 202609091700313431 优惠 200
+- 使用订单 1012420526026091000081
+- 券配置 KM-COUPON-AUTO-001
+- 不含满减核销行，费用只应算出券 200
+不要把本表再导入 docs/samples/kuaima-verified-standard/ec101_standard.db。

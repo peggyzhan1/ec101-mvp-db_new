@@ -6,6 +6,7 @@
 |---|---|
 | 满赠标准表 | [满赠/可读.md](满赠/可读.md) |
 | 满减标准表 | [满减/可读.md](满减/可读.md) |
+| 优惠券标准表 | [优惠券/可读.md](优惠券/可读.md) |
 | 原库配置对照 | [原库配置对照/对照_可读.md](原库配置对照/对照_可读.md) |
 | 原库配置（标准格式） | [原库配置对照/原库配置_standard_可读.md](原库配置对照/原库配置_standard_可读.md) |
 
@@ -17,8 +18,9 @@ Excel 完整文件要从 GitHub 下载（浏览器打开仓库后点 Download）
 
 - 看库：打开本目录的 `ec101_standard.db`（SQLite），或 `ec101_standard库结构与当前数据.xlsx`
 - 在本机生成平台用的运行时库：`python3 scripts/rebuild_standard_db.py`（会写出 `mvp/ec101_standard.db`）
-- 只重导快马源文件：`python3 scripts/export_kuaima_verified_standard.py`（会清掉规则行）后再跑 `python3 scripts/export_original_config_to_standard.py` 把原库规则补回去
+- 只重导快马源文件：`python3 scripts/export_kuaima_verified_standard.py`（会清掉规则行）后再跑 `python3 scripts/export_original_config_to_standard.py` 把原库规则补回去（末尾会抽出 `优惠券/standard.xlsx`）
 - 核算规则：费用仍是核销 SUM；理论权益走 `promotion_calculator`。满减理论 2040、一致 136；券理论 200；满赠应赠/实赠 98/98。可释放活动仍是 1995。
+- 优惠券没有第三份快马订单导出。试点只有一张 test1 活动明细，使用订单在满减批次里。`优惠券/` 是从已补规则的满减表抽出的券域验收表，**不要**再导入 `ec101_standard.db`。
 
 ## 文件
 
@@ -28,30 +30,34 @@ Excel 完整文件要从 GitHub 下载（浏览器打开仓库后点 Download）
 | `满减/standard.xlsx` | 完整 Excel，请下载后用 Excel/WPS 打开 |
 | `满赠/可读.md` | **Cursor 里看这个** |
 | `满赠/standard.xlsx` | 完整 Excel，请下载后打开 |
+| `优惠券/可读.md` | **Cursor 里看这个**（test1 券配置 + 1 条核销 + 使用订单） |
+| `优惠券/standard.xlsx` | 券域验收 Excel；可单独导入核算，勿写入共享快照库 |
 | `原库配置对照/对照_可读.md` | **Cursor 里看原库 vs 标准表对照** |
 | `原库配置对照/原库配置与标准表对照.xlsx` | 对照 Excel，请下载后打开 |
 | `ec101_standard.db` | 验收时的标准库快照（两批已核算）。GitHub 上看这个文件，不要找 `mvp/ec101_standard.db` |
 | `ec101_standard库结构与当前数据.xlsx` | 上面这个库的表、字段、行数、一条样例 |
 
-## 满减 / 满赠各表行数
+## 满减 / 满赠 / 优惠券各表行数
 
-| 标准工作表 | 满减行数 | 满赠行数 | 落入数据库表 |
-|---|---:|---:|---|
-| 导入清单 | 1 | 1 | import_batch / dealer_platform |
-| 标准客户 | 2292 | 2292 | customer |
-| 标准商品 | 9175 | 9172 | product |
-| 标准订单明细 | 36157 | 26254 | order_header + order_line |
-| 标准活动 | 2 | 1 | activity |
-| 标准活动规则 | 2 | 1 | activity_rule |
-| 标准活动权益 | 1 | 1 | activity_benefit |
-| 标准活动范围 | 7 | 23 | activity_scope |
-| 标准活动核销明细 | 136 | 98 | activity_execution |
-| 标准优惠券配置 | 1 | 0 | coupon_config |
-| 标准优惠券发放规则 | 1 | 0 | coupon_issue_rule |
-| 标准优惠券使用规则 | 1 | 0 | coupon_use_rule |
-| 标准优惠券适用范围 | 4 | 0 | coupon_scope |
-| 标准优惠券核销明细 | 1 | 0 | coupon_redemption |
-| 标准履约 | 1764 | 1257 | fulfillment |
+优惠券列是从满减表抽出的券域，不是第三批快马源文件。共享库只导入满减+满赠。
+
+| 标准工作表 | 满减行数 | 满赠行数 | 优惠券行数 | 落入数据库表 |
+|---|---:|---:|---:|---|
+| 导入清单 | 1 | 1 | 1 | import_batch / dealer_platform |
+| 标准客户 | 2292 | 2292 | 1 | customer |
+| 标准商品 | 9175 | 9172 | 2 | product |
+| 标准订单明细 | 36157 | 26254 | 2 | order_header + order_line |
+| 标准活动 | 2 | 1 | 1 | activity |
+| 标准活动规则 | 2 | 1 | 1 | activity_rule |
+| 标准活动权益 | 1 | 1 | 0 | activity_benefit |
+| 标准活动范围 | 7 | 23 | 0 | activity_scope |
+| 标准活动核销明细 | 136 | 98 | 0 | activity_execution |
+| 标准优惠券配置 | 1 | 0 | 1 | coupon_config |
+| 标准优惠券发放规则 | 1 | 0 | 1 | coupon_issue_rule |
+| 标准优惠券使用规则 | 1 | 0 | 1 | coupon_use_rule |
+| 标准优惠券适用范围 | 4 | 0 | 4 | coupon_scope |
+| 标准优惠券核销明细 | 1 | 0 | 1 | coupon_redemption |
+| 标准履约 | 1764 | 1257 | 1 | fulfillment |
 
 ## 当前库里已经有的批次
 
