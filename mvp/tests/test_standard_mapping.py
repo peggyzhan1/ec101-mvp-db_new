@@ -6,6 +6,8 @@ IMPORT = Path(__file__).resolve().parents[1] / "import_service.py"
 DOC = Path(__file__).resolve().parents[2] / "docs" / "标准数据到标准库对照.md"
 LOGIC_DOC = Path(__file__).resolve().parents[2] / "docs" / "快马转换与核算逻辑.md"
 PLAN_DOC = Path(__file__).resolve().parents[2] / "docs" / "后续实施计划.md"
+REPORT_DOC = Path(__file__).resolve().parents[2] / "docs" / "活动费用核验报告模版说明.md"
+REPORT_XLSX = Path(__file__).resolve().parents[2] / "docs" / "templates" / "活动费用核验报告模版.xlsx"
 SVG_SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "build_standard_er_svg.py"
 
 
@@ -50,6 +52,18 @@ class StandardMappingDocsTests(unittest.TestCase):
             "1995",
         ):
             self.assertIn(needle, text, needle)
+
+    def test_activity_verification_template_is_reviewable(self):
+        text = REPORT_DOC.read_text(encoding="utf-8")
+        self.assertIn("活动优惠金额", text)
+        self.assertIn("参与订单明细", text)
+        self.assertTrue(REPORT_XLSX.is_file(), REPORT_XLSX)
+        from openpyxl import load_workbook
+        workbook = load_workbook(REPORT_XLSX)
+        self.assertEqual(workbook.sheetnames[:3], ["活动核验结论", "参与订单明细", "订单商品行（附录）"])
+        headers = [cell.value for cell in workbook["参与订单明细"][2]]
+        for name in ("单据编号", "活动优惠金额", "是否可释放", "理论权益"):
+            self.assertIn(name, headers)
 
     def test_followup_plan_keeps_fee_from_redemption_and_splits_import(self):
         text = PLAN_DOC.read_text(encoding="utf-8")
