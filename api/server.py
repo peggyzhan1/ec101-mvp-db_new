@@ -368,7 +368,7 @@ def query_fee_tpm_overview(db_path: Path, params: dict[str, Any]) -> dict[str, A
         activities = query_fee_tpm_activities(db_path, {**params, "limit": 100, "offset": 0})
         issues = query_fee_tpm_issues(db_path, {**params, "limit": 100, "offset": 0})
         rows = activities["rows"]
-        return {"mode": activities["mode"], "calcBatchId": activities["calcBatchId"], "activityCount": len(rows), "submittableAmount": sum(float(row["settleAmount"] or 0) for row in rows if row["benefitKind"] == "money"), "giftQtyActual": 0, "waitingCount": sum(row["level"] == "提示" for row in issues["rows"]), "handlingCount": sum(row["level"] == "警告" for row in issues["rows"]), "activities": rows}
+        return {"mode": activities["mode"], "calcBatchId": activities["calcBatchId"], "activityCount": len(rows), "submittableAmount": sum(float(row["settleAmount"] or 0) for row in rows if row["benefitKind"] == "money"), "giftQtyActual": sum(float(row["giftQtyActual"] or 0) for row in rows), "waitingCount": sum(row["level"] == "提示" for row in issues["rows"]), "handlingCount": sum(row["level"] == "警告" for row in issues["rows"]), "activities": rows}
     activities = query_fee_tpm_activities(db_path, {**params, "limit": 100, "offset": 0})
     rows = activities["rows"]
     return {"mode": activities["mode"], "calcBatchId": activities["calcBatchId"], "activityCount": len(rows), "submittableAmount": sum(float(row["settleAmount"] or 0) for row in rows if row["status"] == "可提交"), "giftQtyActual": sum(float(row["giftQtyActual"] or 0) for row in rows), "waitingCount": sum(row["status"] == "待确认" for row in rows), "handlingCount": sum(row["status"] == "待处理" for row in rows), "activities": rows}
@@ -428,22 +428,25 @@ def _new_fee_activities(db_path: Path, params: dict[str, Any]) -> dict[str, Any]
                    a.promo_method, cr.calculation_run_id, cr.import_batch_id,
                    COALESCE(SUM(afs.actual_discount_total), 0) AS actual_discount_total,
                    COALESCE(SUM(afs.gift_cost_total), 0) AS gift_cost_total,
-                   COALESCE((SELECT COUNT(*) FROM release_candidate rc WHERE rc.calculation_run_id=cr.calculation_run_id), 0) AS release_candidates
+                   COALESCE(SUM(afs.gift_qty_entitled), 0) AS gift_qty_entitled,
+                   COALESCE(SUM(afs.gift_qty_actual), 0) AS gift_qty_actual,
+                   cr.calc_date,
+                   COALESCE((SELECT COUNT(*) FROM release_candidate rc JOIN activity_execution ae ON ae.order_id=rc.order_id WHERE rc.calculation_run_id=cr.calculation_run_id AND ae.activity_id=a.activity_id AND rc.is_candidate=1), 0) AS release_candidates
             FROM activity a
             JOIN calculation_run cr ON cr.import_batch_id=a.import_batch_id
             JOIN import_batch ib ON ib.import_batch_id=cr.import_batch_id
             JOIN dealer_platform dp ON dp.dealer_name=ib.dealer_name AND dp.platform_name=ib.platform_name
             LEFT JOIN activity_fee_summary afs ON afs.activity_id=a.activity_id AND afs.calculation_run_id=cr.calculation_run_id
-            WHERE """ + " AND ".join(clauses) + " GROUP BY a.activity_id, cr.calculation_run_id ORDER BY a.activity_id"
+            WHERE """ + " AND ".join(clauses) + " GROUP BY a.activity_id, cr.calculation_run_id, cr.calc_date ORDER BY a.activity_id"
         rows = [dict(row) for row in connection.execute(sql, values).fetchall()]
     payload = []
     for row in rows:
         is_gift = "赠" in (row["activity_type"] or "") or "赠" in (row["promo_method"] or "")
         payload.append({
             "activityId": row["activity_id"], "activityName": row["activity_name"], "dealer_name": row["dealer_name"], "dealer": row["dealer_name"], "platform": row["platform_name"],
-            "promotionType": row["promo_method"] or row["activity_type"], "benefitKind": "gift" if is_gift else "money", "ruleVersion": "standard", "calcBatchId": row["calculation_run_id"], "calcDate": "",
+            "promotionType": row["promo_method"] or row["activity_type"], "benefitKind": "gift" if is_gift else "money", "ruleVersion": "standard", "calcBatchId": row["calculation_run_id"], "calcDate": row["calc_date"] or "",
             "tpm": None, "actualDiscountTotal": None if is_gift else row["actual_discount_total"], "settleAmount": None if is_gift else row["actual_discount_total"], "budgetRemaining": None,
-            "giftQtyEntitled": None, "giftQtyActual": None, "releaseCandidates": row["release_candidates"], "warningCount": 0, "tipCount": 0, "status": "已核验",
+            "giftQtyEntitled": row["gift_qty_entitled"] if is_gift else None, "giftQtyActual": row["gift_qty_actual"] if is_gift else None, "releaseCandidates": row["release_candidates"], "warningCount": 0, "tipCount": 0, "status": "已核验",
         })
     return {"mode": "historical" if params.get("calc_batch_id") not in (None, "") else "current", "calcBatchId": calc_id, "rows": payload[offset:offset + limit], "total": len(payload), "limit": limit, "offset": offset}
 
