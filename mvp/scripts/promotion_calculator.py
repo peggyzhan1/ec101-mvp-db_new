@@ -1,4 +1,7 @@
-"""Reusable, traceable promotion calculation for discount, gift, and coupon activities."""
+"""旧的理论核算实验。费用平台导入不调用本模块。
+
+导入 standard.xlsx 之后，产品链路使用 actual_result_calculator.calculate_actual_results。
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass

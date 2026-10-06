@@ -12,7 +12,9 @@ cd ec101-fee-platform-v1
 NEXT_PUBLIC_EC101_API_URL=http://127.0.0.1:8787 npm run dev
 ```
 
-当前 API 默认使用新库 `mvp/ec101_standard.db`，支持上传标准 Excel（`POST /api/imports`），数据库仅保存标准业务事实、CORE/RESULT 核算结果与 sources.zip 归档元数据，不保存 RAW 逐行表。历史样例库 `mvp/ec101_mvp.db` 不会被自动迁移或覆盖。
+当前 API 默认使用新库 `mvp/ec101_standard.db`。费用平台上传 `standard.xlsx` 时，`POST /api/imports` 调用 `import_snapshot`，把 CORE 事实写入该库，并立刻用 `actual_result_calculator.calculate_actual_results` 写出 RESULT。同一经销商、平台、覆盖区间再次导入时，只把这一份标成非当前；另一家的当前数据保留。费用页的当前模式会读出每一个当前批次的最新核算。
+
+`mvp/scripts/ingest_*.py`、`result_service.py` 和 `promotion_calculator.py` 是早期样例或理论核算，费用平台不走这些脚本。历史样例库 `mvp/ec101_mvp.db` 不会被自动迁移或覆盖。
 
 ## Windows 转换工具
 

@@ -25,6 +25,13 @@ class NewBusinessApiTests(unittest.TestCase):
         self.assertEqual(result["total"], 1)
         self.assertEqual(result["rows"][0]["order_no"], "O1")
         self.assertEqual(get_detail(self.path, "orders", "1")["customer"], "客户1")
+        with sqlite3.connect(self.path) as connection:
+            dealer_id = connection.execute("SELECT dealer_platform_id FROM dealer_platform").fetchone()[0]
+            connection.execute("INSERT INTO import_batch(snapshot_key,dealer_name,platform_name,template_version,converter_version,imported_at,status,is_current) VALUES ('s2','D1','快马','v1','v1','2026-01-02','calculated',0)")
+            connection.execute("INSERT INTO order_header(import_batch_id,dealer_platform_id,order_no,customer_no,order_status) VALUES (2,?,?,?,?)", (dealer_id, "O-OLD", "C1", "已完成"))
+            connection.commit()
+        self.assertEqual(query_dataset(self.path, "orders", {})["total"], 1)
+        self.assertEqual(get_detail(self.path, "orders", "2")["order_no"], "O-OLD")
 
 
 if __name__ == "__main__": unittest.main()
