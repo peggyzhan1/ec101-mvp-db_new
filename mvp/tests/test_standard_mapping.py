@@ -62,7 +62,7 @@ class StandardMappingDocsTests(unittest.TestCase):
         workbook = load_workbook(REPORT_XLSX)
         self.assertEqual(workbook.sheetnames[:3], ["活动核验结论", "参与订单明细", "订单商品行（附录）"])
         headers = [cell.value for cell in workbook["参与订单明细"][2]]
-        for name in ("单据编号", "活动优惠金额", "是否可释放", "理论权益"):
+        for name in ("单据编号", "订单优惠金额（备查）", "活动优惠金额", "优惠券优惠金额", "满赠数量", "是否可释放"):
             self.assertIn(name, headers)
 
     def test_followup_plan_keeps_fee_from_redemption_and_splits_import(self):
