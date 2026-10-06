@@ -5,6 +5,7 @@ DDL_PATH = Path(__file__).resolve().parents[1] / "ddl" / "ec101_standard_sqlite.
 IMPORT = Path(__file__).resolve().parents[1] / "import_service.py"
 DOC = Path(__file__).resolve().parents[2] / "docs" / "标准数据到标准库对照.md"
 LOGIC_DOC = Path(__file__).resolve().parents[2] / "docs" / "快马转换与核算逻辑.md"
+PLAN_DOC = Path(__file__).resolve().parents[2] / "docs" / "后续实施计划.md"
 SVG_SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "build_standard_er_svg.py"
 
 
@@ -46,6 +47,19 @@ class StandardMappingDocsTests(unittest.TestCase):
             "activity_execution",
             "coupon_redemption",
             "1995",
+        ):
+            self.assertIn(needle, text, needle)
+
+    def test_followup_plan_keeps_fee_from_redemption_and_splits_import(self):
+        text = PLAN_DOC.read_text(encoding="utf-8")
+        for needle in (
+            "Golden Reference",
+            "import_service",
+            "calculation_engine",
+            "SUM 核销",
+            "理论权益",
+            "1995",
+            "舟谱",
         ):
             self.assertIn(needle, text, needle)
 
