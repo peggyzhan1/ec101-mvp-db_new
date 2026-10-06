@@ -22,6 +22,7 @@ if str(ROOT) not in sys.path:
 from mvp.calculation_engine import calculate_batch, run_calculation
 from mvp.import_service import ArchiveMetadata, create_database, import_snapshot
 from mvp.standard_workbook import read_standard_workbook
+from scripts.export_kuaima_verified_standard import dump_database, write_db_inventory
 
 SAMPLES = ROOT / "docs" / "samples" / "kuaima-verified-standard"
 RUNTIME_DB = ROOT / "mvp" / "ec101_standard.db"
@@ -60,9 +61,13 @@ def main() -> None:
         print(
             f"{row['batch']}: batch={row['import_batch_id']} "
             f"activity={row['activity_benefit']} coupon={row['coupon_benefit']} "
+            f"theoretical={row.get('theoretical_activity_benefit')} consistent={row.get('consistent_orders')} "
             f"released_activity={row['released_activity_benefit']} "
             f"orders={row['participating_orders']}/{row['released_orders']}"
         )
+    snapshot = dump_database(SNAPSHOT_DB)
+    inventory = write_db_inventory(snapshot)
+    print(f"inventory {inventory}")
 
 
 if __name__ == "__main__":

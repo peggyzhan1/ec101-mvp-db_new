@@ -159,6 +159,9 @@ CREATE TABLE calculation_run (
   total_benefit NUMERIC NOT NULL DEFAULT 0,
   released_activity_benefit NUMERIC NOT NULL DEFAULT 0,
   released_coupon_benefit NUMERIC NOT NULL DEFAULT 0,
+  theoretical_activity_benefit NUMERIC NOT NULL DEFAULT 0,
+  theoretical_coupon_benefit NUMERIC NOT NULL DEFAULT 0,
+  consistent_orders INTEGER NOT NULL DEFAULT 0,
   participating_orders INTEGER NOT NULL DEFAULT 0,
   released_orders INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL
@@ -167,7 +170,9 @@ CREATE TABLE entitlement_check (
   entitlement_check_id INTEGER PRIMARY KEY AUTOINCREMENT,
   calculation_run_id INTEGER NOT NULL REFERENCES calculation_run(calculation_run_id),
   order_id INTEGER REFERENCES order_header(order_id), activity_benefit NUMERIC, coupon_benefit NUMERIC,
-  total_benefit NUMERIC, consistency TEXT
+  total_benefit NUMERIC, consistency TEXT,
+  theoretical_activity_benefit NUMERIC, theoretical_coupon_benefit NUMERIC,
+  gift_qty_entitled NUMERIC, gift_qty_actual NUMERIC, formula_ref TEXT
 );
 CREATE TABLE release_candidate (
   release_candidate_id INTEGER PRIMARY KEY AUTOINCREMENT,

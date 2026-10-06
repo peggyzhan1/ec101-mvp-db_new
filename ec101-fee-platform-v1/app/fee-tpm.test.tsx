@@ -42,7 +42,7 @@ describe('fee TPM workspace', () => {
 
   it('queries business data from the standard schema and opens an order with its lines', async () => {
     const order = { id: 713, import_batch_id: 1, order_no: '1012420526026091000081', dealer: '深圳市兴路强商贸有限公司', platform: '快马', customer_no: 'WX-1', customer: '可口可乐客户测试', salesperson: '', order_time: '2026-09-10 16:18:49', order_status: '已完成', line_count: 2, paid_amount: 1704.8, discount_amount: 215, activities: '可口可乐满减', coupons: '202609091700313431' };
-    const detail = { ...order, lines: [{ order_line_id: 1, product_no: 'P1', product_name: '可口可乐 330ml', spec: '330ml', unit: '箱', quantity: 10, unit_price: 50, pre_discount_amount: 500, discount_amount: 15, paid_amount: 485, activity_numbers: '可口可乐满减', coupon_numbers: '' }], activity_executions: [{ activity_no: '可口可乐满减', activity_name: '可口可乐满减', activity_type: '满减', product_amount: 1919.8, discount_amount: 15 }], coupon_redemptions: [{ coupon_no: '202609091700313431', status: '已使用', used_at: '2026-09-10 16:18:48', discount_amount: 200 }], release: { is_candidate: 1, reason: '已完成且达到T-2', activity_benefit: 15, coupon_benefit: 200, calc_date: '2026-09-22', release_cutoff: '2026-09-20 00:00:00' } };
+    const detail = { ...order, lines: [{ order_line_id: 1, product_no: 'P1', product_name: '可口可乐 330ml', spec: '330ml', unit: '箱', quantity: 10, unit_price: 50, pre_discount_amount: 500, discount_amount: 15, paid_amount: 485, activity_numbers: '可口可乐满减', coupon_numbers: '' }], activity_executions: [{ activity_no: '可口可乐满减', activity_name: '可口可乐满减', activity_type: '满减', product_amount: 1919.8, discount_amount: 15 }], coupon_redemptions: [{ coupon_no: '202609091700313431', status: '已使用', used_at: '2026-09-10 16:18:48', discount_amount: 200 }], release: { is_candidate: 1, reason: '已完成且达到T-2', activity_benefit: 15, coupon_benefit: 200, calc_date: '2026-09-22', release_cutoff: '2026-09-20 00:00:00' }, entitlement: { consistency: '一致', theoretical_activity_benefit: 15, theoretical_coupon_benefit: 200, formula_ref: 'activity_rule.reduce_amount' } };
     const fetchMock = vi.fn((url: string) => {
       if (url.includes('/api/business-data/orders/713')) return Promise.resolve({ ok: true, json: () => Promise.resolve(detail) });
       if (url.includes('/api/business-data/orders')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ rows: [order], total: 1, limit: 50, offset: 0 }) });
@@ -57,6 +57,8 @@ describe('fee TPM workspace', () => {
     expect(await screen.findByText('可口可乐 330ml')).toBeInTheDocument();
     expect(screen.getByText('已完成且达到T-2')).toBeInTheDocument();
     expect(screen.getByText('券优惠 ¥ 200.00')).toBeInTheDocument();
+    expect(screen.getByText('一致性 一致')).toBeInTheDocument();
+    expect(screen.getByText('理论活动 ¥ 15.00')).toBeInTheDocument();
   });
 
   it('shows standard workbook import controls in data intake', async () => {

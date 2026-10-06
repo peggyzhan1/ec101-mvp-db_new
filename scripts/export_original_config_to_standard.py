@@ -302,6 +302,9 @@ def patch_kuaima_workbook(path: Path, mapped: dict[str, list[dict[str, str]]], a
 
     filled_activities = []
     for row in mapped["标准活动"]:
+        if keep_coupon(row) or row["活动编号"] in coupon_keys:
+            filled_activities.append(dict(row))
+            continue
         if not keep_activity(row):
             continue
         current = existing_activity.get(row["活动名称"]) or existing_activity.get(row["活动编号"]) or {}

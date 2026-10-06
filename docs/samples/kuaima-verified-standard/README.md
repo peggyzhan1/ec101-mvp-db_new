@@ -17,7 +17,8 @@ Excel 完整文件要从 GitHub 下载（浏览器打开仓库后点 Download）
 
 - 看库：打开本目录的 `ec101_standard.db`（SQLite），或 `ec101_standard库结构与当前数据.xlsx`
 - 在本机生成平台用的运行时库：`python3 scripts/rebuild_standard_db.py`（会写出 `mvp/ec101_standard.db`）
-- 只重导标准 Excel：`python3 scripts/export_kuaima_verified_standard.py`
+- 只重导快马源文件：`python3 scripts/export_kuaima_verified_standard.py`（会清掉规则行）后再跑 `python3 scripts/export_original_config_to_standard.py` 把原库规则补回去
+- 核算规则：费用仍是核销 SUM；理论权益走 `promotion_calculator`。满减理论 2040、一致 136；券理论 200；满赠应赠/实赠 98/98。可释放活动仍是 1995。
 
 ## 文件
 
@@ -40,8 +41,8 @@ Excel 完整文件要从 GitHub 下载（浏览器打开仓库后点 Download）
 | 标准客户 | 2292 | 2292 | customer |
 | 标准商品 | 9175 | 9172 | product |
 | 标准订单明细 | 36157 | 26254 | order_header + order_line |
-| 标准活动 | 1 | 1 | activity |
-| 标准活动规则 | 1 | 1 | activity_rule |
+| 标准活动 | 2 | 1 | activity |
+| 标准活动规则 | 2 | 1 | activity_rule |
 | 标准活动权益 | 1 | 1 | activity_benefit |
 | 标准活动范围 | 7 | 23 | activity_scope |
 | 标准活动核销明细 | 136 | 98 | activity_execution |
@@ -54,10 +55,10 @@ Excel 完整文件要从 GitHub 下载（浏览器打开仓库后点 Download）
 
 ## 当前库里已经有的批次
 
-| import_batch_id | 期间 | 状态 | 活动优惠合计 | 券优惠合计 | 可释放活动 | 可释放券 | 参与单 / 可释放单 |
-|---|---|---|---:|---:|---:|---:|---|
-| 1 | 2026-08-31 ~ 2026-09-17 | calculated | 2040 | 200 | 1995 | 200 | 136 / 133 |
-| 2 | 2026-08-19 ~ 2026-08-31 | calculated | 0 | 0 | 0 | 0 | 98 / 98 |
+| import_batch_id | 期间 | 状态 | 活动优惠合计 | 券优惠合计 | 理论活动 | 理论券 | 一致单 | 可释放活动 | 可释放券 | 参与单 / 可释放单 |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| 1 | 2026-08-31 ~ 2026-09-17 | calculated | 2040 | 200 | 2040 | 200 | 136 | 1995 | 200 | 136 / 133 |
+| 2 | 2026-08-19 ~ 2026-08-31 | calculated | 0 | 0 | 0 | 0 | 98 | 0 | 0 | 98 / 98 |
 
 ## 当前 `ec101_standard.db` 有哪些表
 
@@ -74,20 +75,20 @@ Excel 完整文件要从 GitHub 下载（浏览器打开仓库后点 Download）
 | `order_header` | 订单头 | 3021 | 满减 1764 + 满赠 1257 |
 | `order_line` | 订单行 | 62411 | 满减 36157 + 满赠 26254 |
 | `fulfillment` | 履约 | 3021 | 快马目前用订单状态生成，一行对应一单 |
-| `activity` | 活动主表 | 2 | 满减「可口可乐满减」+ 满赠「满赠优惠」 |
-| `activity_rule` | 活动规则 | 0 | 快马自动转换不填 |
-| `activity_benefit` | 活动权益 | 0 | 快马自动转换不填 |
-| `activity_scope` | 活动范围 | 0 | 快马自动转换不填 |
+| `activity` | 活动主表 | 3 | 满减「可口可乐满减」+ test1 券活动键 + 满赠「满赠优惠」 |
+| `activity_rule` | 活动规则 | 3 | 满 300 减 15、满 588 减 200、满 100 赠 1 |
+| `activity_benefit` | 活动权益 | 2 | 满减立减 + 满赠抱枕 |
+| `activity_scope` | 活动范围 | 30 | 原库截图范围，核算不作硬门槛 |
 | `activity_execution` | 活动核销 | 234 | 满减 136 + 满赠 98，费用从这里加 |
-| `coupon_config` | 优惠券主表 | 0 | 快马自动转换不填 |
-| `coupon_issue_rule` | 券发放规则 | 0 | 快马自动转换不填 |
-| `coupon_use_rule` | 券使用规则 | 0 | 快马自动转换不填 |
-| `coupon_scope` | 券适用范围 | 0 | 快马自动转换不填 |
+| `coupon_config` | 优惠券主表 | 1 | test1 / KM-COUPON-AUTO-001 |
+| `coupon_issue_rule` | 券发放规则 | 1 | auto_grant |
+| `coupon_use_rule` | 券使用规则 | 1 | fixed_period |
+| `coupon_scope` | 券适用范围 | 4 | 原库范围 |
 | `coupon_redemption` | 券核销 | 1 | 满减批次 1 张已使用券 |
-| `calculation_run` | 核算批次 | 2 | 每个导入批次一条 RESULT |
-| `entitlement_check` | 权益核对 | 234 | 有核销的订单各一条 |
+| `calculation_run` | 核算批次 | 2 | 每个导入批次一条 RESULT；现含理论权益 |
+| `entitlement_check` | 权益核对 | 234 | 有规则时一致/差异；满减 136 一致，满赠 98 一致 |
 | `release_candidate` | 可释放候选 | 234 | T-2 + 已完成 判定 |
-| `activity_fee_summary` | 活动费用汇总 | 2 | 每个活动一条 |
-| `calculation_quality_issue` | 核算质量问题 | 3 | 满减 3 张未完成订单 |
+| `activity_fee_summary` | 活动费用汇总 | 2 | 只汇总有核销的活动，不含券活动键 |
+| `calculation_quality_issue` | 核算质量问题 | 3 | 满减 3 张未完成订单；理论差异不挡释放 |
 
 库表完整字段见 `mvp/ddl/ec101_standard_sqlite.sql`，Excel 列怎么落到字段见 [`docs/标准数据到标准库对照.md`](../../标准数据到标准库对照.md)。

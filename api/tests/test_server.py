@@ -46,6 +46,7 @@ class StandardBusinessDataApiTests(unittest.TestCase):
         self.assertEqual(detail["activity_executions"][0]["discount_amount"], 15)
         self.assertEqual(detail["release"]["is_candidate"], 1)
         self.assertEqual(detail["release"]["calc_date"], "2026-09-22")
+        self.assertEqual(detail["entitlement"]["consistency"], "按核销明细")
         self.assertIsNone(get_detail(self.db_path, "orders", "999"))
 
     def test_only_current_batch_is_visible_by_default(self):

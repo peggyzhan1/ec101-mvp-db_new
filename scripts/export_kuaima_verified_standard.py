@@ -161,8 +161,8 @@ def write_db_inventory(snapshot: dict[str, object]) -> Path:
     _append_sheet(workbook, "导入批次", ["import_batch_id", "dealer_name", "platform_name", "coverage_start", "coverage_end", "status", "is_current"],
                   [[row.get(key) for key in ("import_batch_id", "dealer_name", "platform_name", "coverage_start", "coverage_end", "status", "is_current")]
                    for row in snapshot["import_batch"]])
-    _append_sheet(workbook, "核算结果", ["calculation_run_id", "import_batch_id", "calc_date", "activity_benefit", "coupon_benefit", "released_activity_benefit", "released_coupon_benefit", "participating_orders", "released_orders", "status"],
-                  [[row.get(key) for key in ("calculation_run_id", "import_batch_id", "calc_date", "activity_benefit", "coupon_benefit", "released_activity_benefit", "released_coupon_benefit", "participating_orders", "released_orders", "status")]
+    _append_sheet(workbook, "核算结果", ["calculation_run_id", "import_batch_id", "calc_date", "activity_benefit", "coupon_benefit", "released_activity_benefit", "released_coupon_benefit", "theoretical_activity_benefit", "theoretical_coupon_benefit", "consistent_orders", "participating_orders", "released_orders", "status"],
+                  [[row.get(key) for key in ("calculation_run_id", "import_batch_id", "calc_date", "activity_benefit", "coupon_benefit", "released_activity_benefit", "released_coupon_benefit", "theoretical_activity_benefit", "theoretical_coupon_benefit", "consistent_orders", "participating_orders", "released_orders", "status")]
                    for row in snapshot["calculation_run"]])
     _append_sheet(workbook, "表行数", ["表", "行数", "字段"],
                   [[item["table"], item["rows"], " / ".join(item["columns"])] for item in snapshot["tables"]])

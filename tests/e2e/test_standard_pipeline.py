@@ -72,6 +72,7 @@ class KuaimaBaselineRegressionTests(unittest.TestCase):
         self.assertEqual(calculation["coupon_benefit"], 200)
         self.assertEqual((calculation["participating_orders"], calculation["released_orders"]), (136, 133))
         self.assertEqual(calculation["released_activity_benefit"], 1995)
+        self.assertEqual((calculation["theoretical_activity_benefit"], calculation["consistent_orders"]), (0, 0))
         self.assertEqual(len(detail["activities"]), 1)
         activity = detail["activities"][0]
         self.assertEqual((activity["activity_name"], activity["activity_type"]), ("可口可乐满减", "满减"))
@@ -128,6 +129,9 @@ class VerifiedStandardSampleTests(unittest.TestCase):
         self.assertEqual((manjian.manifest["数据开始日期"], manjian.manifest["数据结束日期"]), ("2026-08-31", "2026-09-17"))
         self.assertEqual(len(manjian.tables["标准活动核销明细"]), 136)
         self.assertEqual(manjian.tables["标准活动"][0]["活动名称"], "可口可乐满减")
+        self.assertEqual([row["活动名称"] for row in manjian.tables["标准活动"]], ["可口可乐满减", "test1"])
+        self.assertEqual(len(manjian.tables["标准活动规则"]), 2)
+        self.assertEqual(next(row["立减金额"] for row in manjian.tables["标准活动规则"] if row["活动编号"] == "KM-COUPON-AUTO-001"), "200")
         self.assertEqual(len(manjian.tables["标准优惠券核销明细"]), 1)
         self.assertEqual(sum(float(row["优惠金额"]) for row in manjian.tables["标准活动核销明细"]), 2040)
         self.assertEqual(len(manzeng.tables["标准活动核销明细"]), 98)
@@ -166,11 +170,39 @@ class VerifiedStandardSampleTests(unittest.TestCase):
         connection = sqlite3.connect(db_path)
         batches = list(connection.execute("SELECT import_batch_id, coverage_start, coverage_end, status FROM import_batch ORDER BY import_batch_id"))
         runs = list(connection.execute(
-            "SELECT import_batch_id, activity_benefit, coupon_benefit, released_activity_benefit, released_coupon_benefit, participating_orders, released_orders FROM calculation_run ORDER BY import_batch_id"
+            "SELECT import_batch_id, activity_benefit, coupon_benefit, released_activity_benefit, released_coupon_benefit, theoretical_activity_benefit, theoretical_coupon_benefit, consistent_orders, participating_orders, released_orders FROM calculation_run ORDER BY import_batch_id"
         ))
+        gift = connection.execute("SELECT SUM(gift_qty_entitled), SUM(gift_qty_actual), SUM(consistency='一致') FROM entitlement_check WHERE calculation_run_id=2").fetchone()
         connection.close()
         self.assertEqual([(row[1], row[2], row[3]) for row in batches], [("2026-08-31", "2026-09-17", "calculated"), ("2026-08-19", "2026-08-31", "calculated")])
-        self.assertEqual([tuple(row) for row in runs], [(1, 2040, 200, 1995, 200, 136, 133), (2, 0, 0, 0, 0, 98, 98)])
+        self.assertEqual([tuple(row) for row in runs], [
+            (1, 2040, 200, 1995, 200, 2040, 200, 136, 136, 133),
+            (2, 0, 0, 0, 0, 0, 0, 98, 98, 98),
+        ])
+        self.assertEqual(tuple(gift), (98, 98, 98))
+
+    def test_filled_manjian_workbook_recalculates_old_mvp_theoretical(self):
+        root = ROOT / "docs" / "samples" / "kuaima-verified-standard"
+        workbook = read_standard_workbook(root / "满减" / "standard.xlsx")
+        with tempfile.TemporaryDirectory() as directory:
+            db_path = Path(directory) / "ec101.db"
+            create_database(db_path)
+            with sqlite3.connect(db_path) as connection:
+                imported = import_snapshot(connection, workbook, ArchiveMetadata("sample.xlsx", "sample-满减", 1))
+                calculate_batch(connection, imported.import_batch_id, BASELINE_CALC_DATE)
+                calculation = run_calculation(connection, imported.import_batch_id)
+                consistent = connection.execute("SELECT COUNT(*) FROM entitlement_check WHERE consistency='一致'").fetchone()[0]
+                labels = {row[0] for row in connection.execute("SELECT consistency FROM entitlement_check")}
+                names = [row[0] for row in connection.execute("SELECT a.activity_name FROM activity_fee_summary s JOIN activity a ON a.activity_id=s.activity_id")]
+        self.assertEqual(calculation["activity_benefit"], 2040)
+        self.assertEqual(calculation["coupon_benefit"], 200)
+        self.assertEqual(calculation["released_activity_benefit"], 1995)
+        self.assertEqual(calculation["theoretical_activity_benefit"], 2040)
+        self.assertEqual((calculation["participating_orders"], calculation["released_orders"]), (136, 133))
+        self.assertEqual(consistent, 136)
+        self.assertEqual(labels, {"一致"})
+        self.assertEqual(names, ["可口可乐满减"])
+        self.assertEqual(calculation["theoretical_coupon_benefit"], 200)
 
 
 if __name__ == "__main__":

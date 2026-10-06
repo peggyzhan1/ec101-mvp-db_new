@@ -37,7 +37,16 @@ class CalculationSummary:
 def _parse(value: object) -> datetime | None:
     if not value:
         return None
-    return datetime.fromisoformat(str(value).replace("Z", "+00:00")).replace(tzinfo=None)
+    text = str(value).strip().replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(text).replace(tzinfo=None)
+    except ValueError:
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d"):
+            try:
+                return datetime.strptime(text[:19] if fmt == "%Y-%m-%d %H:%M:%S" else text, fmt)
+            except ValueError:
+                continue
+        return None
 
 
 def _ensure_batch(connection: sqlite3.Connection, calc_batch_id: int, calc_date: str, rule_version: str) -> None:
@@ -98,17 +107,24 @@ def calculate_discount(rule: sqlite3.Row, order_activity: sqlite3.Row, qualifies
     return TemplateResult(theoretical, money(order_activity["platform_actual_benefit"]), formula_ref="activity_rule.reduce_amount")
 
 
-def calculate_gift(connection: sqlite3.Connection, rule: sqlite3.Row, order_activity: sqlite3.Row, qualifies: bool) -> TemplateResult:
-    benefit = connection.execute("SELECT gift_qty FROM activity_rule_benefit WHERE rule_id=? AND benefit_type='赠品'", (rule["rule_id"],)).fetchone()
-    entitled = money(benefit[0]) if benefit and qualifies and money(order_activity["activity_product_amount"]) >= money(rule["threshold_value"]) else ZERO
-    return TemplateResult(ZERO, money(order_activity["platform_actual_benefit"]), entitled, money(order_activity["gift_qty_actual"]), "activity_rule_benefit.gift_qty")
+def calculate_gift(rule, order_activity, qualifies: bool, gift_qty=None, connection: sqlite3.Connection | None = None) -> TemplateResult:
+    qty = gift_qty
+    if qty is None and connection is not None:
+        benefit = connection.execute("SELECT gift_qty FROM activity_rule_benefit WHERE rule_id=? AND benefit_type='赠品'", (rule["rule_id"],)).fetchone()
+        qty = benefit[0] if benefit else None
+    entitled = money(qty) if qty is not None and qualifies and money(order_activity["activity_product_amount"]) >= money(rule["threshold_value"]) else ZERO
+    actual_qty = order_activity["gift_qty_actual"]
+    return TemplateResult(ZERO, money(order_activity["platform_actual_benefit"]), entitled, None if actual_qty is None else money(actual_qty), "activity_rule_benefit.gift_qty")
 
 
-def calculate_coupon(connection: sqlite3.Connection, activity_id: int, rule: sqlite3.Row, order_activity: sqlite3.Row, qualifies: bool, order_no: str) -> TemplateResult:
-    ledger = connection.execute(
-        "SELECT cl.*, cir.issue_mode,cir.issue_start_at,cir.issue_end_at,cir.auto_issue_at,cir.max_claim_per_customer,cur.use_start_at,cur.use_end_at,cur.validity_mode,cur.valid_days_after_receive FROM coupon_ledger cl JOIN coupon_issue_rule cir ON cir.activity_id=cl.activity_id JOIN coupon_use_rule cur ON cur.activity_id=cl.activity_id WHERE cl.activity_id=? AND cl.use_order_no=?",
-        (activity_id, order_no),
-    ).fetchone()
+def calculate_coupon(activity_id: int, rule, order_activity, qualifies: bool, order_no: str, ledger=None, connection: sqlite3.Connection | None = None) -> TemplateResult:
+    if ledger is None:
+        if connection is None:
+            return TemplateResult(formula_ref="coupon_ledger eligibility")
+        ledger = connection.execute(
+            "SELECT cl.*, cir.issue_mode,cir.issue_start_at,cir.issue_end_at,cir.auto_issue_at,cir.max_claim_per_customer,cur.use_start_at,cur.use_end_at,cur.validity_mode,cur.valid_days_after_receive FROM coupon_ledger cl JOIN coupon_issue_rule cir ON cir.activity_id=cl.activity_id JOIN coupon_use_rule cur ON cur.activity_id=cl.activity_id WHERE cl.activity_id=? AND cl.use_order_no=?",
+            (activity_id, order_no),
+        ).fetchone()
     if ledger is None or ledger["coupon_status"] != "已使用" or not qualifies:
         return TemplateResult(formula_ref="coupon_ledger eligibility")
     receive, use = _parse(ledger["receive_time"]), _parse(ledger["use_time"])
@@ -151,7 +167,7 @@ def calculate_activity(connection: sqlite3.Connection, activity_id: int, calc_ba
             connection.execute("INSERT INTO result_quality_issue(order_no,issue_type,level,reason,evidence_ref,calc_batch_id) VALUES (?,?,?,?,?,?)", (row["order_no"], "活动规则缺失", "警告", "order_activity 未关联有效 activity_rule", "order_activity", calc_batch_id))
             continue
         qualifies = _in_activity_window(activity, row["order_time"]) and _scope_matches(connection, activity_id, row["order_id"])
-        result = calculate_discount(rule, row, qualifies) if template == "discount" else calculate_gift(connection, rule, row, qualifies) if template == "gift" else calculate_coupon(connection, activity_id, rule, row, qualifies, row["order_no"])
+        result = calculate_discount(rule, row, qualifies) if template == "discount" else calculate_gift(rule, row, qualifies, connection=connection) if template == "gift" else calculate_coupon(activity_id, rule, row, qualifies, row["order_no"], connection=connection)
         consistency = "一致" if (result.gift_qty_entitled is not None and result.gift_qty_entitled == result.gift_qty_actual) or (result.gift_qty_entitled is None and result.theoretical_benefit == result.actual_benefit) else "差异"
         diff = (result.gift_qty_actual - result.gift_qty_entitled) if result.gift_qty_entitled is not None else result.actual_benefit - result.theoretical_benefit
         connection.execute("DELETE FROM result_entitlement WHERE order_activity_id=? AND calc_batch_id=?", (row["order_activity_id"], calc_batch_id))

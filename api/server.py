@@ -370,6 +370,17 @@ def get_detail(db_path: Path, object_name: str, record_id: str) -> dict[str, Any
                 "SELECT rc.is_candidate, rc.reason, rc.activity_benefit, rc.coupon_benefit, cr.calc_date, cr.release_cutoff FROM release_candidate rc JOIN calculation_run cr ON cr.calculation_run_id=rc.calculation_run_id WHERE rc.order_id=? ORDER BY rc.calculation_run_id DESC LIMIT 1",
                 (record_id,),
             ).fetchall()), None)
+            payload["entitlement"] = next((dict(item) for item in connection.execute(
+                """
+                SELECT ec.consistency, ec.theoretical_activity_benefit, ec.theoretical_coupon_benefit,
+                       ec.gift_qty_entitled, ec.gift_qty_actual, ec.formula_ref, ec.activity_benefit, ec.coupon_benefit
+                FROM entitlement_check ec
+                JOIN calculation_run cr ON cr.calculation_run_id=ec.calculation_run_id
+                WHERE ec.order_id=?
+                ORDER BY ec.calculation_run_id DESC LIMIT 1
+                """,
+                (record_id,),
+            ).fetchall()), None)
     return payload
 
 
@@ -454,7 +465,7 @@ def _issues_for_runs(connection: sqlite3.Connection, runs: list[dict[str, Any]])
 
 def _activity_status(row: dict[str, Any], kind: str, issues: list[dict[str, Any]]) -> str:
     related = [issue for issue in issues if issue["activityId"] == row["activity_id"] and issue["calculation_run_id"] == row["calculation_run_id"]]
-    if any(issue["level"] == "警告" for issue in related):
+    if any(issue["level"] == "警告" and issue["issue_type"] not in ("理论权益与实际执行不一致",) for issue in related):
         return "待处理"
     if kind == "money" and float(row["released_amount"] or 0) > 0:
         return "可提交"
@@ -516,6 +527,9 @@ def query_fee_tpm_overview(db_path: Path, params: dict[str, Any]) -> dict[str, A
         "submittableAmount": round(sum(float(row["settleAmount"] or 0) for row in rows if row["status"] == "可提交"), 2),
         "couponBenefit": round(sum(float(run["coupon_benefit"] or 0) for run in runs), 2),
         "releasedCouponBenefit": round(sum(float(run["released_coupon_benefit"] or 0) for run in runs), 2),
+        "theoreticalActivityBenefit": round(sum(float(run["theoretical_activity_benefit"] or 0) for run in runs), 2),
+        "theoreticalCouponBenefit": round(sum(float(run["theoretical_coupon_benefit"] or 0) for run in runs), 2),
+        "consistentOrders": sum(int(run["consistent_orders"] or 0) for run in runs),
         "participatingOrders": sum(int(run["participating_orders"] or 0) for run in runs),
         "releasedOrders": sum(int(run["released_orders"] or 0) for run in runs),
         "giftReleasedOrders": sum(int(row["releasedOrders"] or 0) for row in rows if row["benefitKind"] == "gift"),
