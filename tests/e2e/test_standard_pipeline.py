@@ -142,6 +142,10 @@ class VerifiedStandardSampleTests(unittest.TestCase):
         self.assertEqual(manzeng.tables["标准活动权益"][0]["赠品单位"], "")
         self.assertEqual([row["优惠券名称"] for row in manjian.tables["标准优惠券配置"]], ["test1"])
         self.assertEqual(manzeng.tables["标准优惠券配置"], [])
+        manzeng_text = (root / "满赠" / "可读.md").read_text(encoding="utf-8")
+        self.assertIn("满赠优惠", manzeng_text)
+        self.assertIn("348721357", manzeng_text)
+        self.assertTrue((root / "原库配置对照" / "对照_可读.md").exists())
 
     def test_original_config_mapping_does_not_invent_values(self):
         root = ROOT / "docs" / "samples" / "kuaima-verified-standard" / "原库配置对照"

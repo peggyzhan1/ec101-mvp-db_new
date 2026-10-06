@@ -1,6 +1,17 @@
 # 快马验收用的转换后标准表
 
-之前 e2e 验收（`tests/e2e/test_standard_pipeline.py`）把 `standard.xlsx` 写在临时目录，进程结束就删了，所以仓库里看不到转换结果。本目录用**同一套兴路强试点源文件、同一套转换器**重新导出，方便直接打开。
+**在 Cursor 里请打开 `.md`，不要打开 `.xlsx`。** Cursor 不能预览 Excel，会显示 `Binary file is not supported`。文件在仓库里，路径没丢。
+
+| 要看什么 | 在 Cursor 打开 |
+|---|---|
+| 满赠标准表 | [满赠/可读.md](满赠/可读.md) |
+| 满减标准表 | [满减/可读.md](满减/可读.md) |
+| 原库配置对照 | [原库配置对照/对照_可读.md](原库配置对照/对照_可读.md) |
+| 原库配置（标准格式） | [原库配置对照/原库配置_standard_可读.md](原库配置对照/原库配置_standard_可读.md) |
+
+Excel 完整文件要从 GitHub 下载（浏览器打开仓库后点 Download），或从本对话的产物区下载 `.xlsx`。本地若还没有这些文件，当前分支是 `cursor/kuaima-standard-pipeline-b31b`，`main` 上没有。
+
+之前 e2e 验收（`tests/e2e/test_standard_pipeline.py`）把 `standard.xlsx` 写在临时目录，进程结束就删了。本目录用同一套兴路强试点源文件重新导出。
 
 `mvp/ec101_standard.db` **不进 git**（见仓库根目录 `.gitignore`），所以在 GitHub 或新克隆的仓库里找不到这个路径是正常的。验收用的库文件在本目录的 `ec101_standard.db`。
 
@@ -12,14 +23,12 @@
 
 | 文件 | 是什么 |
 |---|---|
-| `满减/standard.xlsx` | 满减批次完整标准工作簿（已补进原库满减规则和 test1 券配置） |
-| `满减/standard_preview.xlsx` | 同上，大表只留前 20 行，方便打开看结构 |
-| `满减/conversion_report.txt` | 转换器当次汇总 |
-| `满赠/standard.xlsx` | 满赠批次完整标准工作簿（已补进原库满赠规则/赠品） |
-| `满赠/standard_preview.xlsx` | 满赠预览 |
-| `满赠/conversion_report.txt` | 转换器当次汇总 |
-| `原库配置对照/原库配置与标准表对照.xlsx` | 原 MVP 库配置原文，和映射后的标准表并排 |
-| `原库配置对照/原库配置_standard.xlsx` | 仅标准格式的配置表（含舟谱和「新客户投放」，不编造缺失项） |
+| `满减/可读.md` | **Cursor 里看这个**（满减标准表全文/大表前 20 行） |
+| `满减/standard.xlsx` | 完整 Excel，请下载后用 Excel/WPS 打开 |
+| `满赠/可读.md` | **Cursor 里看这个** |
+| `满赠/standard.xlsx` | 完整 Excel，请下载后打开 |
+| `原库配置对照/对照_可读.md` | **Cursor 里看原库 vs 标准表对照** |
+| `原库配置对照/原库配置与标准表对照.xlsx` | 对照 Excel，请下载后打开 |
 | `ec101_standard.db` | 验收时的标准库快照（两批已核算）。GitHub 上看这个文件，不要找 `mvp/ec101_standard.db` |
 | `ec101_standard库结构与当前数据.xlsx` | 上面这个库的表、字段、行数、一条样例 |
 
