@@ -7,7 +7,8 @@ from api.server import get_detail, get_import, get_import_release, query_dataset
 from converters.common import ConversionRequest
 from converters.kuaima import convert_kuaima
 from desktop_converter.app import build_conversion_request, run_conversion
-from mvp.import_service import ArchiveMetadata, create_database, import_snapshot, run_calculation
+from mvp.calculation_engine import calculate_batch, run_calculation
+from mvp.import_service import ArchiveMetadata, create_database, import_snapshot
 from mvp.standard_workbook import read_standard_workbook
 
 
@@ -34,7 +35,9 @@ class StandardPipelineTests(unittest.TestCase):
             db_path = root / "ec101.db"; create_database(db_path)
             with sqlite3.connect(db_path) as connection:
                 imported = import_snapshot(connection, workbook, ArchiveMetadata(str(result.sources_zip_path), "hash", result.sources_zip_path.stat().st_size))
-                self.assertEqual(imported.status, "calculated")
+                self.assertEqual(imported.status, "imported")
+                self.assertEqual(connection.execute("SELECT COUNT(*) FROM calculation_run").fetchone()[0], 0)
+                calculate_batch(connection, imported.import_batch_id)
                 self.assertEqual(connection.execute("SELECT COUNT(*) FROM order_header").fetchone()[0], 1)
 
 
@@ -48,7 +51,8 @@ class KuaimaBaselineRegressionTests(unittest.TestCase):
         db_path = root / "ec101.db"
         create_database(db_path)
         with sqlite3.connect(db_path) as connection:
-            imported = import_snapshot(connection, workbook, ArchiveMetadata(str(result.sources_zip_path), "hash", 1), calc_date=BASELINE_CALC_DATE)
+            imported = import_snapshot(connection, workbook, ArchiveMetadata(str(result.sources_zip_path), "hash", 1))
+            calculate_batch(connection, imported.import_batch_id, BASELINE_CALC_DATE)
             calculation = run_calculation(connection, imported.import_batch_id)
         return db_path, imported.import_batch_id, calculation
 

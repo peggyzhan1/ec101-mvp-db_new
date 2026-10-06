@@ -42,6 +42,7 @@ class StandardMappingDocsTests(unittest.TestCase):
         for needle in (
             "convert_kuaima",
             "calculate_batch",
+            "calculation_engine",
             "享受促销政策",
             "已完成且达到T-2",
             "activity_execution",

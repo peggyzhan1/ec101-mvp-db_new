@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mvp.import_service import ArchiveMetadata, create_database, import_snapshot, run_calculation, validate_import
+from mvp.calculation_engine import calculate_batch, parse_calc_date, run_calculation
+from mvp.import_service import ArchiveMetadata, create_database, import_snapshot, validate_import
 from mvp.standard_schema import STANDARD_SHEETS
 from mvp.standard_workbook import StandardWorkbook
 
@@ -69,8 +70,10 @@ class ImportServiceTests(unittest.TestCase):
             connection = sqlite3.connect(db_path)
             archive = ArchiveMetadata("sources.zip", "sha256", 10)
             result = import_snapshot(connection, workbook, archive)
+            self.assertEqual(result.status, "imported")
+            self.assertEqual(connection.execute("SELECT COUNT(*) FROM calculation_run").fetchone()[0], 0)
+            calculate_batch(connection, result.import_batch_id)
             row = connection.execute("SELECT activity_benefit, coupon_benefit, total_benefit FROM calculation_run").fetchone()
-        self.assertEqual(result.status, "calculated")
         self.assertEqual(row, (15.0, 10.0, 25.0))
 
     def test_activity_without_schedule_is_accepted(self):
@@ -116,7 +119,8 @@ class ImportServiceTests(unittest.TestCase):
             db_path = Path(directory) / "new.db"
             create_database(db_path)
             connection = sqlite3.connect(db_path)
-            import_snapshot(connection, workbook, ArchiveMetadata("sources.zip", "sha256", 10), calc_date="2026-09-22")
+            imported = import_snapshot(connection, workbook, ArchiveMetadata("sources.zip", "sha256", 10))
+            calculate_batch(connection, imported.import_batch_id, "2026-09-22")
             run = run_calculation(connection, 1)
             release = {
                 order_no: (is_candidate, reason)
@@ -136,13 +140,9 @@ class ImportServiceTests(unittest.TestCase):
         self.assertEqual(issues, [("NEW-DONE", "提示"), ("OLD-PARTIAL", "提示")])
 
     def test_calc_date_must_be_iso_date(self):
-        workbook = workbook_with_rows()
-        with tempfile.TemporaryDirectory() as directory:
-            db_path = Path(directory) / "new.db"
-            create_database(db_path)
-            connection = sqlite3.connect(db_path)
-            with self.assertRaises(ValueError):
-                import_snapshot(connection, workbook, ArchiveMetadata("sources.zip", "sha256", 10), calc_date="2026/09/22")
+        with self.assertRaises(ValueError):
+            parse_calc_date("2026/09/22")
+        self.assertEqual(parse_calc_date("2026-09-22"), "2026-09-22")
 
 
 if __name__ == "__main__":

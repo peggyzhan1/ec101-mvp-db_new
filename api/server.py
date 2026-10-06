@@ -1,8 +1,8 @@
 """Cross-platform HTTP API over the EC101 standard import database (mvp/ec101_standard.db).
 
 Every query reads the *standard* schema (mvp/ddl/ec101_standard_sqlite.sql): import batches, the
-business facts they carry, and the calculation runs produced right after import. The old MVP database
-(mvp/ec101_mvp.db) is not served here; it only remains as the audited acceptance baseline.
+business facts they carry, and the calculation runs written by calculation_engine after import.
+The old MVP database (mvp/ec101_mvp.db) is not served here; it only remains as the audited acceptance baseline.
 """
 
 from __future__ import annotations
@@ -24,7 +24,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:  # `python3 api/server.py` puts api/ on sys.path, not the repo root.
     sys.path.insert(0, str(ROOT))
 
-from mvp.import_service import ArchiveMetadata, ImportValidationError, create_database, import_snapshot, run_calculation  # noqa: E402
+from mvp.calculation_engine import calculate_batch, parse_calc_date, run_calculation  # noqa: E402
+from mvp.import_service import ArchiveMetadata, ImportValidationError, create_database, import_snapshot  # noqa: E402
 from mvp.standard_workbook import read_standard_workbook  # noqa: E402
 
 
@@ -96,10 +97,13 @@ def import_uploaded_files(db_path: Path, workbook_bytes: bytes, source_bytes: by
         archive_path.parent.mkdir(parents=True, exist_ok=True)
         archive_path.write_bytes(source_bytes or b"")
         archive = ArchiveMetadata(str(archive_path), source_hash, len(source_bytes or b""))
+        if calc_date:
+            parse_calc_date(calc_date)
         with sqlite3.connect(db_path) as connection:
-            result = import_snapshot(connection, workbook, archive, calc_date or None)
+            result = import_snapshot(connection, workbook, archive)
+            calc_id = calculate_batch(connection, result.import_batch_id, calc_date)
             calculation = run_calculation(connection, result.import_batch_id)
-        return {"import_batch_id": result.import_batch_id, "calculation_run_id": result.calculation_run_id, "status": result.status, "calculation": calculation}
+        return {"import_batch_id": result.import_batch_id, "calculation_run_id": calc_id, "status": calculation["status"], "calculation": calculation}
 
 
 def list_imports(db_path: Path) -> dict[str, Any]:

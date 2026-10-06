@@ -37,6 +37,8 @@ Windows 使用 `py api/server.py` 和 PowerShell 环境变量写法，详见 `ap
 - `scripts/build_core_er_svg.py`：ER 图生成脚本；DDL 关系变化后重新运行即可生成新版图。
 - `mvp/standard_schema.py`：已审核的标准 Excel 工作表和字段契约；转换器与导入器共同使用。
 - `mvp/standard_workbook.py`：固定模板的 Excel 读写和基础行校验。
+- `mvp/import_service.py`：标准 Excel 校验与入库；不写 RESULT。
+- `mvp/calculation_engine.py`：按核销明细核算并写 RESULT；不读 Excel、不判断平台。
 - `converters/common.py`、`converters/kuaima.py`、`converters/zhoupu.py`：将平台源文件转换为固定标准 Excel；不写数据库。
 - `desktop_converter/app.py`：Tkinter Windows 桌面入口；`desktop_converter/build_windows.ps1`：PyInstaller 打包脚本。
 
