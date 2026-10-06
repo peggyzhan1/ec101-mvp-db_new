@@ -1,0 +1,6 @@
+platform=快马
+orders=1764
+activity_execution_rows=136
+activities=可口可乐满减:136单/2040.00元
+unparsed_policy_rows=0
+sources_sha256=27742ceaab44a7fc1cedeab440955abec5a12ee4bcb3b64a88fba776839123aa

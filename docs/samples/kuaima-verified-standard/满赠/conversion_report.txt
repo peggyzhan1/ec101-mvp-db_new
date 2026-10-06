@@ -1,0 +1,6 @@
+platform=快马
+orders=1257
+activity_execution_rows=98
+activities=满赠优惠:98单/0.00元
+unparsed_policy_rows=0
+sources_sha256=a36113a3ac6a003dfa4793446d178eaa88b1cf41f4b95e0367f8ce0ccc92d432

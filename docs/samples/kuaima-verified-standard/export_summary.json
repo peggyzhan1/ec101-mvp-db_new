@@ -1,0 +1,157 @@
+{
+  "batches": [
+    {
+      "batch": "满减",
+      "workbook": "docs/samples/kuaima-verified-standard/满减/standard.xlsx",
+      "preview": "docs/samples/kuaima-verified-standard/满减/standard_preview.xlsx",
+      "report": "docs/samples/kuaima-verified-standard/满减/conversion_report.txt",
+      "manifest": {
+        "模板版本": "v1",
+        "转换工具版本": "v1",
+        "经销商名称": "深圳市兴路强商贸有限公司",
+        "平台名称": "快马",
+        "数据开始日期": "2026-08-31",
+        "数据结束日期": "2026-09-17",
+        "生成时间": "2026-10-06 05:56:35"
+      },
+      "sheet_rows": {
+        "导入清单": 1,
+        "标准客户": 2292,
+        "标准商品": 9175,
+        "标准订单明细": 36157,
+        "标准活动": 1,
+        "标准活动规则": 0,
+        "标准活动权益": 0,
+        "标准活动范围": 0,
+        "标准活动核销明细": 136,
+        "标准优惠券配置": 0,
+        "标准优惠券发放规则": 0,
+        "标准优惠券使用规则": 0,
+        "标准优惠券适用范围": 0,
+        "标准优惠券核销明细": 1,
+        "标准履约": 1764
+      },
+      "workbook_bytes": 5473072
+    },
+    {
+      "batch": "满赠",
+      "workbook": "docs/samples/kuaima-verified-standard/满赠/standard.xlsx",
+      "preview": "docs/samples/kuaima-verified-standard/满赠/standard_preview.xlsx",
+      "report": "docs/samples/kuaima-verified-standard/满赠/conversion_report.txt",
+      "manifest": {
+        "模板版本": "v1",
+        "转换工具版本": "v1",
+        "经销商名称": "深圳市兴路强商贸有限公司",
+        "平台名称": "快马",
+        "数据开始日期": "2026-08-19",
+        "数据结束日期": "2026-08-31",
+        "生成时间": "2026-10-06 05:56:55"
+      },
+      "sheet_rows": {
+        "导入清单": 1,
+        "标准客户": 2292,
+        "标准商品": 9172,
+        "标准订单明细": 26254,
+        "标准活动": 1,
+        "标准活动规则": 0,
+        "标准活动权益": 0,
+        "标准活动范围": 0,
+        "标准活动核销明细": 98,
+        "标准优惠券配置": 0,
+        "标准优惠券发放规则": 0,
+        "标准优惠券使用规则": 0,
+        "标准优惠券适用范围": 0,
+        "标准优惠券核销明细": 0,
+        "标准履约": 1257
+      },
+      "workbook_bytes": 4169384
+    }
+  ],
+  "database": {
+    "path": "mvp/ec101_standard.db",
+    "table_rows": {
+      "activity": 2,
+      "activity_benefit": 0,
+      "activity_execution": 234,
+      "activity_fee_summary": 2,
+      "activity_rule": 0,
+      "activity_scope": 0,
+      "calculation_quality_issue": 3,
+      "calculation_run": 2,
+      "coupon_config": 0,
+      "coupon_issue_rule": 0,
+      "coupon_redemption": 1,
+      "coupon_scope": 0,
+      "coupon_use_rule": 0,
+      "customer": 4584,
+      "dealer_platform": 1,
+      "entitlement_check": 234,
+      "fulfillment": 3021,
+      "import_batch": 2,
+      "import_file": 2,
+      "import_validation_issue": 0,
+      "order_header": 3021,
+      "order_line": 62411,
+      "product": 18347,
+      "release_candidate": 234
+    },
+    "import_batch": [
+      {
+        "import_batch_id": 1,
+        "snapshot_key": "06377c7423cf4c8296bb32e5ad14fe2c",
+        "dealer_name": "深圳市兴路强商贸有限公司",
+        "platform_name": "快马",
+        "coverage_start": "2026-08-31",
+        "coverage_end": "2026-09-17",
+        "template_version": "v1",
+        "converter_version": "v1",
+        "imported_at": "2026-10-05T12:10:35",
+        "status": "calculated",
+        "is_current": 1
+      },
+      {
+        "import_batch_id": 2,
+        "snapshot_key": "b5fe8e27bec34e14a7d7baa96ee2bca2",
+        "dealer_name": "深圳市兴路强商贸有限公司",
+        "platform_name": "快马",
+        "coverage_start": "2026-08-19",
+        "coverage_end": "2026-08-31",
+        "template_version": "v1",
+        "converter_version": "v1",
+        "imported_at": "2026-10-05T12:10:42",
+        "status": "calculated",
+        "is_current": 1
+      }
+    ],
+    "calculation_run": [
+      {
+        "calculation_run_id": 1,
+        "import_batch_id": 1,
+        "calc_date": "2026-09-22",
+        "release_cutoff": "2026-09-20 00:00:00",
+        "activity_benefit": 2040,
+        "coupon_benefit": 200,
+        "total_benefit": 2240,
+        "released_activity_benefit": 1995,
+        "released_coupon_benefit": 200,
+        "participating_orders": 136,
+        "released_orders": 133,
+        "status": "calculated"
+      },
+      {
+        "calculation_run_id": 2,
+        "import_batch_id": 2,
+        "calc_date": "2026-09-22",
+        "release_cutoff": "2026-09-20 00:00:00",
+        "activity_benefit": 0,
+        "coupon_benefit": 0,
+        "total_benefit": 0,
+        "released_activity_benefit": 0,
+        "released_coupon_benefit": 0,
+        "participating_orders": 98,
+        "released_orders": 98,
+        "status": "calculated"
+      }
+    ]
+  }
+}

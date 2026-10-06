@@ -117,5 +117,24 @@ class KuaimaBaselineRegressionTests(unittest.TestCase):
         self.assertEqual((activity["activity_name"], activity["activity_type"], activity["participating_orders"], activity["released_orders"]), ("满赠优惠", "满赠", 98, 98))
 
 
+class VerifiedStandardSampleTests(unittest.TestCase):
+    """The reviewable sample workbooks must stay the same conversion the e2e baseline used."""
+
+    def test_exported_workbooks_match_verified_counts(self):
+        root = ROOT / "docs" / "samples" / "kuaima-verified-standard"
+        manjian = read_standard_workbook(root / "满减" / "standard.xlsx")
+        manzeng = read_standard_workbook(root / "满赠" / "standard.xlsx")
+        self.assertEqual(manjian.manifest["平台名称"], "快马")
+        self.assertEqual((manjian.manifest["数据开始日期"], manjian.manifest["数据结束日期"]), ("2026-08-31", "2026-09-17"))
+        self.assertEqual(len(manjian.tables["标准活动核销明细"]), 136)
+        self.assertEqual(manjian.tables["标准活动"][0]["活动名称"], "可口可乐满减")
+        self.assertEqual(len(manjian.tables["标准优惠券核销明细"]), 1)
+        self.assertEqual(sum(float(row["优惠金额"]) for row in manjian.tables["标准活动核销明细"]), 2040)
+        self.assertEqual(len(manzeng.tables["标准活动核销明细"]), 98)
+        self.assertEqual(manzeng.tables["标准活动"][0]["活动名称"], "满赠优惠")
+        self.assertEqual(len(manzeng.tables["标准优惠券核销明细"]), 0)
+        self.assertTrue((root / "ec101_standard库结构与当前数据.xlsx").exists())
+
+
 if __name__ == "__main__":
     unittest.main()
