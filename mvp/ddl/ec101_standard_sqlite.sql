@@ -161,7 +161,9 @@ CREATE TABLE calculation_run (
 CREATE TABLE entitlement_check (
   entitlement_check_id INTEGER PRIMARY KEY AUTOINCREMENT,
   calculation_run_id INTEGER NOT NULL REFERENCES calculation_run(calculation_run_id),
-  order_id INTEGER REFERENCES order_header(order_id), activity_benefit NUMERIC, coupon_benefit NUMERIC,
+  order_id INTEGER REFERENCES order_header(order_id),
+  activity_id INTEGER REFERENCES activity(activity_id),
+  activity_benefit NUMERIC, coupon_benefit NUMERIC,
   total_benefit NUMERIC, gift_qty_entitled NUMERIC, gift_qty_actual NUMERIC, consistency TEXT
 );
 CREATE TABLE release_candidate (
@@ -174,6 +176,20 @@ CREATE TABLE activity_fee_summary (
   calculation_run_id INTEGER NOT NULL REFERENCES calculation_run(calculation_run_id),
   activity_id INTEGER NOT NULL REFERENCES activity(activity_id), actual_discount_total NUMERIC NOT NULL DEFAULT 0,
   gift_cost_total NUMERIC NOT NULL DEFAULT 0, gift_qty_entitled NUMERIC, gift_qty_actual NUMERIC,
+  releasable_discount_total NUMERIC, releasable_gift_qty NUMERIC, release_order_count INTEGER,
+  settle_status TEXT
+);
+CREATE TABLE coupon_fee_summary (
+  coupon_fee_summary_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  calculation_run_id INTEGER NOT NULL REFERENCES calculation_run(calculation_run_id),
+  coupon_config_id INTEGER REFERENCES coupon_config(coupon_config_id),
+  used_count INTEGER NOT NULL DEFAULT 0,
+  used_amount NUMERIC NOT NULL DEFAULT 0,
+  linked_amount NUMERIC NOT NULL DEFAULT 0,
+  releasable_count INTEGER NOT NULL DEFAULT 0,
+  releasable_amount NUMERIC NOT NULL DEFAULT 0,
+  unlinked_count INTEGER NOT NULL DEFAULT 0,
+  unlinked_amount NUMERIC NOT NULL DEFAULT 0,
   settle_status TEXT
 );
 CREATE TABLE calculation_quality_issue (

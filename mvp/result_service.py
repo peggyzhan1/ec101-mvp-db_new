@@ -1,7 +1,7 @@
-"""Result calculation for one imported standard snapshot.
+"""旧的理论核算，导入链路已不再调用。
 
-满减沿用活动核销金额。满赠按活动规则重算应赠数量，并和订单里的赠品行比较。
-优惠券只计已挂到唯一订单的已使用券。已完成且履约完成时间不晚于核算日减 2 天的订单进入释放候选。
+费用平台导入后使用 actual_result_calculator.calculate_actual_results：
+只统计实际发生的满减、满赠和已使用优惠券，再按订单状态与下单时间判断能否释放。
 """
 
 from __future__ import annotations

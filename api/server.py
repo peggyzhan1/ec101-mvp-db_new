@@ -427,11 +427,12 @@ def _new_fee_activities(db_path: Path, params: dict[str, Any]) -> dict[str, Any]
             SELECT a.activity_id, a.activity_name, dp.dealer_name, dp.platform_name, a.activity_type,
                    a.promo_method, cr.calculation_run_id, cr.import_batch_id,
                    COALESCE(SUM(afs.actual_discount_total), 0) AS actual_discount_total,
-                   COALESCE(SUM(afs.gift_cost_total), 0) AS gift_cost_total,
-                   COALESCE(SUM(afs.gift_qty_entitled), 0) AS gift_qty_entitled,
-                   COALESCE(SUM(afs.gift_qty_actual), 0) AS gift_qty_actual,
-                   cr.calc_date,
-                   COALESCE((SELECT COUNT(*) FROM release_candidate rc JOIN activity_execution ae ON ae.order_id=rc.order_id WHERE rc.calculation_run_id=cr.calculation_run_id AND ae.activity_id=a.activity_id AND rc.is_candidate=1), 0) AS release_candidates
+                   COALESCE(SUM(afs.releasable_discount_total), SUM(afs.actual_discount_total), 0) AS releasable_discount_total,
+                   SUM(afs.gift_qty_entitled) AS gift_qty_entitled,
+                   SUM(afs.gift_qty_actual) AS gift_qty_actual,
+                   SUM(afs.releasable_gift_qty) AS releasable_gift_qty,
+                   COALESCE(SUM(afs.release_order_count), 0) AS release_candidates,
+                   cr.calc_date
             FROM activity a
             JOIN calculation_run cr ON cr.import_batch_id=a.import_batch_id
             JOIN import_batch ib ON ib.import_batch_id=cr.import_batch_id
@@ -439,14 +440,43 @@ def _new_fee_activities(db_path: Path, params: dict[str, Any]) -> dict[str, Any]
             LEFT JOIN activity_fee_summary afs ON afs.activity_id=a.activity_id AND afs.calculation_run_id=cr.calculation_run_id
             WHERE """ + " AND ".join(clauses) + " GROUP BY a.activity_id, cr.calculation_run_id, cr.calc_date ORDER BY a.activity_id"
         rows = [dict(row) for row in connection.execute(sql, values).fetchall()]
+        coupon_sql = """
+            SELECT cfs.coupon_config_id, cfs.used_amount, cfs.releasable_amount, cfs.releasable_count,
+                   cc.coupon_name, dp.dealer_name, dp.platform_name, cr.calculation_run_id, cr.calc_date
+            FROM coupon_fee_summary cfs
+            JOIN calculation_run cr ON cr.calculation_run_id=cfs.calculation_run_id
+            JOIN import_batch ib ON ib.import_batch_id=cr.import_batch_id
+            JOIN dealer_platform dp ON dp.dealer_name=ib.dealer_name AND dp.platform_name=ib.platform_name
+            LEFT JOIN coupon_config cc ON cc.coupon_config_id=cfs.coupon_config_id
+            WHERE cr.calculation_run_id=?
+        """
+        coupon_values: list[Any] = [calc_id]
+        if dealer:
+            coupon_sql += " AND dp.dealer_name LIKE ?"
+            coupon_values.append(f"%{dealer}%")
+        if platform:
+            coupon_sql += " AND dp.platform_name LIKE ?"
+            coupon_values.append(f"%{platform}%")
+        coupon_sql += " ORDER BY cfs.coupon_fee_summary_id"
+        coupon_rows = [dict(row) for row in connection.execute(coupon_sql, coupon_values).fetchall()]
     payload = []
     for row in rows:
         is_gift = "赠" in (row["activity_type"] or "") or "赠" in (row["promo_method"] or "")
         payload.append({
             "activityId": row["activity_id"], "activityName": row["activity_name"], "dealer_name": row["dealer_name"], "dealer": row["dealer_name"], "platform": row["platform_name"],
             "promotionType": row["promo_method"] or row["activity_type"], "benefitKind": "gift" if is_gift else "money", "ruleVersion": "standard", "calcBatchId": row["calculation_run_id"], "calcDate": row["calc_date"] or "",
-            "tpm": None, "actualDiscountTotal": None if is_gift else row["actual_discount_total"], "settleAmount": None if is_gift else row["actual_discount_total"], "budgetRemaining": None,
-            "giftQtyEntitled": row["gift_qty_entitled"] if is_gift else None, "giftQtyActual": row["gift_qty_actual"] if is_gift else None, "releaseCandidates": row["release_candidates"], "warningCount": 0, "tipCount": 0, "status": "已核验",
+            "tpm": None, "actualDiscountTotal": None if is_gift else row["actual_discount_total"], "settleAmount": None if is_gift else row["releasable_discount_total"], "budgetRemaining": None,
+            "giftQtyEntitled": row["gift_qty_entitled"] if is_gift else None, "giftQtyActual": row["gift_qty_actual"] if is_gift else None, "releasableGiftQty": row["releasable_gift_qty"] if is_gift else None,
+            "releaseCandidates": row["release_candidates"], "warningCount": 0, "tipCount": 0, "status": "已核验",
+        })
+    for row in coupon_rows:
+        payload.append({
+            "activityId": -int(row["coupon_config_id"]) if row["coupon_config_id"] is not None else -1,
+            "activityName": row["coupon_name"] or "优惠券", "dealer_name": row["dealer_name"], "dealer": row["dealer_name"], "platform": row["platform_name"],
+            "promotionType": "优惠券", "benefitKind": "money", "ruleVersion": "standard", "calcBatchId": row["calculation_run_id"], "calcDate": row["calc_date"] or "",
+            "tpm": None, "actualDiscountTotal": row["used_amount"], "settleAmount": row["releasable_amount"], "budgetRemaining": None,
+            "giftQtyEntitled": None, "giftQtyActual": None, "releasableGiftQty": None,
+            "releaseCandidates": row["releasable_count"], "warningCount": 0, "tipCount": 0, "status": "已核验",
         })
     return {"mode": "historical" if params.get("calc_batch_id") not in (None, "") else "current", "calcBatchId": calc_id, "rows": payload[offset:offset + limit], "total": len(payload), "limit": limit, "offset": offset}
 

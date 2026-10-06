@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from .result_service import calculate_results
+from .actual_result_calculator import calculate_actual_results
 from .standard_schema import Issue, validate_rows
 from .standard_workbook import StandardWorkbook
 
@@ -155,7 +155,7 @@ def import_snapshot(db: sqlite3.Connection, workbook: StandardWorkbook, archive:
         for row in workbook.tables.get("标准履约", []):
             db.execute("INSERT INTO fulfillment(import_batch_id,order_no,downstream_order_no,fulfillment_status,outbound_at,completed_at,settlement_status,return_qty) VALUES(?,?,?,?,?,?,?,?)",
                        (batch_id, row["单据编号"], row.get("下游订单编号"), row["履约订单状态"], row.get("出库时间"), row.get("完成时间"), row.get("结款状态"), _f(row.get("退货数量"))))
-        calc_id = calculate_results(db, batch_id, calc_date)
+        calc_id = calculate_actual_results(db, batch_id, calc_date)
         db.execute("UPDATE import_batch SET status='calculated', is_current=1 WHERE import_batch_id=?", (batch_id,))
     return ImportResult(batch_id, calc_id, "calculated")
 

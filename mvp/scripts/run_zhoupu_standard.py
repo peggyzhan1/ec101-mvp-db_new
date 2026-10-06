@@ -27,14 +27,13 @@ REFERENCE = {
     "券台账": 102,
     "已用券": 48,
     "返券归因订单": 45,
-    "返券费用": 675.0,
-    "满赠合格单": 142,
-    "满赠应赠": 135,
-    "满赠一致": 99,
-    "满赠差异": 43,
-    "实赠抱枕": 100.0,
-    "释放候选": 179,
-    "释放非候选": 8,
+    "券实际发生": 720.0,
+    "券已归因金额": 675.0,
+    "券可释放": 555.0,
+    "活动核销行": 0,
+    "满赠实发": 111.0,
+    "满赠可释放": 100.0,
+    "双单号警告": 1,
 }
 
 
@@ -60,26 +59,25 @@ def _metrics(connection: sqlite3.Connection) -> dict[str, float]:
         "券台账": one("SELECT COUNT(*) FROM coupon_redemption"),
         "已用券": one("SELECT COUNT(*) FROM coupon_redemption WHERE status='已使用'"),
         "返券归因订单": one("SELECT COUNT(*) FROM coupon_redemption WHERE status='已使用' AND order_id IS NOT NULL"),
-        "返券费用": one("SELECT coupon_benefit FROM calculation_run ORDER BY calculation_run_id DESC LIMIT 1"),
-        "满赠合格单": one("SELECT COUNT(*) FROM entitlement_check WHERE gift_qty_entitled IS NOT NULL"),
-        "满赠应赠": one("SELECT COALESCE(SUM(gift_qty_entitled),0) FROM activity_fee_summary"),
-        "满赠一致": one("SELECT COUNT(*) FROM entitlement_check WHERE gift_qty_entitled IS NOT NULL AND consistency='一致'"),
-        "满赠差异": one("SELECT COUNT(*) FROM entitlement_check WHERE gift_qty_entitled IS NOT NULL AND consistency='差异'"),
-        "实赠抱枕": one("SELECT COALESCE(SUM(gift_qty_actual),0) FROM activity_fee_summary"),
-        "释放候选": one("SELECT COUNT(*) FROM release_candidate WHERE is_candidate=1"),
-        "释放非候选": one("SELECT COUNT(*) FROM release_candidate WHERE is_candidate=0"),
+        "券实际发生": one("SELECT COALESCE(coupon_benefit,0) FROM calculation_run ORDER BY calculation_run_id DESC LIMIT 1"),
+        "券已归因金额": one("SELECT COALESCE(SUM(linked_amount),0) FROM coupon_fee_summary"),
+        "券可释放": one("SELECT COALESCE(SUM(releasable_amount),0) FROM coupon_fee_summary"),
+        "活动核销行": one("SELECT COUNT(*) FROM activity_execution"),
+        "满赠实发": one("SELECT COALESCE(SUM(gift_qty_actual),0) FROM activity_fee_summary"),
+        "满赠可释放": one("SELECT COALESCE(SUM(releasable_gift_qty),0) FROM activity_fee_summary"),
+        "双单号警告": one("SELECT COUNT(*) FROM calculation_quality_issue WHERE issue_type='返券双单号无法唯一归因'"),
     }
 
 
 def _write_report(path: Path, metrics: dict[str, float], conversion_report: str) -> int:
-    lines = ["# 舟谱-羿柏标准链路与 ec101-mvp-db 结论对照", "", f"核算日：{CALC_DATE}。旧库结论来自 `mvp/ec101_mvp.db`（与 https://github.com/Zzh032811/ec101-mvp-db 的舟谱 RESULT 一致）。", "", "| 指标 | 旧库结论 | 本次结果 | 是否一致 |", "|---|---:|---:|---|"]
+    lines = ["# 舟谱-羿柏实际发生核算", "", f"核算日：{CALC_DATE}。导入标准工作簿后，只统计 CORE 里已经发生的赠品和已使用优惠券，再按「订单已完成且下单时间 ≤ 核算日减 2 天」计算可释放。", "", "| 指标 | 预期 | 本次结果 | 是否一致 |", "|---|---:|---:|---|"]
     mismatches = 0
     for name, expected in REFERENCE.items():
         actual = metrics[name]
         same = abs(float(actual) - float(expected)) < 0.001
         mismatches += int(not same)
         lines.append(f"| {name} | {expected:g} | {float(actual):g} | {'一致' if same else '不一致'} |")
-    lines.extend(["", "## 转换报告", "", "```", conversion_report.strip(), "```", ""])
+    lines.extend(["", "双单号券记成一条警告：3 张、45 元已经计入实际发生，不能释放。", "", "## 转换报告", "", "```", conversion_report.strip(), "```", ""])
     path.write_text("\n".join(lines), encoding="utf-8")
     return mismatches
 

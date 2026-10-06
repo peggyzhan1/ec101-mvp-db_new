@@ -56,19 +56,26 @@ class ResultServiceTests(unittest.TestCase):
             connection = sqlite3.connect(db_path)
             import_snapshot(connection, workbook, ArchiveMetadata("sources.zip", "hash", 1), calc_date="2026-09-23")
             run = connection.execute("SELECT coupon_benefit, activity_benefit FROM calculation_run").fetchone()
-            fee = connection.execute("SELECT gift_qty_entitled, gift_qty_actual, actual_discount_total, settle_status FROM activity_fee_summary").fetchone()
+            fee = connection.execute("SELECT gift_qty_entitled, gift_qty_actual, releasable_gift_qty, actual_discount_total, settle_status FROM activity_fee_summary").fetchone()
             consistency = {row[0]: row[1:] for row in connection.execute("SELECT h.order_no, e.consistency, e.gift_qty_entitled, e.gift_qty_actual FROM entitlement_check e JOIN order_header h ON h.order_id=e.order_id")}
             release = connection.execute("SELECT SUM(is_candidate) FROM release_candidate").fetchone()[0]
             dual = connection.execute("SELECT COUNT(*) FROM calculation_quality_issue WHERE issue_type='返券双单号无法唯一归因'").fetchone()[0]
-        self.assertEqual(run, (15.0, 0.0))
-        self.assertEqual(fee[0], 1)
+            executions = connection.execute("SELECT COUNT(*) FROM activity_execution").fetchone()[0]
+            coupon_fee = connection.execute("SELECT used_amount, linked_amount, releasable_amount FROM coupon_fee_summary").fetchone()
+        self.assertEqual(run, (30.0, 0.0))
+        self.assertIsNone(fee[0])
         self.assertEqual(fee[1], 2)
-        self.assertEqual(fee[2], 0)
-        self.assertEqual(fee[3], "按赠品数量统计(不结算单价)")
-        self.assertEqual(consistency["O1"][0], "一致")
-        self.assertEqual(consistency["O2"][0], "差异")
+        self.assertEqual(fee[2], 2)
+        self.assertEqual(fee[3], 0)
+        self.assertEqual(fee[4], "按赠品数量统计(不结算单价)")
+        self.assertEqual(consistency["O1"][0], "已发生")
+        self.assertEqual(consistency["O2"][0], "已发生")
+        self.assertEqual(consistency["O1"][2], 1)
+        self.assertEqual(consistency["O2"][2], 1)
         self.assertEqual(release, 2)
         self.assertEqual(dual, 1)
+        self.assertEqual(executions, 0)
+        self.assertEqual(coupon_fee, (30.0, 15.0, 15.0))
 
 
 if __name__ == "__main__":
