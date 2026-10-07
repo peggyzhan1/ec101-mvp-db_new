@@ -13,6 +13,7 @@ Confirmed rules:
 
 from __future__ import annotations
 
+import re
 import sqlite3
 from pathlib import Path
 
@@ -20,6 +21,7 @@ COKE_BRAND = "可口可乐"
 COMPLETED = "已完成"
 BOX_UNITS = frozenset({"箱", "件"})
 BASE_UNITS = frozenset({"瓶", "罐"})
+_BOTTLE_FACTOR = re.compile(r"(\d+(?:\.\d+)?)\s*(瓶|罐)")
 
 
 def _number(value) -> float | None:
@@ -32,13 +34,24 @@ def _number(value) -> float | None:
     return number if number > 0 else None
 
 
+def box_factor(box_conversion=None, base_qty_per_box=None) -> float | None:
+    """Read 箱规 as bottles/cans per box. '1箱=24瓶' is 24, not the leading 1."""
+    numeric = _number(base_qty_per_box) or _number(box_conversion)
+    if numeric is not None:
+        return numeric
+    matches = _BOTTLE_FACTOR.findall(str(box_conversion or ""))
+    if matches:
+        return float(matches[-1][0])
+    return None
+
+
 def base_qty(quantity, unit, box_conversion=None, base_qty_per_box=None) -> float | None:
     """Convert one order-line quantity to 瓶/罐. Missing factor is not invented."""
     qty = float(quantity or 0)
     unit = str(unit or "").strip()
     if unit in BASE_UNITS:
         return qty
-    factor = _number(box_conversion) or _number(base_qty_per_box)
+    factor = box_factor(box_conversion, base_qty_per_box)
     if unit in BOX_UNITS and factor is not None:
         return qty * factor
     return None
@@ -70,8 +83,8 @@ SELECT COUNT(DISTINCT oh.order_id) AS orders,
          CASE
            WHEN ol.unit IN ('瓶', '罐') THEN ol.quantity
            WHEN ol.unit IN ('箱', '件') THEN ol.quantity * COALESCE(
-             NULLIF(CAST(p.box_conversion AS REAL), 0),
-             NULLIF(CAST(p.base_qty_per_box AS REAL), 0)
+             NULLIF(CAST(p.base_qty_per_box AS REAL), 0),
+             NULLIF(CAST(p.box_conversion AS REAL), 0)
            )
          END
        ), 0) AS qty_base

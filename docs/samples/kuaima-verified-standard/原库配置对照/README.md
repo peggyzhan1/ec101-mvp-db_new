@@ -41,4 +41,5 @@
 
 - 两边对照：`原库配置与标准表对照.xlsx`（左原库、右标准、另有未编造说明）
 - 仅标准格式：`原库配置_standard.xlsx`
-- 已写入快马验收表：`../满减/standard.xlsx`（满减规则 + test1 券配置），`../满赠/standard.xlsx`（满赠规则）。舟谱和「新客户投放」只在对照文件里。
+- 已写入快马验收表：`../满减/standard.xlsx`（满减规则 + test1 券配置），`../满赠/standard.xlsx`（满赠规则）。
+- 羿柏/舟谱核销事实已从原库投影到 `../../zhoupu-verified-standard/{返券,满赠}/standard.xlsx` 并导入标准库。「新客户投放」仍只在对照文件里。

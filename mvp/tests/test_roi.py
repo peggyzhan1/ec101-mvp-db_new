@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 import sqlite3
 
-from mvp.roi import activity_roi, base_qty, coupon_roi, query_roi
+from mvp.roi import activity_roi, base_qty, box_factor, coupon_roi, query_roi
 
 SNAPSHOT = Path(__file__).resolve().parents[2] / "docs" / "samples" / "kuaima-verified-standard" / "ec101_standard.db"
 
@@ -14,6 +14,9 @@ class BaseQtyTests(unittest.TestCase):
         self.assertEqual(base_qty(6, "瓶", "12", 12), 6)
         self.assertEqual(base_qty(3, "罐", None, None), 3)
         self.assertIsNone(base_qty(2, "箱", None, None))
+        self.assertEqual(box_factor("1箱=24瓶"), 24)
+        self.assertEqual(box_factor("1箱=2包=24瓶"), 24)
+        self.assertEqual(base_qty(2, "箱", "1箱=24瓶"), 48)
 
 
 class SnapshotRoiTests(unittest.TestCase):
@@ -54,7 +57,27 @@ class SnapshotRoiTests(unittest.TestCase):
 
     def test_query_roi_lists_current_activities_and_coupon(self):
         names = [row["name"] for row in query_roi(SNAPSHOT)]
-        self.assertEqual(names, ["可口可乐满减", "满赠优惠", "test1"])
+        self.assertEqual(names, ["可口可乐满减", "满赠优惠", "可口可乐产品288返15元券", "雪碧系列满100元送抱枕", "test1"])
+
+    def test_yibo_rebate_uses_completed_redemptions_and_parsed_box(self):
+        row = activity_roi(self.db, 4)
+        self.assertEqual(row["name"], "可口可乐产品288返15元券")
+        self.assertEqual(row["kind"], "money")
+        self.assertEqual(row["completedOrders"], 20)
+        self.assertEqual(row["cokeQtyBase"], 942)
+        self.assertEqual(row["cokePaidAmount"], 2388.62)
+        self.assertEqual(row["feeAmount"], 555)
+        self.assertEqual(row["roi"], 4.3)
+
+    def test_yibo_gift_shows_paid_amount_without_roi(self):
+        row = activity_roi(self.db, 5)
+        self.assertEqual(row["name"], "雪碧系列满100元送抱枕")
+        self.assertEqual(row["kind"], "gift")
+        self.assertEqual(row["completedOrders"], 130)
+        self.assertEqual(row["cokeQtyBase"], 8157)
+        self.assertEqual(row["cokePaidAmount"], 44159.5)
+        self.assertEqual(row["feeAmount"], 0)
+        self.assertIsNone(row["roi"])
 
 
 if __name__ == "__main__":

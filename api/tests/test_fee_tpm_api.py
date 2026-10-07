@@ -165,6 +165,11 @@ class FeeTpmRouteTests(FeeTpmStandardSchemaTests):
         self.assertIsNone(rows["满赠优惠"]["roi"])
         self.assertEqual(rows["满赠优惠"]["cokePaidAmount"], 23112.68)
         self.assertEqual((rows["test1"]["cokeQtyBase"], rows["test1"]["roi"]), (960, 8.52))
+        self.assertEqual(rows["可口可乐产品288返15元券"]["dealer"], "羿柏")
+        self.assertEqual(rows["可口可乐产品288返15元券"]["platform"], "舟谱")
+        self.assertEqual((rows["可口可乐产品288返15元券"]["feeAmount"], rows["可口可乐产品288返15元券"]["roi"]), (555, 4.3))
+        self.assertIsNone(rows["雪碧系列满100元送抱枕"]["roi"])
+        self.assertEqual(rows["雪碧系列满100元送抱枕"]["cokePaidAmount"], 44159.5)
 
     def test_cors_allows_a_browser_preview_origin(self):
         connection = HTTPConnection("127.0.0.1", self.server.server_address[1])

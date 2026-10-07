@@ -77,15 +77,21 @@ describe('fee TPM workspace', () => {
       { kind: 'money', name: '可口可乐满减', dealer: '深圳市兴路强商贸有限公司', platform: '快马', periodStart: '2026-08-31 10:58:00', periodEnd: '2026-09-17 23:59:00', periodMissing: false, completedOrders: 133, cokeQtyBase: 24195, cokePaidAmount: 55021.83, feeAmount: 1995, roi: 27.58, calcBatchId: 1 },
       { kind: 'gift', name: '满赠优惠', dealer: '深圳市兴路强商贸有限公司', platform: '快马', periodStart: '2026-08-19 15:15:00', periodEnd: '2026-08-31 23:59:00', periodMissing: false, completedOrders: 98, cokeQtyBase: 10068, cokePaidAmount: 23112.68, feeAmount: 0, roi: null, calcBatchId: 2 },
       { kind: 'coupon', name: 'test1', dealer: '深圳市兴路强商贸有限公司', platform: '快马', periodStart: '2026-09-09 16:50:00', periodEnd: '2026-09-12 16:50:00', periodMissing: false, completedOrders: 1, cokeQtyBase: 960, cokePaidAmount: 1704.8, feeAmount: 200, roi: 8.52, calcBatchId: 1 },
+      { kind: 'money', name: '可口可乐产品288返15元券', dealer: '羿柏', platform: '舟谱', periodStart: '2026-08-26 00:00:00', periodEnd: '2026-09-08 23:59:59', periodMissing: false, completedOrders: 20, cokeQtyBase: 942, cokePaidAmount: 2388.62, feeAmount: 555, roi: 4.3, calcBatchId: 3 },
+      { kind: 'gift', name: '雪碧系列满100元送抱枕', dealer: '羿柏', platform: '舟谱', periodStart: '2026-08-19 12:29:37', periodEnd: '2026-08-26 12:29:40', periodMissing: false, completedOrders: 130, cokeQtyBase: 8157, cokePaidAmount: 44159.5, feeAmount: 0, roi: null, calcBatchId: 4 },
     ];
     vi.stubGlobal('fetch', feeApi([manjian, gift], overview, [coupon], roi));
     render(<Home />);
     expect(await screen.findByText('券核销合计 ¥ 200.00')).toBeInTheDocument();
     fireEvent.click(screen.getAllByRole('button', { name: 'ROI 分析' })[0]);
     expect(await screen.findByText('27.58')).toBeInTheDocument();
-    expect(screen.getByText('满赠只统计金额')).toBeInTheDocument();
+    expect(screen.getAllByText('满赠只统计金额').length).toBe(2);
     expect(screen.getByText('¥ 23112.68')).toBeInTheDocument();
     expect(screen.getByText('8.52')).toBeInTheDocument();
+    expect(screen.getByText('可口可乐产品288返15元券')).toBeInTheDocument();
+    expect(screen.getAllByText('羿柏 · 舟谱').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText('4.3')).toBeInTheDocument();
+    expect(screen.getByText('¥ 44159.50')).toBeInTheDocument();
   });
 
   it('offers the verification report download for activities and coupons', async () => {
