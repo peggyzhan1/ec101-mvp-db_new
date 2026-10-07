@@ -27,6 +27,7 @@ if str(ROOT) not in sys.path:  # `python3 api/server.py` puts api/ on sys.path, 
 from mvp.calculation_engine import calculate_batch, parse_calc_date, run_calculation  # noqa: E402
 from mvp.import_service import ArchiveMetadata, ImportValidationError, create_database, import_snapshot  # noqa: E402
 from mvp.standard_workbook import read_standard_workbook  # noqa: E402
+from mvp.roi import activity_roi, coupon_roi  # noqa: E402
 from mvp.verification_report import build_activity_report, build_coupon_report, content_disposition  # noqa: E402
 
 
@@ -578,6 +579,33 @@ def query_fee_tpm_coupons(db_path: Path, params: dict[str, Any]) -> dict[str, An
     return {"mode": "historical" if run_id is not None else "current", "calcBatchId": run_id, "rows": payload, "total": len(payload)}
 
 
+def query_fee_tpm_roi(db_path: Path, params: dict[str, Any]) -> dict[str, Any]:
+    """One ROI row per current (or pinned) activity with redemptions, plus each coupon config."""
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        runs, run_id = _fee_runs(connection, params)
+        rows: list[dict[str, Any]] = []
+        for run in runs:
+            for (activity_id,) in connection.execute(
+                """
+                SELECT activity_id FROM activity a
+                WHERE a.import_batch_id=?
+                  AND EXISTS (SELECT 1 FROM activity_execution ae WHERE ae.activity_id=a.activity_id)
+                ORDER BY a.activity_id
+                """,
+                (run["import_batch_id"],),
+            ):
+                payload = activity_roi(connection, activity_id)
+                rows.append({**payload, "dealer": run["dealer_name"], "platform": run["platform_name"], "calcBatchId": run["calculation_run_id"]})
+            for (coupon_id,) in connection.execute(
+                "SELECT coupon_config_id FROM coupon_config WHERE import_batch_id=? ORDER BY coupon_config_id",
+                (run["import_batch_id"],),
+            ):
+                payload = coupon_roi(connection, coupon_id)
+                rows.append({**payload, "dealer": run["dealer_name"], "platform": run["platform_name"], "calcBatchId": run["calculation_run_id"]})
+    return {"mode": "historical" if run_id is not None else "current", "calcBatchId": run_id, "rows": rows, "total": len(rows)}
+
+
 def query_fee_tpm_activity_detail(db_path: Path, activity_id: str, params: dict[str, Any]) -> dict[str, Any] | None:
     payload = query_fee_tpm_activities(db_path, {**params, "limit": 500, "offset": 0})
     for row in payload["rows"]:
@@ -723,6 +751,8 @@ def make_handler(db_path: Path):
                             raise NotFoundError(str(exc)) from exc
                         _xlsx(self, filename, body)
                         return
+                    if endpoint == "roi" and len(parts) == 3:
+                        _json(self, 200, query_fee_tpm_roi(db_path, query)); return
                     if endpoint == "issues" and len(parts) == 3:
                         _json(self, 200, query_fee_tpm_issues(db_path, query)); return
                     if endpoint == "settlements" and len(parts) == 3:

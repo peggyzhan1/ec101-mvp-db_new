@@ -9,10 +9,11 @@ const emptyOverview = { submittableAmount: 0, couponBenefit: 0, releasedCouponBe
 const importBatch = { import_batch_id: 1, dealer_name: '深圳市兴路强商贸有限公司', platform_name: '快马', coverage_start: '2026-08-31', coverage_end: '2026-09-17', imported_at: '2026-10-05T10:00:00', status: 'calculated', is_current: 1, calc_date: '2026-09-22', order_count: 1764, participating_orders: 136, released_orders: 133, activity_benefit: 2040, coupon_benefit: 200, released_activity_benefit: 1995, released_coupon_benefit: 200 };
 
 const coupon = { couponConfigId: 1, configNo: 'KM-COUPON-AUTO-001', couponName: 'test1', couponType: '单品优惠', dealer: '深圳市兴路强商贸有限公司', platform: '快马', importBatchId: 1, calcBatchId: 1, calcDate: '2026-09-22', releaseCutoff: '2026-09-20 00:00:00', participatingOrders: 1, couponBenefit: 200, releasedCouponBenefit: 200, status: '可提交', benefitKind: 'coupon' };
-const feeApi = (rows: unknown[], summary = overview, coupons: unknown[] = []) => vi.fn((url: string) => {
+const feeApi = (rows: unknown[], summary = overview, coupons: unknown[] = [], roi: unknown[] = []) => vi.fn((url: string) => {
   const path = String(url);
   const payload = path.includes('/api/fee-tpm/overview') ? summary
     : path.includes('/api/fee-tpm/coupons') ? { rows: coupons }
+    : path.includes('/api/fee-tpm/roi') ? { rows: roi }
     : path.includes('/api/fee-tpm/activities') ? { rows }
     : path.includes('/api/fee-tpm/settlements') ? { rows: rows.filter((row) => (row as { status: string }).status === '可提交') }
     : path.includes('/api/imports') ? { rows: [importBatch] }
@@ -69,6 +70,22 @@ describe('fee TPM workspace', () => {
     expect(screen.getByText('券优惠 ¥ 200.00')).toBeInTheDocument();
     expect(screen.getByText('一致性 一致')).toBeInTheDocument();
     expect(screen.getByText('理论活动 ¥ 15.00')).toBeInTheDocument();
+  });
+
+  it('shows confirmed ROI paid amount and hides gift ratio', async () => {
+    const roi = [
+      { kind: 'money', name: '可口可乐满减', dealer: '深圳市兴路强商贸有限公司', platform: '快马', periodStart: '2026-08-31 10:58:00', periodEnd: '2026-09-17 23:59:00', periodMissing: false, completedOrders: 133, cokeQtyBase: 24195, cokePaidAmount: 55021.83, feeAmount: 1995, roi: 27.58, calcBatchId: 1 },
+      { kind: 'gift', name: '满赠优惠', dealer: '深圳市兴路强商贸有限公司', platform: '快马', periodStart: '2026-08-19 15:15:00', periodEnd: '2026-08-31 23:59:00', periodMissing: false, completedOrders: 98, cokeQtyBase: 10068, cokePaidAmount: 23112.68, feeAmount: 0, roi: null, calcBatchId: 2 },
+      { kind: 'coupon', name: 'test1', dealer: '深圳市兴路强商贸有限公司', platform: '快马', periodStart: '2026-09-09 16:50:00', periodEnd: '2026-09-12 16:50:00', periodMissing: false, completedOrders: 1, cokeQtyBase: 960, cokePaidAmount: 1704.8, feeAmount: 200, roi: 8.52, calcBatchId: 1 },
+    ];
+    vi.stubGlobal('fetch', feeApi([manjian, gift], overview, [coupon], roi));
+    render(<Home />);
+    expect(await screen.findByText('券核销合计 ¥ 200.00')).toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole('button', { name: 'ROI 分析' })[0]);
+    expect(await screen.findByText('27.58')).toBeInTheDocument();
+    expect(screen.getByText('满赠只统计金额')).toBeInTheDocument();
+    expect(screen.getByText('¥ 23112.68')).toBeInTheDocument();
+    expect(screen.getByText('8.52')).toBeInTheDocument();
   });
 
   it('offers the verification report download for activities and coupons', async () => {
