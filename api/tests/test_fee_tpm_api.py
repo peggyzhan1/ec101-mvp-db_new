@@ -6,7 +6,7 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
 
-from api.server import NotFoundError, import_uploaded_files, make_handler, query_fee_tpm_activities, query_fee_tpm_coupons, query_fee_tpm_issues, query_fee_tpm_overview, query_fee_tpm_settlements
+from api.server import NotFoundError, import_uploaded_files, make_handler, query_fee_tpm_activities, query_fee_tpm_coupons, query_fee_tpm_issues, query_fee_tpm_overview, query_fee_tpm_roi, query_fee_tpm_settlements
 from mvp.import_service import create_database
 from mvp.standard_schema import STANDARD_SHEETS
 from mvp.standard_workbook import StandardWorkbook, write_standard_workbook
@@ -126,7 +126,7 @@ class FeeTpmRouteTests(FeeTpmStandardSchemaTests):
         self.assertEqual((status, payload["error"]), (404, "not_found"))
 
     def test_every_page_endpoint_answers_on_the_standard_database(self):
-        for path in ("/health", "/api/imports", "/api/fee-tpm/overview", "/api/fee-tpm/activities", "/api/fee-tpm/coupons", "/api/fee-tpm/issues", "/api/fee-tpm/settlements",
+        for path in ("/health", "/api/imports", "/api/fee-tpm/overview", "/api/fee-tpm/activities", "/api/fee-tpm/coupons", "/api/fee-tpm/roi", "/api/fee-tpm/issues", "/api/fee-tpm/settlements",
                      "/api/business-data/orders", "/api/business-data/order-lines", "/api/business-data/activity-executions", "/api/business-data/coupon-redemptions"):
             status, payload = self._get(path)
             self.assertEqual(status, 200, path)
@@ -157,6 +157,14 @@ class FeeTpmRouteTests(FeeTpmStandardSchemaTests):
         self.assertIn("spreadsheetml.sheet", response.getheader("Content-Type") or "")
         self.assertTrue(body.startswith(b"PK"))
         self.assertIn("filename*=UTF-8''", response.getheader("Content-Disposition") or "")
+
+    def test_roi_matches_confirmed_snapshot_formula(self):
+        snapshot = Path(__file__).resolve().parents[2] / "docs" / "samples" / "kuaima-verified-standard" / "ec101_standard.db"
+        rows = {row["name"]: row for row in query_fee_tpm_roi(snapshot, {})["rows"]}
+        self.assertEqual((rows["可口可乐满减"]["cokePaidAmount"], rows["可口可乐满减"]["roi"]), (55021.83, 27.58))
+        self.assertIsNone(rows["满赠优惠"]["roi"])
+        self.assertEqual(rows["满赠优惠"]["cokePaidAmount"], 23112.68)
+        self.assertEqual((rows["test1"]["cokeQtyBase"], rows["test1"]["roi"]), (960, 8.52))
 
     def test_cors_allows_a_browser_preview_origin(self):
         connection = HTTPConnection("127.0.0.1", self.server.server_address[1])
