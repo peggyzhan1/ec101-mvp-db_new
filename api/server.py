@@ -27,6 +27,7 @@ if str(ROOT) not in sys.path:  # `python3 api/server.py` puts api/ on sys.path, 
 from mvp.calculation_engine import calculate_batch, parse_calc_date, run_calculation  # noqa: E402
 from mvp.import_service import ArchiveMetadata, ImportValidationError, create_database, import_snapshot  # noqa: E402
 from mvp.standard_workbook import read_standard_workbook  # noqa: E402
+from mvp.verification_report import build_activity_report, build_coupon_report, content_disposition  # noqa: E402
 
 
 DEFAULT_DB_PATH = ROOT / "mvp" / "ec101_standard.db"
@@ -539,6 +540,44 @@ def query_fee_tpm_overview(db_path: Path, params: dict[str, Any]) -> dict[str, A
     }
 
 
+def query_fee_tpm_coupons(db_path: Path, params: dict[str, Any]) -> dict[str, Any]:
+    """One row per coupon_config on the current (or pinned) calculation runs."""
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        runs, run_id = _fee_runs(connection, params)
+        if not runs:
+            return {"mode": "historical" if run_id is not None else "current", "calcBatchId": run_id, "rows": [], "total": 0}
+        placeholders = ",".join("?" for _ in runs)
+        rows = [dict(row) for row in connection.execute(
+            f"""
+            SELECT cc.coupon_config_id, cc.config_no, cc.coupon_name, cc.coupon_type, cc.config_status,
+                   ib.dealer_name, ib.platform_name, cr.calculation_run_id, cr.calc_date, cr.release_cutoff, cr.import_batch_id,
+                   COUNT(red.coupon_redemption_id) AS participating_orders,
+                   COALESCE(SUM(red.discount_amount), 0) AS coupon_benefit,
+                   COALESCE(SUM(CASE WHEN rc.is_candidate=1 THEN red.discount_amount ELSE 0 END), 0) AS released_coupon_benefit
+            FROM coupon_config cc
+            JOIN import_batch ib ON ib.import_batch_id=cc.import_batch_id
+            JOIN calculation_run cr ON cr.import_batch_id=ib.import_batch_id
+            LEFT JOIN coupon_redemption red ON red.import_batch_id=cc.import_batch_id
+            LEFT JOIN release_candidate rc ON rc.order_id=red.order_id AND rc.calculation_run_id=cr.calculation_run_id
+            WHERE cr.calculation_run_id IN ({placeholders})
+            GROUP BY cc.coupon_config_id
+            ORDER BY cr.calculation_run_id, cc.coupon_config_id
+            """,
+            [run["calculation_run_id"] for run in runs],
+        ).fetchall()]
+    payload = [{
+        "couponConfigId": row["coupon_config_id"], "configNo": row["config_no"], "couponName": row["coupon_name"],
+        "couponType": row["coupon_type"], "dealer": row["dealer_name"], "platform": row["platform_name"],
+        "importBatchId": row["import_batch_id"], "calcBatchId": row["calculation_run_id"],
+        "calcDate": row["calc_date"], "releaseCutoff": row["release_cutoff"],
+        "participatingOrders": row["participating_orders"], "couponBenefit": row["coupon_benefit"],
+        "releasedCouponBenefit": row["released_coupon_benefit"], "status": "可提交" if row["released_coupon_benefit"] else "待确认",
+        "benefitKind": "coupon",
+    } for row in rows]
+    return {"mode": "historical" if run_id is not None else "current", "calcBatchId": run_id, "rows": payload, "total": len(payload)}
+
+
 def query_fee_tpm_activity_detail(db_path: Path, activity_id: str, params: dict[str, Any]) -> dict[str, Any] | None:
     payload = query_fee_tpm_activities(db_path, {**params, "limit": 500, "offset": 0})
     for row in payload["rows"]:
@@ -551,6 +590,19 @@ def query_fee_tpm_activity_detail(db_path: Path, activity_id: str, params: dict[
 def _cors_origin(handler: BaseHTTPRequestHandler) -> str:
     origin = handler.headers.get("Origin", "").strip()
     return origin or "*"
+
+
+def _xlsx(handler: BaseHTTPRequestHandler, filename: str, body: bytes) -> None:
+    handler.send_response(200)
+    handler.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    handler.send_header("Content-Disposition", content_disposition(filename))
+    handler.send_header("Content-Length", str(len(body)))
+    handler.send_header("Access-Control-Allow-Origin", _cors_origin(handler))
+    handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    handler.send_header("Access-Control-Allow-Headers", "Content-Type")
+    handler.send_header("Vary", "Origin")
+    handler.end_headers()
+    handler.wfile.write(body)
 
 
 def _json(handler: BaseHTTPRequestHandler, status: int, payload: dict[str, Any]) -> None:
@@ -648,6 +700,28 @@ def make_handler(db_path: Path):
                     if endpoint == "activities" and len(parts) == 4:
                         detail = query_fee_tpm_activity_detail(db_path, parts[3], query)
                         _json(self, 200, detail) if detail is not None else _json(self, 404, {"error": "not_found"})
+                        return
+                    if endpoint == "activities" and len(parts) == 5 and parts[4] == "verification-report":
+                        if not query.get("calc_batch_id"):
+                            raise ValueError("calc_batch_id is required")
+                        try:
+                            body, filename = build_activity_report(db_path, int(parts[3]), int(query["calc_batch_id"]))
+                        except KeyError as exc:
+                            raise NotFoundError(str(exc)) from exc
+                        _xlsx(self, filename, body)
+                        return
+                    if endpoint == "coupons" and len(parts) == 3:
+                        _json(self, 200, query_fee_tpm_coupons(db_path, query)); return
+                    if endpoint == "coupons" and len(parts) == 5 and parts[4] == "verification-report":
+                        coupon_id = int(parts[3])
+                        calc_id = int(query["calc_batch_id"]) if query.get("calc_batch_id") else None
+                        if calc_id is None:
+                            raise ValueError("calc_batch_id is required")
+                        try:
+                            body, filename = build_coupon_report(db_path, coupon_id, calc_id)
+                        except KeyError as exc:
+                            raise NotFoundError(str(exc)) from exc
+                        _xlsx(self, filename, body)
                         return
                     if endpoint == "issues" and len(parts) == 3:
                         _json(self, 200, query_fee_tpm_issues(db_path, query)); return

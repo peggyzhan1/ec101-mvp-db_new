@@ -6,13 +6,13 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
 
-from api.server import NotFoundError, import_uploaded_files, make_handler, query_fee_tpm_activities, query_fee_tpm_issues, query_fee_tpm_overview, query_fee_tpm_settlements
+from api.server import NotFoundError, import_uploaded_files, make_handler, query_fee_tpm_activities, query_fee_tpm_coupons, query_fee_tpm_issues, query_fee_tpm_overview, query_fee_tpm_settlements
 from mvp.import_service import create_database
 from mvp.standard_schema import STANDARD_SHEETS
 from mvp.standard_workbook import StandardWorkbook, write_standard_workbook
 
 
-def workbook(directory: Path, name: str, dealer: str, coverage: tuple[str, str], orders: list[dict], activities: list[dict], executions: list[dict], coupons: list[dict] | None = None) -> bytes:
+def workbook(directory: Path, name: str, dealer: str, coverage: tuple[str, str], orders: list[dict], activities: list[dict], executions: list[dict], coupons: list[dict] | None = None, coupon_configs: list[dict] | None = None) -> bytes:
     tables = {sheet: [] for sheet in STANDARD_SHEETS[1:]}
     tables.update({
         "标准客户": [{"客户编号": "C1", "客户名称": "客户一"}],
@@ -20,6 +20,7 @@ def workbook(directory: Path, name: str, dealer: str, coverage: tuple[str, str],
         "标准订单明细": orders,
         "标准活动": activities,
         "标准活动核销明细": executions,
+        "标准优惠券配置": coupon_configs or [],
         "标准优惠券核销明细": coupons or [],
     })
     manifest = {"模板版本": "v1", "转换工具版本": "v1", "经销商名称": dealer, "平台名称": "快马", "数据开始日期": coverage[0], "数据结束日期": coverage[1], "生成时间": "2026-09-22 00:00:00"}
@@ -44,7 +45,8 @@ class FeeTpmStandardSchemaTests(unittest.TestCase):
             [order("O1", "2026-09-01 10:00:00"), order("O2", "2026-09-10 10:00:00", "部分发货"), order("O3", "2026-09-21 10:00:00")],
             [{"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "活动类型": "满减"}],
             [{"活动编号": "可口可乐满减", "活动名称": "可口可乐满减", "客户编号": "C1", "订单号": o, "优惠金额": "15"} for o in ("O1", "O2", "O3")],
-            [{"优惠券编号": "CP1", "客户编号": "C1", "订单号": "O1", "状态": "已使用", "优惠金额": "200"}])
+            [{"优惠券编号": "CP1", "客户编号": "C1", "订单号": "O1", "状态": "已使用", "优惠金额": "200"}],
+            [{"优惠券配置编号": "KM-COUPON-AUTO-001", "优惠券名称": "test1", "券类型": "单品优惠", "配置状态": "已结束"}])
         manzeng = workbook(root, "manzeng", "兴路强", ("2026-08-19", "2026-08-31"),
             [order("G1", "2026-08-20 10:00:00")],
             [{"活动编号": "满赠优惠", "活动名称": "满赠优惠", "活动类型": "满赠"}],
@@ -124,13 +126,37 @@ class FeeTpmRouteTests(FeeTpmStandardSchemaTests):
         self.assertEqual((status, payload["error"]), (404, "not_found"))
 
     def test_every_page_endpoint_answers_on_the_standard_database(self):
-        for path in ("/health", "/api/imports", "/api/fee-tpm/overview", "/api/fee-tpm/activities", "/api/fee-tpm/issues", "/api/fee-tpm/settlements",
+        for path in ("/health", "/api/imports", "/api/fee-tpm/overview", "/api/fee-tpm/activities", "/api/fee-tpm/coupons", "/api/fee-tpm/issues", "/api/fee-tpm/settlements",
                      "/api/business-data/orders", "/api/business-data/order-lines", "/api/business-data/activity-executions", "/api/business-data/coupon-redemptions"):
             status, payload = self._get(path)
             self.assertEqual(status, 200, path)
             self.assertNotIn("error", payload, path)
         status, health = self._get("/health")
         self.assertEqual(health["schema_issues"], [])
+
+    def test_activity_verification_report_downloads_xlsx(self):
+        activities = query_fee_tpm_activities(self.path, {})["rows"]
+        manjian = next(row for row in activities if row["activityName"] == "可口可乐满减")
+        connection = HTTPConnection("127.0.0.1", self.server.server_address[1])
+        connection.request("GET", f"/api/fee-tpm/activities/{manjian['activityId']}/verification-report?calc_batch_id={manjian['calcBatchId']}")
+        response = connection.getresponse()
+        body = response.read()
+        self.assertEqual(response.status, 200)
+        self.assertIn("spreadsheetml.sheet", response.getheader("Content-Type") or "")
+        self.assertTrue(body.startswith(b"PK"))
+
+    def test_coupon_verification_report_downloads_xlsx(self):
+        coupons = query_fee_tpm_coupons(self.path, {})["rows"]
+        self.assertTrue(coupons)
+        coupon = coupons[0]
+        connection = HTTPConnection("127.0.0.1", self.server.server_address[1])
+        connection.request("GET", f"/api/fee-tpm/coupons/{coupon['couponConfigId']}/verification-report?calc_batch_id={coupon['calcBatchId']}")
+        response = connection.getresponse()
+        body = response.read()
+        self.assertEqual(response.status, 200)
+        self.assertIn("spreadsheetml.sheet", response.getheader("Content-Type") or "")
+        self.assertTrue(body.startswith(b"PK"))
+        self.assertIn("filename*=UTF-8''", response.getheader("Content-Disposition") or "")
 
     def test_cors_allows_a_browser_preview_origin(self):
         connection = HTTPConnection("127.0.0.1", self.server.server_address[1])
