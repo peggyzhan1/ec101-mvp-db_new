@@ -31,7 +31,8 @@ Windows 使用 `py api/server.py` 和 PowerShell 环境变量写法，详见 `ap
 - `mvp/ec101_mvp.db`：本地真实数据源；不要由前端直接读取。
 - `api/server.py`：查询与标准数据导入服务；后续线上化主要替换数据库连接、认证和部署配置。
 - `ec101-fee-platform-v1/app/page.tsx`：费用运营台界面和 API 联调逻辑。
-- `mvp/ddl/ec101_mvp_sqlite.sql`：数据库结构的权威定义。
+- `mvp/ddl/ec101_standard_sqlite.sql`：费用平台所用新库的表结构。字段说明见 `mvp/EC101_标准库数据字典.md`。
+- `mvp/ddl/ec101_mvp_sqlite.sql`：历史样例库 `mvp/ec101_mvp.db` 的表结构。
 - `mvp/scripts/migrate_coupon_core.py`：优惠券 CORE 结构迁移、券配置导入和本地数据库备份。
 - `docs/diagrams/ec101-mvp-core-er.svg`：CORE 层 ER 图，供业务和开发理解实体、字段与关系。
 - `scripts/build_core_er_svg.py`：ER 图生成脚本；DDL 关系变化后重新运行即可生成新版图。
