@@ -28,6 +28,7 @@ from mvp.calculation_engine import calculate_batch, parse_calc_date, run_calcula
 from mvp.import_service import ArchiveMetadata, ImportValidationError, create_database, import_snapshot  # noqa: E402
 from mvp.standard_workbook import read_standard_workbook  # noqa: E402
 from mvp.roi import activity_roi, coupon_roi  # noqa: E402
+from mvp.roi_workbook import build_roi_workbook  # noqa: E402
 from mvp.verification_report import build_activity_report, build_coupon_report, content_disposition  # noqa: E402
 
 
@@ -749,6 +750,10 @@ def make_handler(db_path: Path):
                             body, filename = build_coupon_report(db_path, coupon_id, calc_id)
                         except KeyError as exc:
                             raise NotFoundError(str(exc)) from exc
+                        _xlsx(self, filename, body)
+                        return
+                    if endpoint == "roi.xlsx" and len(parts) == 3:
+                        body, filename = build_roi_workbook(query_fee_tpm_roi(db_path, query)["rows"])
                         _xlsx(self, filename, body)
                         return
                     if endpoint == "roi" and len(parts) == 3:

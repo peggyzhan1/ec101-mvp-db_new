@@ -92,6 +92,7 @@ describe('fee TPM workspace', () => {
     expect(screen.getAllByText('羿柏 · 舟谱').length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText('4.3')).toBeInTheDocument();
     expect(screen.getByText('¥ 44159.50')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '下载销量费用表' })).toHaveAttribute('href', '/api/fee-tpm/roi.xlsx');
   });
 
   it('offers the verification report download for activities and coupons', async () => {

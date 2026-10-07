@@ -171,6 +171,26 @@ class FeeTpmRouteTests(FeeTpmStandardSchemaTests):
         self.assertIsNone(rows["雪碧系列满100元送抱枕"]["roi"])
         self.assertEqual(rows["雪碧系列满100元送抱枕"]["cokePaidAmount"], 44159.5)
 
+    def test_roi_workbook_downloads_xlsx_with_platform_dealer_and_fee(self):
+        snapshot = Path(__file__).resolve().parents[2] / "docs" / "samples" / "kuaima-verified-standard" / "ec101_standard.db"
+        self.server.shutdown(); self.thread.join(); self.server.server_close()
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(snapshot))
+        self.thread = Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        connection = HTTPConnection("127.0.0.1", self.server.server_address[1])
+        connection.request("GET", "/api/fee-tpm/roi.xlsx")
+        response = connection.getresponse()
+        body = response.read()
+        self.assertEqual(response.status, 200)
+        self.assertIn("spreadsheetml.sheet", response.getheader("Content-Type") or "")
+        self.assertTrue(body.startswith(b"PK"))
+        from openpyxl import load_workbook
+        from io import BytesIO
+        workbook = load_workbook(BytesIO(body))
+        names = [workbook["活动明细"].cell(row, 4).value for row in range(3, 8)]
+        self.assertIn("可口可乐满减", names)
+        self.assertIn("可口可乐产品288返15元券", names)
+
     def test_cors_allows_a_browser_preview_origin(self):
         connection = HTTPConnection("127.0.0.1", self.server.server_address[1])
         connection.request("GET", "/api/fee-tpm/overview", headers={"Origin": "https://cursor.com"})
