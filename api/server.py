@@ -387,9 +387,48 @@ def get_detail(db_path: Path, object_name: str, record_id: str) -> dict[str, Any
     return payload
 
 
-# ---------------------------------------------------------------------------
-# 费用核算：按当前批次的最新 calculation_run 读取 activity_fee_summary / calculation_quality_issue
-# ---------------------------------------------------------------------------
+def _new_dataset_config(object_name: str) -> tuple[str, str, tuple[str, ...], str]:
+    configs = {
+        "orders": ("order_header oh JOIN import_batch ib ON ib.import_batch_id=oh.import_batch_id JOIN dealer_platform dp ON dp.dealer_platform_id=oh.dealer_platform_id LEFT JOIN customer c ON c.import_batch_id=oh.import_batch_id AND c.customer_no=oh.customer_no", "oh.order_id AS id, oh.order_no, dp.dealer_name AS dealer, dp.platform_name AS platform, c.customer_name AS customer, oh.order_time, oh.order_status, oh.import_batch_id AS source_batch", ("oh.order_no", "c.customer_name", "oh.order_status"), "oh.order_id"),
+        "order-lines": ("order_line ol JOIN order_header oh ON oh.order_id=ol.order_id JOIN import_batch ib ON ib.import_batch_id=oh.import_batch_id JOIN dealer_platform dp ON dp.dealer_platform_id=oh.dealer_platform_id LEFT JOIN product p ON p.import_batch_id=oh.import_batch_id AND p.product_no=ol.product_no", "ol.order_line_id AS id, oh.order_no, dp.dealer_name AS dealer, dp.platform_name AS platform, p.product_name AS product, p.product_no AS product_no, ol.quantity AS order_qty, ol.unit AS order_unit, ol.pre_discount_amount, ol.discount_amount", ("oh.order_no", "p.product_name", "p.product_no"), "ol.order_line_id"),
+        "activities": ("activity a JOIN import_batch ib ON ib.import_batch_id=a.import_batch_id JOIN dealer_platform dp ON dp.dealer_name=ib.dealer_name AND dp.platform_name=ib.platform_name", "a.activity_id AS id, a.activity_name, dp.dealer_name AS dealer, dp.platform_name AS platform, a.promo_method AS promotion_type, a.start_time, a.end_time, a.activity_status, a.import_batch_id AS source_batch", ("a.activity_name", "a.promo_method", "a.activity_status"), "a.activity_id"),
+        "activity-details": ("activity_execution ae JOIN order_header oh ON oh.order_id=ae.order_id JOIN import_batch ib ON ib.import_batch_id=oh.import_batch_id JOIN dealer_platform dp ON dp.dealer_platform_id=oh.dealer_platform_id JOIN activity a ON a.activity_id=ae.activity_id", "ae.activity_execution_id AS id, oh.order_no, dp.dealer_name AS dealer, dp.platform_name AS platform, a.activity_name, ae.product_amount AS activity_product_amount, ae.discount_amount AS platform_actual_benefit, ae.customer_name AS customer", ("oh.order_no", "a.activity_name"), "ae.activity_execution_id"),
+        "customers": ("customer c JOIN import_batch ib ON ib.import_batch_id=c.import_batch_id JOIN dealer_platform dp ON dp.dealer_platform_id=c.dealer_platform_id", "c.customer_id AS id, c.customer_no, dp.dealer_name AS dealer, dp.platform_name AS platform, c.customer_name, c.customer_type, c.customer_region, c.salesperson", ("c.customer_no", "c.customer_name", "c.customer_region", "c.salesperson"), "c.customer_id"),
+        "products": ("product p JOIN import_batch ib ON ib.import_batch_id=p.import_batch_id JOIN dealer_platform dp ON dp.dealer_platform_id=p.dealer_platform_id", "p.product_id AS id, p.product_no, dp.dealer_name AS dealer, dp.platform_name AS platform, p.product_name, p.brand, p.category, p.spec, p.base_unit", ("p.product_no", "p.product_name", "p.brand", "p.category"), "p.product_id"),
+        "fulfillments": ("fulfillment f JOIN import_batch ib ON ib.import_batch_id=f.import_batch_id JOIN order_header oh ON oh.import_batch_id=f.import_batch_id AND oh.order_no=f.order_no JOIN dealer_platform dp ON dp.dealer_platform_id=oh.dealer_platform_id", "f.fulfillment_id AS id, f.order_no, dp.dealer_name AS dealer, dp.platform_name AS platform, f.fulfillment_status AS order_status, f.completed_at, f.return_qty", ("f.order_no", "f.fulfillment_status"), "f.fulfillment_id"),
+        "order-activities": ("activity_execution ae JOIN order_header oh ON oh.order_id=ae.order_id JOIN import_batch ib ON ib.import_batch_id=oh.import_batch_id JOIN dealer_platform dp ON dp.dealer_platform_id=oh.dealer_platform_id JOIN activity a ON a.activity_id=ae.activity_id", "ae.activity_execution_id AS id, oh.order_no, dp.dealer_name AS dealer, dp.platform_name AS platform, a.activity_name, ae.product_amount AS activity_product_amount, ae.discount_amount AS platform_actual_benefit", ("oh.order_no", "a.activity_name"), "ae.activity_execution_id"),
+    }
+    if object_name not in configs: raise KeyError(object_name)
+    return configs[object_name]
+
+
+def _query_new_dataset(db_path: Path, object_name: str, params: dict[str, Any]) -> dict[str, Any]:
+    base, select, search, order = _new_dataset_config(object_name)
+    where, values = ["ib.is_current=1"], []
+    dealer = str(params.get("dealer", "")).strip(); platform = str(params.get("platform", "")).strip(); query = str(params.get("q", "")).strip()
+    if dealer: where.append("dp.dealer_name LIKE ?"); values.append(f"%{dealer}%")
+    if platform: where.append("dp.platform_name LIKE ?"); values.append(f"%{platform}%")
+    if query: where.append("(" + " OR ".join(f"{column} LIKE ?" for column in search) + ")"); values.extend([f"%{query}%"] * len(search))
+    suffix = (" WHERE " + " AND ".join(where)) if where else ""
+    limit, offset = _bounds(params); sql = f"SELECT {select} FROM {base}{suffix} ORDER BY {order} LIMIT ? OFFSET ?"
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        total = connection.execute(f"SELECT COUNT(*) FROM (SELECT {select} FROM {base}{suffix})", values).fetchone()[0]
+        rows = [dict(row) for row in connection.execute(sql, [*values, limit, offset]).fetchall()]
+    return {"object": object_name, "columns": list(rows[0].keys()) if rows else [], "rows": rows, "total": total, "limit": limit, "offset": offset}
+
+
+def _get_new_detail(db_path: Path, object_name: str, record_id: str) -> dict[str, Any] | None:
+    base, select, _, id_column = _new_dataset_config(object_name)
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        row = connection.execute(f"SELECT {select} FROM {base} WHERE {id_column}=?", (record_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def _fee_tpm_bounds(params: dict[str, Any]) -> tuple[int, int]:
+    return _bounds(params)
+
 
 def _requested_run(connection: sqlite3.Connection, params: dict[str, Any]) -> int | None:
     raw = params.get("calc_batch_id")
@@ -434,7 +473,8 @@ def _fee_activity_rows(connection: sqlite3.Connection, runs: list[dict[str, Any]
         f"""
         SELECT a.activity_id, a.activity_no, a.activity_name, a.activity_type, a.start_time, a.end_time,
                ib.dealer_name, ib.platform_name, cr.calculation_run_id, cr.calc_date, cr.release_cutoff, cr.import_batch_id,
-               s.actual_discount_total, s.participating_orders, s.released_orders, s.released_amount, s.pending_orders, s.pending_amount
+               s.actual_discount_total, s.participating_orders, s.released_orders, s.released_amount, s.pending_orders, s.pending_amount,
+               s.gift_qty_entitled, s.gift_qty_actual, s.releasable_discount_total, s.releasable_gift_qty, s.release_order_count
         FROM activity_fee_summary s
         JOIN activity a ON a.activity_id=s.activity_id
         JOIN calculation_run cr ON cr.calculation_run_id=s.calculation_run_id
@@ -480,15 +520,19 @@ def _activity_status(row: dict[str, Any], kind: str, issues: list[dict[str, Any]
 def _activity_payload(row: dict[str, Any], issues: list[dict[str, Any]]) -> dict[str, Any]:
     kind = "gift" if "赠" in (row["activity_type"] or "") else "money"
     related = [issue for issue in issues if issue["activityId"] == row["activity_id"] and issue["calculation_run_id"] == row["calculation_run_id"]]
+    released_amount = row["released_amount"] if row["released_amount"] not in (None, 0, 0.0) else row.get("releasable_discount_total")
+    released_orders = row["released_orders"] or row.get("release_order_count") or 0
     return {
         "activityId": row["activity_id"], "activityNo": row["activity_no"], "activityName": row["activity_name"], "dealer": row["dealer_name"], "platform": row["platform_name"],
         "promotionType": row["activity_type"], "benefitKind": kind, "startTime": row["start_time"], "endTime": row["end_time"],
         "importBatchId": row["import_batch_id"], "calcBatchId": row["calculation_run_id"], "calcDate": row["calc_date"], "releaseCutoff": row["release_cutoff"],
-        "actualDiscountTotal": row["actual_discount_total"], "settleAmount": row["released_amount"] if kind == "money" else None,
-        "participatingOrders": row["participating_orders"], "releasedOrders": row["released_orders"], "releasedAmount": row["released_amount"],
+        "actualDiscountTotal": row["actual_discount_total"], "settleAmount": released_amount if kind == "money" else None,
+        "participatingOrders": row["participating_orders"], "releasedOrders": released_orders, "releasedAmount": released_amount,
         "pendingOrders": row["pending_orders"], "pendingAmount": row["pending_amount"],
+        "giftQtyEntitled": row.get("gift_qty_entitled"), "giftQtyActual": row.get("gift_qty_actual"),
+        "releasableGiftQty": row.get("releasable_gift_qty"), "releaseCandidates": released_orders, "tpm": None,
         "warningCount": sum(issue["level"] == "警告" for issue in related), "tipCount": sum(issue["level"] == "提示" for issue in related),
-        "status": _activity_status(row, kind, issues),
+        "status": _activity_status({**row, "released_amount": released_amount, "released_orders": released_orders}, kind, issues),
     }
 
 
@@ -536,6 +580,7 @@ def query_fee_tpm_overview(db_path: Path, params: dict[str, Any]) -> dict[str, A
         "participatingOrders": sum(int(run["participating_orders"] or 0) for run in runs),
         "releasedOrders": sum(int(run["released_orders"] or 0) for run in runs),
         "giftReleasedOrders": sum(int(row["releasedOrders"] or 0) for row in rows if row["benefitKind"] == "gift"),
+        "giftQtyActual": round(sum(float(row.get("giftQtyActual") or 0) for row in rows), 2),
         "waitingCount": sum(row["status"] == "待确认" for row in rows), "handlingCount": sum(row["status"] == "待处理" for row in rows),
         "runs": [{"calcBatchId": run["calculation_run_id"], "importBatchId": run["import_batch_id"], "dealer": run["dealer_name"], "platform": run["platform_name"], "coverageStart": run["coverage_start"], "coverageEnd": run["coverage_end"], "calcDate": run["calc_date"], "releaseCutoff": run["release_cutoff"]} for run in runs],
         "activities": rows,
@@ -616,6 +661,134 @@ def query_fee_tpm_activity_detail(db_path: Path, activity_id: str, params: dict[
     return None
 
 
+def _is_new_schema(db_path: Path) -> bool:
+    with sqlite3.connect(db_path) as connection:
+        return connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='calculation_run'").fetchone() is not None
+
+
+def _new_calc_ids(connection: sqlite3.Connection, params: dict[str, Any]) -> list[int]:
+    raw = params.get("calc_batch_id")
+    if raw not in (None, ""):
+        try:
+            calc_id = int(raw)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("calc_batch_id must be an integer") from exc
+        if connection.execute("SELECT 1 FROM calculation_run WHERE calculation_run_id=?", (calc_id,)).fetchone() is None:
+            raise NotFoundError("calc_batch_id")
+        return [calc_id]
+    dealer = str(params.get("dealer", "")).strip()
+    platform = str(params.get("platform", "")).strip()
+    clauses = [
+        "ib.is_current=1",
+        "cr.calculation_run_id=(SELECT MAX(latest.calculation_run_id) FROM calculation_run latest WHERE latest.import_batch_id=cr.import_batch_id)",
+    ]
+    values: list[Any] = []
+    if dealer:
+        clauses.append("ib.dealer_name LIKE ?")
+        values.append(f"%{dealer}%")
+    if platform:
+        clauses.append("ib.platform_name LIKE ?")
+        values.append(f"%{platform}%")
+    rows = connection.execute(
+        "SELECT cr.calculation_run_id FROM calculation_run cr JOIN import_batch ib ON ib.import_batch_id=cr.import_batch_id WHERE "
+        + " AND ".join(clauses)
+        + " ORDER BY cr.calculation_run_id",
+        values,
+    ).fetchall()
+    return [row[0] for row in rows]
+
+
+def _new_fee_activities(db_path: Path, params: dict[str, Any]) -> dict[str, Any]:
+    limit, offset = _fee_tpm_bounds(params)
+    dealer = str(params.get("dealer", "")).strip()
+    platform = str(params.get("platform", "")).strip()
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        calc_ids = _new_calc_ids(connection, params)
+        historical = params.get("calc_batch_id") not in (None, "")
+        calc_id = calc_ids[0] if historical or len(calc_ids) == 1 else None
+        if not calc_ids:
+            return {"mode": "historical" if historical else "current", "calcBatchId": None, "rows": [], "total": 0, "limit": limit, "offset": offset}
+        placeholders = ",".join("?" for _ in calc_ids)
+        clauses = ["a.import_batch_id = cr.import_batch_id", f"cr.calculation_run_id IN ({placeholders})"]
+        values: list[Any] = list(calc_ids)
+        if dealer:
+            clauses.append("dp.dealer_name LIKE ?"); values.append(f"%{dealer}%")
+        if platform:
+            clauses.append("dp.platform_name LIKE ?"); values.append(f"%{platform}%")
+        sql = """
+            SELECT a.activity_id, a.activity_name, dp.dealer_name, dp.platform_name, a.activity_type,
+                   a.promo_method, cr.calculation_run_id, cr.import_batch_id,
+                   COALESCE(SUM(afs.actual_discount_total), 0) AS actual_discount_total,
+                   COALESCE(SUM(afs.releasable_discount_total), SUM(afs.actual_discount_total), 0) AS releasable_discount_total,
+                   SUM(afs.gift_qty_entitled) AS gift_qty_entitled,
+                   SUM(afs.gift_qty_actual) AS gift_qty_actual,
+                   SUM(afs.releasable_gift_qty) AS releasable_gift_qty,
+                   COALESCE(SUM(afs.release_order_count), 0) AS release_candidates,
+                   cr.calc_date
+            FROM activity a
+            JOIN calculation_run cr ON cr.import_batch_id=a.import_batch_id
+            JOIN import_batch ib ON ib.import_batch_id=cr.import_batch_id
+            JOIN dealer_platform dp ON dp.dealer_name=ib.dealer_name AND dp.platform_name=ib.platform_name
+            LEFT JOIN activity_fee_summary afs ON afs.activity_id=a.activity_id AND afs.calculation_run_id=cr.calculation_run_id
+            WHERE """ + " AND ".join(clauses) + " GROUP BY a.activity_id, cr.calculation_run_id, cr.calc_date ORDER BY a.activity_id"
+        rows = [dict(row) for row in connection.execute(sql, values).fetchall()]
+        coupon_sql = """
+            SELECT cfs.coupon_config_id, cfs.used_amount, cfs.releasable_amount, cfs.releasable_count,
+                   cc.coupon_name, dp.dealer_name, dp.platform_name, cr.calculation_run_id, cr.calc_date
+            FROM coupon_fee_summary cfs
+            JOIN calculation_run cr ON cr.calculation_run_id=cfs.calculation_run_id
+            JOIN import_batch ib ON ib.import_batch_id=cr.import_batch_id
+            JOIN dealer_platform dp ON dp.dealer_name=ib.dealer_name AND dp.platform_name=ib.platform_name
+            LEFT JOIN coupon_config cc ON cc.coupon_config_id=cfs.coupon_config_id
+            WHERE cr.calculation_run_id IN (""" + placeholders + """)
+        """
+        coupon_values: list[Any] = list(calc_ids)
+        if dealer:
+            coupon_sql += " AND dp.dealer_name LIKE ?"
+            coupon_values.append(f"%{dealer}%")
+        if platform:
+            coupon_sql += " AND dp.platform_name LIKE ?"
+            coupon_values.append(f"%{platform}%")
+        coupon_sql += " ORDER BY cfs.coupon_fee_summary_id"
+        coupon_rows = [dict(row) for row in connection.execute(coupon_sql, coupon_values).fetchall()]
+    payload = []
+    for row in rows:
+        is_gift = "赠" in (row["activity_type"] or "") or "赠" in (row["promo_method"] or "")
+        payload.append({
+            "activityId": row["activity_id"], "activityName": row["activity_name"], "dealer_name": row["dealer_name"], "dealer": row["dealer_name"], "platform": row["platform_name"],
+            "promotionType": row["promo_method"] or row["activity_type"], "benefitKind": "gift" if is_gift else "money", "ruleVersion": "standard", "calcBatchId": row["calculation_run_id"], "calcDate": row["calc_date"] or "",
+            "tpm": None, "actualDiscountTotal": None if is_gift else row["actual_discount_total"], "settleAmount": None if is_gift else row["releasable_discount_total"], "budgetRemaining": None,
+            "giftQtyEntitled": row["gift_qty_entitled"] if is_gift else None, "giftQtyActual": row["gift_qty_actual"] if is_gift else None, "releasableGiftQty": row["releasable_gift_qty"] if is_gift else None,
+            "releaseCandidates": row["release_candidates"], "warningCount": 0, "tipCount": 0, "status": "已核验",
+        })
+    for row in coupon_rows:
+        payload.append({
+            "activityId": -int(row["coupon_config_id"]) if row["coupon_config_id"] is not None else -1,
+            "activityName": row["coupon_name"] or "优惠券", "dealer_name": row["dealer_name"], "dealer": row["dealer_name"], "platform": row["platform_name"],
+            "promotionType": "优惠券", "benefitKind": "money", "ruleVersion": "standard", "calcBatchId": row["calculation_run_id"], "calcDate": row["calc_date"] or "",
+            "tpm": None, "actualDiscountTotal": row["used_amount"], "settleAmount": row["releasable_amount"], "budgetRemaining": None,
+            "giftQtyEntitled": None, "giftQtyActual": None, "releasableGiftQty": None,
+            "releaseCandidates": row["releasable_count"], "warningCount": 0, "tipCount": 0, "status": "已核验",
+        })
+    return {"mode": "historical" if historical else "current", "calcBatchId": calc_id, "rows": payload[offset:offset + limit], "total": len(payload), "limit": limit, "offset": offset}
+
+
+def _new_fee_issues(db_path: Path, params: dict[str, Any]) -> dict[str, Any]:
+    limit, offset = _fee_tpm_bounds(params)
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        calc_ids = _new_calc_ids(connection, params)
+        historical = params.get("calc_batch_id") not in (None, "")
+        calc_id = calc_ids[0] if historical or len(calc_ids) == 1 else None
+        if not calc_ids:
+            return {"mode": "historical" if historical else "current", "calcBatchId": None, "rows": [], "total": 0, "limit": limit, "offset": offset}
+        placeholders = ",".join("?" for _ in calc_ids)
+        rows = [dict(row) for row in connection.execute(f"SELECT calculation_quality_issue_id, order_no, issue_type, level, reason, calculation_run_id FROM calculation_quality_issue WHERE calculation_run_id IN ({placeholders}) ORDER BY calculation_quality_issue_id", calc_ids).fetchall()]
+    payload = [{"issueId": row["calculation_quality_issue_id"], "orderNo": row["order_no"], "issueType": row["issue_type"], "level": row["level"], "reason": row["reason"], "evidence": None, "calcBatchId": row["calculation_run_id"], "activityId": None} for row in rows]
+    return {"mode": "historical" if historical else "current", "calcBatchId": calc_id, "rows": payload[offset:offset + limit], "total": len(payload), "limit": limit, "offset": offset}
+
+
 def _cors_origin(handler: BaseHTTPRequestHandler) -> str:
     origin = handler.headers.get("Origin", "").strip()
     return origin or "*"
@@ -686,7 +859,7 @@ def make_handler(db_path: Path):
             parts = [unquote(part) for part in parsed.path.strip("/").split("/") if part]
             try:
                 if parts == ["health"]:
-                    _json(self, 200, {"status": "ok", "database": str(db_path), "schema": "standard", "objects": list(SUPPORTED_OBJECTS), "schema_issues": schema_differences(db_path) if db_path.exists() else ["数据库文件不存在"]})
+                    _json(self, 200, {"status": "ok", "database": str(db_path), "schema": "standard", "objects": list(SUPPORTED_OBJECTS), "schema_issues": schema_differences(db_path) if db_path.exists() else ["数据库文件不存在"], "supports_import": True})
                     return
                 if parts in (["api", "imports"], ["imports"]):
                     _json(self, 200, list_imports(db_path)); return

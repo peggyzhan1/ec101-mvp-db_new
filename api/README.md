@@ -1,6 +1,6 @@
 # EC101 本地真实数据 API
 
-这是一个只读本地 API，直接查询仓库内的 `mvp/ec101_mvp.db`。它不修改数据库，也不提供核算重跑、审批或结算写入。
+这是一个本地 API，默认使用新库 `mvp/ec101_standard.db`。业务查询接口只读；标准数据导入接口会以事务方式写入导入审计、业务事实和核算结果。历史样例库 `mvp/ec101_mvp.db` 不会被自动迁移。
 
 ## 环境要求
 
@@ -38,6 +38,10 @@ python3 server.py
 GET /health
 GET /api/business-data/orders?dealer=兴路强&limit=20
 GET /api/business-data/orders/1
+GET /api/imports
+GET /api/imports/{import_batch_id}
+GET /api/imports/{import_batch_id}/issues
+POST /api/imports
 ```
 
 支持的业务对象：`orders`、`order-lines`、`activities`、`activity-details`、`customers`、`products`、`fulfillments`、`order-activities`。
@@ -63,7 +67,7 @@ curl 'http://127.0.0.1:8787/api/imports/1/release?candidate=0'
 
 ## 费用与促销 TPM RESULT 接口
 
-以下接口同样只读，直接展示 RESULT 层的计算结论，不在 API 或页面中重算促销门槛、T-2 或结算金额：
+以下接口直接展示计算结论，不在 API 或页面中重算促销门槛、T-2 或结算金额：
 
 ```text
 GET /api/fee-tpm/overview
@@ -73,7 +77,7 @@ GET /api/fee-tpm/issues
 GET /api/fee-tpm/settlements
 ```
 
-所有列表支持 `dealer`、`platform`、`limit`、`offset`（上限仍为 100）及可选的 `calc_batch_id`。省略 `calc_batch_id` 时为“当前”模式：每个活动读取其自身最新的费用结果批次；传入时为历史回放，所有记录固定来自该批次。不存在的批次返回 `404`，不会回退到最新数据。
+所有列表支持 `dealer`、`platform`、`limit`、`offset`（上限仍为 100）及可选的 `calc_batch_id`。省略 `calc_batch_id` 时为“当前”模式：每个 `is_current=1` 的导入批次各取自己最新的一次核算，快马和舟谱会同时出现。传入 `calc_batch_id` 时为历史回放，记录固定来自该次核算。不存在的批次返回 `404`，不会回退到最新数据。
 
 例如：
 

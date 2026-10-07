@@ -263,7 +263,7 @@ CREATE INDEX idx_coupon_activity ON coupon_ledger(activity_id);
 CREATE TABLE coupon_issue_rule (
   coupon_issue_rule_id INTEGER PRIMARY KEY AUTOINCREMENT,
   activity_id          INTEGER NOT NULL UNIQUE REFERENCES activity(activity_id),
-  issue_mode           TEXT NOT NULL CHECK(issue_mode IN ('auto_grant', 'manual_claim')),
+  issue_mode           TEXT NOT NULL CHECK(issue_mode IN ('auto_grant', 'manual_claim', 'order_rebate')),
   issue_start_at       TEXT NOT NULL,
   issue_end_at         TEXT,
   auto_issue_at        TEXT,

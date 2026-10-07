@@ -11,7 +11,7 @@ from typing import Any, Mapping, Sequence
 
 from mvp.scripts.readers import read_table, to_datetime_text, to_num
 from mvp.standard_schema import SHEET_COLUMNS, STANDARD_SHEETS
-from mvp.standard_workbook import write_standard_workbook
+from mvp.standard_workbook import write_standard_workbook_fast
 
 
 @dataclass(frozen=True)
@@ -22,6 +22,8 @@ class ConversionRequest:
     activity_inputs: Sequence[Mapping[str, Any]]
     coupon_inputs: Sequence[Mapping[str, Any]]
     output_dir: Path
+    coverage_start: str = ""
+    coverage_end: str = ""
 
 
 @dataclass(frozen=True)
@@ -102,12 +104,12 @@ def finish_conversion(request: ConversionRequest, tables: dict[str, list[dict[st
         "转换工具版本": "v1",
         "经销商名称": request.dealer_name,
         "平台名称": request.platform,
-        "数据开始日期": order_dates[0] if order_dates else "",
-        "数据结束日期": order_dates[-1] if order_dates else "",
+        "数据开始日期": request.coverage_start or (order_dates[0] if order_dates else ""),
+        "数据结束日期": request.coverage_end or (order_dates[-1] if order_dates else ""),
         "生成时间": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
     workbook_path = request.output_dir / "standard.xlsx"
-    write_standard_workbook(workbook_path, tables, manifest)
+    write_standard_workbook_fast(workbook_path, tables, manifest)
     report_path = request.output_dir / "conversion_report.txt"
     report_path.write_text("\n".join([*report_lines, f"sources_sha256={archive_hash}"]), encoding="utf-8")
     counts = {sheet: len(rows) for sheet, rows in tables.items()}

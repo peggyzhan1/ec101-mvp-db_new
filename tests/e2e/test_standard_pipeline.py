@@ -181,10 +181,17 @@ class VerifiedStandardSampleTests(unittest.TestCase):
         ))
         gift = connection.execute("SELECT SUM(gift_qty_entitled), SUM(gift_qty_actual), SUM(consistency='一致') FROM entitlement_check WHERE calculation_run_id=2").fetchone()
         connection.close()
-        self.assertEqual([(row[1], row[2], row[3]) for row in batches], [("2026-08-31", "2026-09-17", "calculated"), ("2026-08-19", "2026-08-31", "calculated")])
+        self.assertEqual([(row[1], row[2], row[3]) for row in batches], [
+            ("2026-08-31", "2026-09-17", "calculated"),
+            ("2026-08-19", "2026-08-31", "calculated"),
+            ("2026-08-26", "2026-09-08", "calculated"),
+            ("2026-08-19", "2026-08-26", "calculated"),
+        ])
         self.assertEqual([tuple(row) for row in runs], [
             (1, 2040, 200, 1995, 200, 2040, 200, 136, 136, 133),
             (2, 0, 0, 0, 0, 0, 0, 98, 98, 98),
+            (3, 675, 0, 555, 0, 0, 0, 0, 45, 37),
+            (4, 0, 0, 0, 0, 0, 0, 0, 142, 142),
         ])
         self.assertEqual(tuple(gift), (98, 98, 98))
 

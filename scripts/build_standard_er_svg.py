@@ -183,6 +183,12 @@ entities = {
         ("order_no", "TEXT", "", "不可释放订单"),
         ("level / reason", "TEXT", "", "提示 / 未达释放节点"),
     ]},
+    "coupon_fee_summary": {"title": "优惠券费用汇总", "domain": "result", "xy": (1740, 1960), "rows": [
+        ("coupon_fee_summary_id", "INTEGER", "PK", ""),
+        ("calculation_run_id", "INTEGER", "FK", "→ calculation_run"),
+        ("coupon_config_id", "INTEGER", "FK", "→ coupon_config"),
+        ("used_amount / releasable_amount", "NUMERIC", "", "核销 / 可释放"),
+    ]},
 }
 
 edges = [
@@ -214,6 +220,8 @@ edges = [
     ("fk", "calculation_run", "release_candidate", "1:N"),
     ("fk", "calculation_run", "activity_fee_summary", "1:N"),
     ("fk", "calculation_run", "calculation_quality_issue", "1:N"),
+    ("fk", "calculation_run", "coupon_fee_summary", "1:N"),
+    ("fk", "coupon_config", "coupon_fee_summary", "1:N"),
     ("fk", "order_header", "entitlement_check", "1:N"),
     ("fk", "order_header", "release_candidate", "1:N"),
     ("ref", "customer", "order_header", "客户编号"),

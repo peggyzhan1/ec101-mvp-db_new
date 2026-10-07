@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from pathlib import Path
+from typing import Mapping, Sequence
 
 from .common import ConversionRequest, ConversionResult, add_activity_inputs, add_coupon_inputs, date_value, empty_tables, finish_conversion, index_header, number_value, source_rows, value
 from mvp.scripts.readers import to_num
@@ -36,6 +38,7 @@ def _join_numbers(numbers: list[str]) -> str:
 def convert_kuaima(request: ConversionRequest) -> ConversionResult:
     tables = empty_tables()
     order_lookup: dict[str, dict[str, str]] = {}
+    completed_orders: set[str] = set()
     for path in request.source_paths.get("customer", ()):
         header, rows = source_rows(path)
         indexes = index_header(header)
@@ -63,10 +66,12 @@ def convert_kuaima(request: ConversionRequest) -> ConversionResult:
     for path in request.source_paths.get("order_detail", ()):
         header, rows = source_rows(path)
         indexes = index_header(header)
+        file_orders: set[str] = set()
         for row in rows:
             order_no = value(row, indexes, "订单编号")
-            if not order_no:
+            if not order_no or order_no in completed_orders:
                 continue
+            file_orders.add(order_no)
             record = {
                 "单据编号": order_no, "下单时间": date_value(value(row, indexes, "下单时间")),
                 "客户编号": value(row, indexes, "客户编号"), "客户名称": value(row, indexes, "客户名称"),
@@ -82,6 +87,10 @@ def convert_kuaima(request: ConversionRequest) -> ConversionResult:
             }
             tables["标准订单明细"].append(record)
             order_lookup.setdefault(order_no, record)
+        completed_orders.update(file_orders)
+    known_customers = {row["客户编号"] for row in tables["标准客户"]}
+    for record in tables["标准订单明细"]:
+        _ensure_customer(tables, known_customers, record["客户编号"], record.get("客户名称", ""), record.get("业务员", ""))
     # 快马历史导出偶尔只在订单明细中带商品编号；补齐最小商品主数据，避免订单成为孤儿。
     known_products = {row["商品编号"] for row in tables["标准商品"]}
     for record in tables["标准订单明细"]:
@@ -98,21 +107,30 @@ def convert_kuaima(request: ConversionRequest) -> ConversionResult:
     configured = {str(item.get("活动名称", "") or ""): item for item in request.activity_inputs}
     execution: dict[tuple[str, str], dict[str, object]] = {}
     unparsed_rows = 0
+    unbound_files: list[str] = []
     for path in request.source_paths.get("activity_execution", ()):
         header, rows = source_rows(path)
         indexes = index_header(header)
+        file_activity = _activity_for_file(path, request.activity_inputs)
+        parsed_in_file = 0
         for row in rows:
             order_no = value(row, indexes, "订单号")
             if not order_no:
                 continue
             policy = value(row, indexes, "享受促销政策")
             activity_name = parse_policy_activity_name(policy)
-            if not activity_name:
-                unparsed_rows += 1
-                continue
             config = configured.get(activity_name, {})
+            if not activity_name:
+                if not file_activity:
+                    unparsed_rows += 1
+                    continue
+                activity_name = str(file_activity.get("活动名称") or "")
+                config = file_activity
+            parsed_in_file += 1
             activity_no = str(config.get("活动编号", "") or "") or activity_name
-            order = order_lookup.get(order_no, {})
+            order = order_lookup.get(order_no)
+            if order is None:
+                continue
             entry = execution.setdefault((order_no, activity_no), {
                 "活动编号": activity_no, "活动名称": activity_name,
                 "客户编号": order.get("客户编号", ""), "客户": order.get("客户名称", "") or value(row, indexes, "客户"),
@@ -121,6 +139,8 @@ def convert_kuaima(request: ConversionRequest) -> ConversionResult:
             })
             entry["商品总金额"] += to_num(value(row, indexes, "商品总金额")) or 0.0
             entry["优惠金额"] += to_num(value(row, indexes, "促销优惠金额")) or 0.0
+        if parsed_in_file == 0 and file_activity is None:
+            unbound_files.append(path.name)
     for entry in execution.values():
         tables["标准活动核销明细"].append({
             "活动编号": entry["活动编号"], "活动名称": entry["活动名称"], "客户编号": entry["客户编号"], "客户": entry["客户"],
@@ -176,4 +196,22 @@ def convert_kuaima(request: ConversionRequest) -> ConversionResult:
     return finish_conversion(request, tables, [
         "platform=快马", f"orders={len(order_lookup)}", f"activity_execution_rows={len(execution)}",
         f"activities={activity_summary or '无'}", f"unparsed_policy_rows={unparsed_rows}",
+        f"unbound_execution_files={len(unbound_files)}",
     ])
+
+
+def _ensure_customer(tables: dict[str, list[dict[str, str]]], known: set[str], customer_no: str, customer_name: str, salesperson: str = "") -> None:
+    if customer_no and customer_no not in known:
+        tables["标准客户"].append({
+            "客户编号": customer_no, "客户名称": customer_name, "客户类型": "", "客户区域": "",
+            "详细地址": "", "联系电话": "", "添加时间": "", "所属业务员": salesperson,
+        })
+        known.add(customer_no)
+
+
+def _activity_for_file(path: Path, activities: Sequence[Mapping[str, object]]) -> Mapping[str, object] | None:
+    """Bind one execution file when policy text is missing: one activity takes every file, several use 核销文件."""
+    if len(activities) <= 1:
+        return activities[0] if activities else {}
+    matches = [activity for activity in activities if str(activity.get("核销文件", "") or "").strip() and str(activity.get("核销文件") or "") in path.name]
+    return matches[0] if len(matches) == 1 else None

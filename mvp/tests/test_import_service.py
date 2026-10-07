@@ -9,13 +9,13 @@ from mvp.standard_schema import STANDARD_SHEETS
 from mvp.standard_workbook import StandardWorkbook
 
 
-def workbook_with_rows(**tables):
+def workbook_with_rows(dealer: str = "测试经销商", platform: str = "快马", **tables):
     all_tables = {sheet: [] for sheet in STANDARD_SHEETS[1:]}
     all_tables.update(tables)
     return StandardWorkbook(
         tables=all_tables,
         manifest={
-            "模板版本": "v1", "转换工具版本": "v1", "经销商名称": "测试经销商", "平台名称": "快马",
+            "模板版本": "v1", "转换工具版本": "v1", "经销商名称": dealer, "平台名称": platform,
             "数据开始日期": "2026-01-01", "数据结束日期": "2026-01-31", "生成时间": "2026-02-01 00:00:00",
         },
     )
@@ -143,6 +143,32 @@ class ImportServiceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_calc_date("2026/09/22")
         self.assertEqual(parse_calc_date("2026-09-22"), "2026-09-22")
+
+    def test_importing_another_platform_keeps_the_first_batch_current(self):
+        first = workbook_with_rows(**{
+            "标准客户": [{"客户编号": "C1", "客户名称": "客户"}],
+            "标准商品": [{"商品编号": "P1", "商品名称": "商品"}],
+            "标准订单明细": [{"单据编号": "O1", "下单时间": "2026-01-01", "客户编号": "C1", "商品编号": "P1", "数量": "1", "实付金额": "75", "订单状态": "已完成"}],
+            "标准活动": [{"活动编号": "A1", "活动名称": "满减", "活动类型": "满减", "开始时间": "2026-01-01", "结束时间": "2026-01-31", "活动状态": "已结束"}],
+            "标准活动核销明细": [{"活动编号": "A1", "订单号": "O1", "优惠金额": "15"}],
+        })
+        second = workbook_with_rows(dealer="羿柏", platform="舟谱", **{
+            "标准客户": [{"客户编号": "C2", "客户名称": "客户2"}],
+            "标准商品": [{"商品编号": "P2", "商品名称": "商品2"}],
+            "标准订单明细": [{"单据编号": "O2", "下单时间": "2026-01-02", "客户编号": "C2", "商品编号": "P2", "数量": "1", "实付金额": "20", "订单状态": "已完成"}],
+            "标准活动": [{"活动编号": "A2", "活动名称": "满赠", "活动类型": "满赠", "开始时间": "2026-01-01", "结束时间": "2026-01-31", "活动状态": "已结束"}],
+        })
+        with tempfile.TemporaryDirectory() as directory:
+            db_path = Path(directory) / "shared.db"
+            create_database(db_path)
+            connection = sqlite3.connect(db_path)
+            archive = ArchiveMetadata("sources.zip", "sha256", 10)
+            import_snapshot(connection, first, archive)
+            import_snapshot(connection, second, archive)
+            current = connection.execute("SELECT dealer_name, platform_name FROM import_batch WHERE is_current=1 ORDER BY import_batch_id").fetchall()
+            orders = connection.execute("SELECT order_no FROM order_header ORDER BY order_no").fetchall()
+        self.assertEqual(current, [("测试经销商", "快马"), ("羿柏", "舟谱")])
+        self.assertEqual(orders, [("O1",), ("O2",)])
 
 
 if __name__ == "__main__":
