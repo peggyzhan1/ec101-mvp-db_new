@@ -233,5 +233,135 @@ def build() -> Path:
     return OUT
 
 
+COUPON_OUT = Path(__file__).resolve().parents[1] / "docs" / "templates" / "活动费用核验报告-快马优惠券样例.xlsx"
+
+
+def build_coupon_example() -> Path:
+    """Same review template, filled with the verified Kuaima test1 coupon."""
+    wb = Workbook()
+    cover = wb.active
+    cover.title = "活动核验结论"
+    cover["A1"] = "EC101 活动费用核验报告（评审模版 · 快马优惠券样例）"
+    cover["A1"].font = TITLE
+    cover.merge_cells("A1:D1")
+    cover["A2"] = "列与满减模版相同。本页按「一张券配置 × 一次核算」填写 test1，计费只认券核销 200。橙色在满减模版里表示以后才填；券规则已补上，理论/一致这里有数。"
+    cover["A2"].font = NOTE
+    cover.merge_cells("A2:D2")
+
+    summary = [
+        ("经销商名称", "深圳市兴路强商贸有限公司", "现在就能填"),
+        ("平台名称", "快马", "现在就能填"),
+        ("活动编号", "KM-COUPON-AUTO-001", "现在就能填"),
+        ("活动名称", "test1", "现在就能填"),
+        ("活动类型", "优惠券", "现在就能填（原库类型是满一定金额立减）"),
+        ("优惠券配置编号", "KM-COUPON-AUTO-001", "建议封面加"),
+        ("优惠券编号", "202609091700313431", "建议封面加"),
+        ("券类型 / 状态", "单品优惠 / 已使用", "建议封面加"),
+        ("发放方式", "auto_grant", "建议封面加"),
+        ("使用期限", "2026-09-09 16:50 ~ 2026-09-12 16:50", "建议封面加"),
+        ("门槛", "满 588 减 200", "标准券表无此列，来自标准活动规则"),
+        ("数据期间", "2026-09-09 至 2026-09-12", "现在就能填"),
+        ("核算日", "2026-09-22", "现在就能填"),
+        ("释放截止时刻", "2026-09-20 00:00:00", "现在就能填"),
+        ("参与订单数", 1, "现在就能填"),
+        ("可释放订单数", 1, "现在就能填"),
+        ("待释放订单数", 0, "现在就能填"),
+        ("活动优惠合计（核销）", "", "券报告留空；满减 15 在满减报告"),
+        ("优惠券优惠合计", 200, "本报告计费列"),
+        ("可释放金额", 200, "可释放单上的券核销"),
+        ("待释放金额", 0, "现在就能填"),
+        ("理论权益合计", 200, "现在就能填"),
+        ("一致订单数", "1 / 1", "现在就能填"),
+        ("计费口径", "只按本券核销优惠金额；不按订单行优惠 215", "现在就能填"),
+        ("释放口径", "订单状态=已完成，且下单时间早于释放截止时刻", "现在就能填"),
+        ("报告生成说明", "评审用样例。下载功能未做。字段以满减模版为准，本文件只换样例。", "评审"),
+    ]
+    cover["A4"] = "项目"
+    cover["B4"] = "值"
+    cover["C4"] = "阶段"
+    for cell in (cover["A4"], cover["B4"], cover["C4"]):
+        cell.font = HEADER
+        cell.fill = TEAL
+        cell.border = THIN
+    extra_labels = {"优惠券配置编号", "优惠券编号", "券类型 / 状态", "发放方式", "使用期限", "门槛"}
+    for index, (label, value, stage) in enumerate(summary, start=5):
+        cover.cell(index, 1, label).font = LABEL
+        cover.cell(index, 1).border = THIN
+        cover.cell(index, 2, value).font = BODY
+        cover.cell(index, 2).border = THIN
+        cover.cell(index, 3, stage).font = NOTE
+        cover.cell(index, 3).border = THIN
+        if label in extra_labels:
+            cover.cell(index, 1).fill = LATER_FILL
+            cover.cell(index, 2).fill = LATER_FILL
+            cover.cell(index, 3).fill = LATER_FILL
+    cover.column_dimensions["A"].width = 28
+    cover.column_dimensions["B"].width = 62
+    cover.column_dimensions["C"].width = 36
+    cover.column_dimensions["D"].width = 18
+
+    orders = wb.create_sheet("参与订单明细")
+    orders["A1"] = "一行一张用了本券的订单。活动优惠金额留空（满减 15 不进本报告）。计费用「优惠券优惠金额」。订单优惠 215 只备查。"
+    orders["A1"].font = NOTE
+    orders.merge_cells("A1:Y1")
+    names = [col[0] for col in ORDER_COLUMNS]
+    _style_header(orders, 2, names, set())
+    sample = [
+        1, "深圳市兴路强商贸有限公司", "快马", "KM-COUPON-AUTO-001", "test1", "优惠券",
+        "2026-09-22", "2026-09-20 00:00:00", "1012420526026091000081", "2026-09-10 16:18:49",
+        "WX-00000000000007507893", "可口可乐客户测试", "", "已完成", "小程序", "普通订单", "货到付款",
+        1919.8, 215, "", 200, "", "是", "已完成且达到T-2", 200, "一致", 0,
+    ]
+    yes_col = names.index("是否可释放") + 1
+    _write_row(orders, 3, sample, (), yes_col)
+    yes_no = DataValidation(type="list", formula1='"是,否"', allow_blank=True)
+    orders.add_data_validation(yes_no)
+    yes_no.add(f"{get_column_letter(yes_col)}3:{get_column_letter(yes_col)}2000")
+    widths = [6, 22, 8, 22, 12, 8, 12, 20, 24, 20, 26, 16, 16, 10, 10, 10, 10, 14, 16, 14, 14, 10, 10, 22, 12, 10, 12]
+    for index, width in enumerate(widths, start=1):
+        orders.column_dimensions[get_column_letter(index)].width = width
+    orders.row_dimensions[3].height = 36
+
+    lines = wb.create_sheet("订单商品行（附录）")
+    lines["A1"] = "附录：参与订单的商品行。行优惠 7.5+207.5=215，不要加总当券核销 200。"
+    lines["A1"].font = NOTE
+    lines.merge_cells("A1:J1")
+    _style_header(lines, 2, [col[0] for col in LINE_COLUMNS], set())
+    for offset, row in enumerate([
+        ["1012420526026091000081", "199068372", "330ml零度可口可乐摩登罐*24", "无", 20, "箱", 47.63, 960, 7.5, 952.5],
+        ["1012420526026091000081", "199068471", "500ML可口可乐*24", "无", 20, "箱", 37.62, 959.8, 207.5, 752.3],
+    ]):
+        _write_row(lines, 3 + offset, row)
+    for index, width in enumerate([24, 18, 32, 8, 8, 8, 10, 12, 12, 12], start=1):
+        lines.column_dimensions[get_column_letter(index)].width = width
+
+    fields = wb.create_sheet("字段说明")
+    fields["A1"] = "列与满减模版相同。橙色是券报告建议加在封面的项。请在最后一列写保留 / 删除 / 改名。"
+    fields["A1"].font = NOTE
+    fields.merge_cells("A1:F1")
+    field_headers = ["工作表", "字段", "阶段", "来源", "说明", "评审意见（请填）"]
+    _style_header(fields, 2, field_headers, set())
+    catalog = [("活动核验结论", "见封面各行", "now", "calculation_run + coupon_redemption", "一张券一次核算的汇总", "")]
+    catalog += [("参与订单明细", name, stage, source, note, "") for name, stage, source, note in ORDER_COLUMNS]
+    catalog += [("订单商品行（附录）", name, stage, source, note, "") for name, stage, source, note in LINE_COLUMNS]
+    extras = [
+        ("活动核验结论", "优惠券配置编号", "propose", "coupon_config", "满减模版没有；建议封面加", ""),
+        ("活动核验结论", "优惠券编号", "propose", "coupon_redemption", "核销主键", ""),
+        ("活动核验结论", "券状态 / 领取时间 / 使用时间", "propose", "coupon_redemption", "未使用不进费用", ""),
+        ("活动核验结论", "门槛 / 立减", "propose", "activity_rule", "标准券表没有门槛列", ""),
+    ]
+    catalog += extras
+    for offset, row in enumerate(catalog):
+        stage = {"now": "现在", "later": "以后", "propose": "建议加"}.get(row[2], row[2])
+        _write_row(fields, 3 + offset, [row[0], row[1], stage, row[3], row[4], ""], later_indexes={3} if row[2] in {"later", "propose"} else ())
+    for index, width in enumerate([22, 28, 10, 36, 46, 22], start=1):
+        fields.column_dimensions[get_column_letter(index)].width = width
+
+    COUPON_OUT.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(COUPON_OUT)
+    return COUPON_OUT
+
+
 if __name__ == "__main__":
     print(build())
+    print(build_coupon_example())

@@ -64,6 +64,20 @@ class StandardMappingDocsTests(unittest.TestCase):
         headers = [cell.value for cell in workbook["参与订单明细"][2]]
         for name in ("单据编号", "订单优惠金额（备查）", "活动优惠金额", "优惠券优惠金额", "满赠数量", "是否可释放"):
             self.assertIn(name, headers)
+        coupon_xlsx = REPORT_XLSX.with_name("活动费用核验报告-快马优惠券样例.xlsx")
+        coupon_md = coupon_xlsx.with_suffix(".md")
+        self.assertTrue(coupon_xlsx.is_file(), coupon_xlsx)
+        self.assertTrue(coupon_md.is_file(), coupon_md)
+        coupon_book = load_workbook(coupon_xlsx)
+        self.assertEqual(coupon_book.sheetnames[:3], ["活动核验结论", "参与订单明细", "订单商品行（附录）"])
+        coupon_headers = [cell.value for cell in coupon_book["参与订单明细"][2]]
+        self.assertEqual(coupon_headers, headers)
+        order = [cell.value for cell in coupon_book["参与订单明细"][3]]
+        self.assertEqual(order[coupon_headers.index("单据编号")], "1012420526026091000081")
+        self.assertEqual(order[coupon_headers.index("优惠券优惠金额")], 200)
+        self.assertEqual(order[coupon_headers.index("活动优惠金额")], None)
+        self.assertEqual(order[coupon_headers.index("理论权益")], 200)
+        self.assertEqual(order[coupon_headers.index("一致性")], "一致")
 
     def test_followup_plan_keeps_fee_from_redemption_and_splits_import(self):
         text = PLAN_DOC.read_text(encoding="utf-8")
