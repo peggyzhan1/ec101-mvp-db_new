@@ -4,6 +4,8 @@
 
 将经销商平台导出的订单、活动、客户、商品和履约事实沉淀到 EC101 SQLite MVP，并通过费用运营平台查询和核验促销费用。
 
+项目全景（文档 / 功能 / 数据库 / 试点数字 / 下一步）见 [`docs/EC101项目现状梳理.md`](docs/EC101项目现状梳理.md)。
+
 ## Current capabilities
 
 - `mvp/ec101_mvp.db` 是历史样例库；新导入库默认为 `mvp/ec101_standard.db`，由 `mvp/import_service.py` 按标准数据契约初始化。
